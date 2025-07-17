@@ -7,10 +7,12 @@ A Python application that validates AWS environments for compliance with the NIS
 - **15 Pre-configured Security Checks**: Covering IAM, S3, EC2, CloudTrail, VPC, RDS, and AWS Config
 - **Multiple Framework Support**: CIS AWS Benchmark, OWASP Cloud Security, MITRE ATT&CK, AWS Well-Architected
 - **NIST 800-53 Mapping**: All checks are mapped to relevant NIST 800-53 controls
-- **Multiple Report Formats**: CSV, Markdown, and JSON outputs
+- **Multiple Report Formats**: CSV, Markdown, JSON, and Resource-level CSV outputs
 - **Flexible Authentication**: Supports AWS access keys, secret keys, and temporary session tokens
 - **Git Integration**: Can download security checks from a git repository
 - **Configurable Execution**: Filter by severity, specific checks, or skip certain checks
+- **Resource-level Reporting**: Generates a `resources.csv` report listing all AWS resources tested, their compliance status, checks run, findings, and more.
+- **Improved Resource Type Detection**: Accurately maps ARNs and resource IDs (e.g., vol-..., sg-..., vpc-...) to their AWS resource types in reports.
 
 ## Security Checks Included
 
@@ -63,6 +65,18 @@ This will:
 - Install required dependencies
 - Make scripts executable
 
+### AWS Credentials via .env (Recommended for Local/Test)
+
+Create a `.env` file in the project root:
+
+```
+AWS_ACCESS_KEY_ID="your-access-key"
+AWS_SECRET_ACCESS_KEY="your-secret-key"
+AWS_SESSION_TOKEN="your-session-token"  # Optional
+```
+
+The `.env` file is gitignored by default. Tests in the `test/` folder will load credentials from `.env` automatically.
+
 ## Usage
 
 ### Basic Usage
@@ -97,7 +111,7 @@ OPTIONS:
     -c, --checks CHECK_IDS     Comma-separated list of specific check IDs to run
     -x, --skip-checks IDS      Comma-separated list of check IDs to skip
     -l, --severity LEVEL       Minimum severity level (LOW, MEDIUM, HIGH, CRITICAL)
-    -f, --format FORMAT        Report format (all, csv, markdown, json)
+    -f, --format FORMAT        Report format (all, csv, markdown, json, resources)
     -h, --help                 Show help message
 ```
 
@@ -139,9 +153,17 @@ OPTIONS:
 ./run_compliance_check.sh -g "https://github.com/your-org/security-checks.git" -b "main"
 ```
 
+7. **Generate resource-level report:**
+
+```bash
+./run_compliance_check.sh -f resources
+```
+
+This will generate a `resources_TIMESTAMP.csv` file with detailed compliance data for every AWS resource tested.
+
 ## Output Reports
 
-The tool generates three types of reports in the `./reports` directory:
+The tool generates four types of reports in the `./reports` directory:
 
 ### 1. CSV Report (`compliance_results_TIMESTAMP.csv`)
 
@@ -163,6 +185,13 @@ The tool generates three types of reports in the `./reports` directory:
 - Complete results with metadata
 - Control coverage statistics
 - Suitable for programmatic processing
+
+### 4. Resource-level CSV Report (`resources_TIMESTAMP.csv`)
+
+- Lists every AWS resource tested (S3 buckets, EC2 volumes, VPCs, security groups, etc.)
+- Columns: resource type, ARN or ID, compliance status, checks run, findings, date checked, account, region, etc.
+- Shows which checks were run on each resource and their results
+- Useful for asset inventory, resource-level compliance, and audit trails
 
 ## Report Structure
 
@@ -187,6 +216,18 @@ The tool generates three types of reports in the `./reports` directory:
 3. **Security Framework Coverage**: Checks per framework
 4. **NIST Control Family Analysis**: Detailed analysis by control family
 5. **Appendix**: Complete list of all checks and detailed findings
+
+### Resource-level CSV Fields
+
+- `resource_type`: Type of AWS resource (e.g., S3 Bucket, EC2 Volume, Security Group)
+- `arn`: ARN or resource ID
+- `status`: COMPLIANT, NON_COMPLIANT, or ERROR
+- `compliance_score`: Percentage of checks passed
+- `total_checks`, `passed_checks`, `failed_checks`, `error_checks`: Check counts
+- `checks`: List of checks run on this resource
+- `findings`: Detailed findings for this resource
+- `date_checked`: Timestamp
+- `account_id`, `region`: AWS account and region
 
 ## Extending the Tool
 
@@ -404,6 +445,11 @@ rm ~/.aws_temp_creds
 # Test
 aws sts get-caller-identity
 ```
+
+## Test and Credential Conventions
+
+- **AWS credentials** should be stored in a `.env` file (gitignored) for local development and testing.
+- **Tests** should be placed in the `test/` folder and configured to load credentials from `.env`.
 
 ## License
 

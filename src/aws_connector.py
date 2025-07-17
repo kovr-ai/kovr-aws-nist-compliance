@@ -90,33 +90,208 @@ class SecurityCheck:
         result = {
             "check_id": check_config["id"],
             "check_name": check_config["name"],
+            "detailed_description": check_config.get(
+                "detailed_description", check_config["description"]
+            ),
+            "category": check_config.get("category", "Other"),
             "timestamp": datetime.utcnow().isoformat(),
             "account_id": self.aws.account_id,
             "region": self.aws.region,
             "status": "PASS",
             "findings": [],
             "affected_resources": [],
+            "resources_checked": [],
+            "resource_ids_tested": [],
             "framework": check_config["framework"],
             "severity": check_config["severity"],
             "nist_mappings": check_config["nist_mappings"],
+            "check_details": {
+                "resources_checked": [],
+                "resource_ids_tested": [],
+                "compliance_status": "COMPLIANT",
+                "verification_details": "",
+            },
         }
 
         try:
             # Dynamically call the check function
             check_function = getattr(self, check_config["check_function"])
+
+            # Initialize resource tracking
+            self._resources_tested_in_current_check = []
+
             findings = check_function()
+
+            # Get the resources that were actually tested
+            actual_resource_ids = self._resources_tested_in_current_check.copy()
+            self._resources_tested_in_current_check = []  # Reset for next check
 
             if findings:
                 result["status"] = "FAIL"
                 result["findings"] = findings
                 result["affected_resources"] = [f["resource"] for f in findings if "resource" in f]
+                result["check_details"]["compliance_status"] = "NON_COMPLIANT"
+
+                # Extract resources checked from findings
+                resources_checked = set()
+                resource_ids_tested = set()
+                for finding in findings:
+                    if "resource" in finding:
+                        resources_checked.add(finding["resource"])
+                        resource_ids_tested.add(finding["resource"])
+                    if "region" in finding:
+                        resources_checked.add(f"region:{finding['region']}")
+
+                # Add any additional resources that were tested but didn't fail
+                for resource_id in actual_resource_ids:
+                    resource_ids_tested.add(resource_id)
+
+                result["resources_checked"] = list(resources_checked)
+                result["resource_ids_tested"] = list(resource_ids_tested)
+                result["check_details"]["resources_checked"] = list(resources_checked)
+                result["check_details"]["resource_ids_tested"] = list(resource_ids_tested)
+            else:
+                # For passed checks, capture what was verified and resources checked
+                result["check_details"]["verification_details"] = self._get_verification_details(
+                    check_config["check_function"]
+                )
+                result["resources_checked"] = self._get_resources_checked_for_passed_check(
+                    check_config["check_function"]
+                )
+                result["resource_ids_tested"] = actual_resource_ids
+                result["check_details"]["resources_checked"] = result["resources_checked"]
+                result["check_details"]["resource_ids_tested"] = result["resource_ids_tested"]
 
         except Exception as e:
             logger.error(f"Error running check {check_config['id']}: {str(e)}")
             result["status"] = "ERROR"
             result["findings"] = [{"error": str(e)}]
+            result["check_details"]["compliance_status"] = "ERROR"
 
         return result
+
+    def _get_verification_details(self, check_function_name: str) -> str:
+        """Get detailed verification information for passed checks."""
+        verification_details = {
+            "check_root_account_usage": "Verified root account has no active access keys and has not been used for regular operations within the last 30 days. Root account is properly restricted to emergency access only.",
+            "check_root_mfa": "Verified that Multi-Factor Authentication (MFA) is enabled for the root account, providing an additional layer of security for the highest-privilege account.",
+            "check_cloudtrail_enabled": "Verified that CloudTrail is enabled and actively logging API calls across all AWS regions, providing comprehensive audit trail for security monitoring and compliance.",
+            "check_cloudtrail_validation": "Verified that CloudTrail log file validation is enabled, ensuring log integrity and preventing tampering with audit records.",
+            "check_s3_public_access": "Verified that all S3 buckets are properly configured to prevent public access through bucket policies, ACLs, and public access block settings.",
+            "check_s3_encryption": "Verified that all S3 buckets have encryption enabled at rest using either AWS-managed keys (SSE-S3) or customer-managed keys (SSE-KMS).",
+            "check_ebs_encryption": "Verified that all EBS volumes are encrypted at rest, protecting data stored on attached volumes from unauthorized access.",
+            "check_sg_ssh_access": "Verified that no security groups allow unrestricted SSH access (port 22) from the internet, reducing the attack surface for EC2 instances.",
+            "check_password_policy": "Verified that IAM password policies enforce strong password requirements including minimum length, complexity, and rotation policies.",
+            "check_access_key_rotation": "Verified that all IAM access keys are rotated within the recommended 90-day period, limiting exposure window for compromised credentials.",
+            "check_unused_credentials": "Verified that no IAM credentials (access keys and passwords) have been unused for more than 90 days, reducing the attack surface.",
+            "check_imdsv2": "Verified that EC2 instances are configured to use IMDSv2, providing enhanced security against SSRF attacks through session authentication tokens.",
+            "check_vpc_flow_logs": "Verified that VPC Flow Logs are enabled, capturing network traffic information for security monitoring and troubleshooting.",
+            "check_rds_encryption": "Verified that all RDS database instances are encrypted at rest, protecting sensitive database data from unauthorized access.",
+            "check_config_enabled": "Verified that AWS Config is enabled and configured to track resource changes across all regions, providing continuous compliance monitoring.",
+            "check_cloudwatch_anomaly_detection": "Verified that CloudWatch Anomaly Detectors are configured for critical metrics, enabling proactive detection of unusual system behavior.",
+            "check_guardduty_enabled": "Verified that Amazon GuardDuty is enabled and actively monitoring all AWS regions for malicious activity and unauthorized behavior using machine learning and threat intelligence.",
+            "check_inspector_assessments": "Verified that AWS Inspector is enabled and configured to run regular security assessments on EC2 instances and container images.",
+            "check_ssm_patch_compliance": "Verified that EC2 instances are managed by AWS Systems Manager and compliant with patch baselines, ensuring regular security updates.",
+            "check_security_hub_enabled": "Verified that AWS Security Hub is enabled and aggregating security findings from multiple AWS services and third-party tools.",
+            "check_security_alarms": "Verified that CloudWatch alarms are configured to monitor critical security events, providing real-time notification of potential security incidents.",
+            "check_security_sns_topics": "Verified that SNS topics are configured to receive security notifications from AWS services, ensuring proper incident response channels.",
+            "check_kms_key_rotation": "Verified that KMS Customer Master Keys (CMKs) have automatic key rotation enabled, following security best practices for key management.",
+            "check_secrets_manager_usage": "Verified that sensitive information is stored in AWS Secrets Manager rather than in application code, providing secure credential management.",
+            "check_vpc_endpoints": "Verified that VPC endpoints are configured for AWS services, enabling private communication and reducing exposure to internet-based attacks.",
+            "check_efs_encryption": "Verified that Amazon EFS file systems are encrypted at rest, protecting data stored in file systems from unauthorized access.",
+            "check_dynamodb_encryption": "Verified that DynamoDB tables are encrypted at rest, protecting sensitive data stored in NoSQL databases.",
+            "check_elasticache_encryption": "Verified that ElastiCache clusters are encrypted at rest, protecting cached data from unauthorized access.",
+            "check_network_acl_rules": "Verified that Network ACLs are properly configured and do not allow unrestricted access, providing additional network security controls.",
+            "check_waf_enabled": "Verified that AWS WAF is enabled and configured to protect web applications from common web exploits and OWASP Top 10 vulnerabilities.",
+            "check_cloudfront_security_headers": "Verified that CloudFront distributions are configured with security headers to enhance web application security and protect against various attacks.",
+            "check_iam_roles_for_services": "Verified that EC2 instances use IAM roles instead of hardcoded credentials, following security best practices for credential management.",
+            "check_cross_account_access": "Verified that cross-account access roles are properly configured and follow the principle of least privilege.",
+            "check_backup_plans": "Verified that AWS Backup plans are configured to protect critical resources, ensuring disaster recovery and business continuity.",
+            "check_rds_backups": "Verified that RDS instances have automated backups enabled with appropriate retention periods, ensuring data recovery capabilities.",
+            "check_cloudwatch_logs_retention": "Verified that CloudWatch Logs have appropriate retention periods configured, maintaining audit trails for compliance and security investigations.",
+            "check_api_gateway_logging": "Verified that API Gateway has logging enabled to capture API requests and responses for monitoring and security analysis.",
+            "check_lambda_logging": "Verified that Lambda functions are configured with proper logging to CloudWatch Logs for monitoring function execution and security incidents.",
+            "check_cloudtrail_kms_encryption": "Verified that CloudTrail logs are encrypted using KMS Customer Master Keys (CMKs), providing additional security for audit logs.",
+            "check_s3_bucket_logging": "Verified that S3 bucket access logging is enabled for buckets containing sensitive data, providing detailed access records for security monitoring.",
+        }
+
+        return verification_details.get(
+            check_function_name,
+            "Security check passed - configuration verified as compliant with security requirements.",
+        )
+
+    def _get_resources_checked_for_passed_check(self, check_function_name: str) -> List[str]:
+        """Get information about which AWS resources were tested for passed checks."""
+        resources_checked = {
+            "check_root_account_usage": ["root-account", "iam-credential-report"],
+            "check_root_mfa": ["root-account", "iam-account-summary"],
+            "check_cloudtrail_enabled": ["cloudtrail-trails", "all-regions"],
+            "check_cloudtrail_validation": ["cloudtrail-trails", "log-file-validation"],
+            "check_s3_public_access": [
+                "s3-buckets",
+                "bucket-policies",
+                "bucket-acls",
+                "public-access-block",
+            ],
+            "check_s3_encryption": ["s3-buckets", "bucket-encryption"],
+            "check_ebs_encryption": ["ebs-volumes", "all-regions"],
+            "check_sg_ssh_access": ["security-groups", "all-regions"],
+            "check_password_policy": ["iam-password-policy"],
+            "check_access_key_rotation": ["iam-users", "access-keys"],
+            "check_unused_credentials": ["iam-users", "access-keys", "password-last-used"],
+            "check_imdsv2": ["ec2-instances", "instance-metadata-service", "all-regions"],
+            "check_vpc_flow_logs": ["vpc-flow-logs", "all-regions"],
+            "check_rds_encryption": ["rds-instances", "all-regions"],
+            "check_config_enabled": ["aws-config", "all-regions"],
+            "check_cloudwatch_anomaly_detection": ["cloudwatch-anomaly-detectors"],
+            "check_guardduty_enabled": ["guardduty-detectors", "all-regions"],
+            "check_inspector_assessments": ["inspector-account-status", "all-regions"],
+            "check_ssm_patch_compliance": [
+                "ec2-instances",
+                "ssm-managed-instances",
+                "patch-compliance",
+                "all-regions",
+            ],
+            "check_security_hub_enabled": ["security-hub", "enabled-standards", "all-regions"],
+            "check_security_alarms": ["cloudwatch-alarms", "security-metrics"],
+            "check_security_sns_topics": ["sns-topics", "security-notifications"],
+            "check_kms_key_rotation": ["kms-keys", "key-rotation", "all-regions"],
+            "check_secrets_manager_usage": ["secrets-manager-secrets"],
+            "check_vpc_endpoints": ["vpc-endpoints", "all-regions"],
+            "check_efs_encryption": ["efs-file-systems", "all-regions"],
+            "check_dynamodb_encryption": ["dynamodb-tables", "all-regions"],
+            "check_elasticache_encryption": ["elasticache-clusters", "all-regions"],
+            "check_network_acl_rules": ["network-acls", "all-regions"],
+            "check_waf_enabled": ["waf-web-acls", "application-load-balancers", "all-regions"],
+            "check_cloudfront_security_headers": ["cloudfront-distributions", "security-headers"],
+            "check_iam_roles_for_services": ["ec2-instances", "iam-roles", "all-regions"],
+            "check_cross_account_access": ["iam-roles", "cross-account-policies"],
+            "check_backup_plans": ["backup-plans", "all-regions"],
+            "check_rds_backups": ["rds-instances", "automated-backups", "all-regions"],
+            "check_cloudwatch_logs_retention": [
+                "cloudwatch-log-groups",
+                "retention-policies",
+                "all-regions",
+            ],
+            "check_api_gateway_logging": ["api-gateway-rest-apis", "access-logs", "all-regions"],
+            "check_lambda_logging": ["lambda-functions", "cloudwatch-logs", "all-regions"],
+            "check_cloudtrail_kms_encryption": ["cloudtrail-trails", "kms-encryption"],
+            "check_s3_bucket_logging": ["s3-buckets", "access-logging"],
+        }
+
+        return resources_checked.get(check_function_name, ["aws-resources"])
+
+    def _track_resource_tested(self, resource_id: str):
+        """Track a resource that was tested during the current check."""
+        if not hasattr(self, "_resources_tested_in_current_check"):
+            self._resources_tested_in_current_check = []
+        self._resources_tested_in_current_check.append(resource_id)
+
+    def _get_actual_resource_ids_tested(self, check_function_name: str) -> List[str]:
+        """Get actual resource IDs that were tested for passed checks."""
+        # This will be populated by the actual check functions
+        # For now, return empty list - will be enhanced by individual check functions
+        return []
 
     def check_root_account_usage(self) -> List[Dict[str, Any]]:
         """Check if root account has been used recently."""
@@ -266,6 +441,9 @@ class SecurityCheck:
 
             for bucket in response["Buckets"]:
                 bucket_name = bucket["Name"]
+                bucket_arn = f"arn:aws:s3:::{bucket_name}"
+                self._track_resource_tested(bucket_arn)
+
                 try:
                     # Check bucket ACL
                     acl = s3.get_bucket_acl(Bucket=bucket_name)
@@ -277,7 +455,7 @@ class SecurityCheck:
                             findings.append(
                                 {
                                     "type": "PUBLIC_BUCKET_ACL",
-                                    "resource": f"arn:aws:s3:::{bucket_name}",
+                                    "resource": bucket_arn,
                                     "details": f"Bucket {bucket_name} has public ACL permissions",
                                 }
                             )
@@ -293,7 +471,7 @@ class SecurityCheck:
                                 findings.append(
                                     {
                                         "type": "PUBLIC_BUCKET_POLICY",
-                                        "resource": f"arn:aws:s3:::{bucket_name}",
+                                        "resource": bucket_arn,
                                         "details": f"Bucket {bucket_name} has public bucket policy",
                                     }
                                 )
@@ -318,6 +496,9 @@ class SecurityCheck:
 
             for bucket in response["Buckets"]:
                 bucket_name = bucket["Name"]
+                bucket_arn = f"arn:aws:s3:::{bucket_name}"
+                self._track_resource_tested(bucket_arn)
+
                 try:
                     s3.get_bucket_encryption(Bucket=bucket_name)
                 except ClientError as e:
@@ -328,7 +509,7 @@ class SecurityCheck:
                         findings.append(
                             {
                                 "type": "BUCKET_NOT_ENCRYPTED",
-                                "resource": f"arn:aws:s3:::{bucket_name}",
+                                "resource": bucket_arn,
                                 "details": f"Bucket {bucket_name} does not have encryption enabled",
                             }
                         )
@@ -351,6 +532,9 @@ class SecurityCheck:
                     response = ec2.describe_volumes()
 
                     for volume in response["Volumes"]:
+                        volume_arn = f"arn:aws:ec2:{region}:{self.aws.account_id}:volume/{volume['VolumeId']}"
+                        self._track_resource_tested(volume_arn)
+
                         if not volume.get("Encrypted", False):
                             findings.append(
                                 {

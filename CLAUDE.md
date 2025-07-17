@@ -67,6 +67,8 @@ python3 src/main.py --git-repo "https://github.com/org/checks.git" --git-branch 
 4. **src/utils.py** - Shared utilities and helper functions
 5. **security_checks/checks_config.json** - Configuration for all 15 security checks
 6. **mappings/nist_800_53_mappings.json** - NIST 800-53 control mappings
+7. **.env** - Stores AWS credentials for local/test usage (gitignored)
+8. **test/** - Folder for all tests, configured to load credentials from .env
 
 ### Key Architecture Patterns
 
@@ -98,11 +100,14 @@ python3 src/main.py --git-repo "https://github.com/org/checks.git" --git-branch 
 
 ### Report Generation
 
-The application generates three types of reports:
+The application generates four types of reports:
 
 - **CSV**: Tabular format with all check results (`compliance_results_TIMESTAMP.csv`)
 - **Markdown**: Detailed report organized by NIST controls (`nist_compliance_report_TIMESTAMP.md`)
 - **JSON**: Machine-readable summary (`compliance_summary_TIMESTAMP.json`)
+- **Resource-level CSV**: Lists every AWS resource tested, their compliance status, checks run, findings, and more (`resources_TIMESTAMP.csv`)
+
+Resource-level reporting includes improved resource type detection for both ARNs and resource IDs (e.g., vol-..., sg-..., vpc-...).
 
 ### Authentication Methods
 
@@ -254,6 +259,8 @@ def check_[service]_[issue](self) -> List[Dict[str, Any]]:
 - **Design Decision**: Consolidated checks in one file vs modular (chose consolidated for POC simplicity)
 - **Read-Only**: Only assessment, no remediation actions
 - **Multi-Region**: Scans all regions by default
+- **.env for AWS credentials**: Store credentials in a `.env` file (gitignored) for local/test/dev. Tests in `test/` folder load from `.env`.
+- **Resource Type Mapping**: Improved logic for mapping ARNs and resource IDs to resource types in all reports.
 
 ## Code Quality and Commit Hygiene
 

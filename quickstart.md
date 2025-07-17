@@ -21,12 +21,17 @@ export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 export AWS_SESSION_TOKEN="FwoGZXIvYXdzEJr..." # Optional for temporary credentials
 ```
 
-**Option B: AWS CLI Profile**
+**Option B: .env File (Recommended for Local/Test)**
 
-```bash
-aws configure
-# Follow prompts to enter credentials
+Create a `.env` file in the project root:
+
 ```
+AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"
+AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+AWS_SESSION_TOKEN="FwoGZXIvYXdzEJr..." # Optional
+```
+
+The `.env` file is gitignored by default. Tests in the `test/` folder will load credentials from `.env` automatically.
 
 ### 3. Run Your First Compliance Check (3 minutes)
 
@@ -40,11 +45,12 @@ aws configure
 
 ## 📊 Understanding the Output
 
-After running, you'll find three reports in the `./reports` directory:
+After running, you'll find four reports in the `./reports` directory:
 
 1. **CSV Report** - Import into Excel for analysis
 2. **Markdown Report** - Human-readable compliance report
 3. **JSON Summary** - For programmatic processing
+4. **Resource-level CSV Report** - Lists every AWS resource tested, their compliance status, checks run, findings, and more
 
 ## 🎯 Common Use Cases
 
@@ -68,6 +74,15 @@ After running, you'll find three reports in the `./reports` directory:
 # Generate only the markdown report
 ./run_compliance_check.sh -f markdown -o ./executive-reports
 ```
+
+### Generate Resource-level Report
+
+```bash
+# Generate the resources report (resource-level compliance)
+./run_compliance_check.sh -f resources
+```
+
+This will create a `resources_TIMESTAMP.csv` file in the `reports/` directory with detailed compliance data for every AWS resource tested.
 
 ### CI/CD Pipeline Integration
 

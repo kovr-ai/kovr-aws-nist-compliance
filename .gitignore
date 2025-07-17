@@ -18,3 +18,9 @@ reports/
 # OS
 .DS_Store
 Thumbs.db
+
+# llm
+llm-docs/
+
+# Local environment variables
+.env
