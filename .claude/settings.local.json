@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(rm:*)",
+      "Bash(./run_compliance_check.sh:*)",
+      "Bash(python:*)",
+      "Bash(ls:*)",
+      "Bash(bash:*)",
+      "Bash(git add:*)",
+      "Bash(PRE_COMMIT_ALLOW_NO_CONFIG=1 git commit -m \"$(cat <<''EOF''\nfeat: add dual NIST framework support (800-53 and 800-171)\n\nAdd comprehensive support for generating compliance reports for both NIST 800-53 and \nNIST 800-171 frameworks. By default, the tool now generates reports for both frameworks\nto provide complete compliance coverage.\n\nChanges:\n- Add NIST 800-171 control mappings for all 40 security checks\n- Update ReportGenerator to create framework-specific reports\n- Add --framework (-w) CLI option with choices: both, 800-53, 800-171 (default: both)\n- Implement all 20 missing check functions (CHECK-041 through CHECK-060)\n- Update report filenames to include framework (e.g., nist_800-53_compliance_report_*.md)\n\nDocumentation updates:\n- Update README.md to highlight dual framework support\n- Update quickstart.md with framework-specific examples\n- Update example-usage.py with new framework options\n- Add comprehensive CLI reference documentation\n\nThis enhancement helps organizations demonstrate compliance with either or both NIST\nstandards, supporting FedRAMP (800-53) and DoD contractor (800-171) requirements.\n\n🤖 Generated with [Claude Code](https://claude.ai/code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(grep:*)",
+      "Bash(cp:*)",
+      "Bash(pip3 install:*)",
+      "Bash(chmod:*)",
+      "Bash(./verify_system.sh:*)",
+      "Bash(find:*)",
+      "Bash(# Move useful development scripts\nmv create_missing_checks.py development/scripts/\nmv generate_legacy_checks.py development/scripts/\nmv generate_remaining_checks.py development/scripts/\n\n# Move test scripts\nmv test_*.py development/tests/\nmv demo_parallel_performance.py development/tests/\nmv debug_report_issue.py development/tests/\n\n# Move development documentation\nmv REPORT_ENHANCEMENT_SUMMARY.md development/docs/\nmv RESOURCES_REPORT_FIX.md development/docs/)",
+      "Bash(mv:*)",
+      "Bash(# Move setup documentation\nmv IAM_PERMISSIONS_REQUIRED.md docs/setup/\nmv quickstart.md docs/setup/\n\n# Move development documentation  \nmv CLAUDE.md docs/development/\nmv security_checks/framework_enhancement_plan.md docs/development/\n\n# Create a proper project structure document\nls -la > development/project_structure.txt)",
+      "Bash(# Move test scripts to test directory\nmv verify_system.sh test/\nmv test_run.sh test/\n\n# Move migration scripts to development\nmv convert_legacy_to_enhanced.py development/scripts/\nmv merge_configs.py development/scripts/\nmv fix_module_paths.py development/scripts/\nmv count_loadable_checks.py development/scripts/\n\n# Move analysis scripts to a new utilities directory in src\nmkdir -p src/utilities\nmv analyze_coverage.py src/utilities/\nmv analyze_coverage_fixed.py src/utilities/\n\n# Move example to examples directory\nmv example-usage.py examples/\n\n# Move system status to development docs\nmv SYSTEM_STATUS.md development/docs/)",
+      "Bash(# Find files related to Claude, LLM, or development documentation\nfind . -name \"\"CLAUDE*\"\" -o -name \"\"*claude*\"\" -o -name \"\"*ENHANCEMENT*\"\" -o -name \"\"*FIX.md\"\" -o -name \"\"CLEANUP*\"\" -o -name \"\"*STATUS.md\"\" | grep -v \"\".git\"\" | grep -v \"\"llm-docs\"\")",
+      "Bash(# Move Claude and LLM documentation\nmv docs/development/CLAUDE.md llm-docs/\nmv docs/development/framework_enhancement_plan.md llm-docs/\n\n# Move development documentation created during LLM sessions\nmv development/docs/REPORT_ENHANCEMENT_SUMMARY.md llm-docs/\nmv development/docs/RESOURCES_REPORT_FIX.md llm-docs/\nmv development/docs/SYSTEM_STATUS.md llm-docs/\n\n# Move cleanup summaries\nmv development/CLEANUP_SUMMARY.md llm-docs/\nmv CLEANUP_COMPLETE.md llm-docs/)",
+      "Bash(tree:*)"
+    ],
+    "deny": []
+  }
+}

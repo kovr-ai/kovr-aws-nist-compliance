@@ -1,146 +1,142 @@
 #!/usr/bin/env python3
 """
-Example script showing how to use the AWS NIST compliance checker programmatically.
-This can be used for integration into larger systems or CI/CD pipelines.
+Example usage of the AWS NIST Compliance Checker
+
+This script demonstrates various ways to use the compliance checker
+for both NIST 800-53 and NIST 800-171 frameworks.
 """
 
-import json
 import os
-
-# Add the src directory to Python path
-import sys
+import json
 from datetime import datetime
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
-
-# Load AWS credentials from .env if present
+# Set AWS credentials from .env file (if using)
 from dotenv import load_dotenv
-
-from aws_connector import AWSConnector, SecurityCheck
-from report_generator import ReportGenerator
-
 load_dotenv()
 
+# Example 1: Basic compliance check (generates both NIST 800-53 and 800-171 reports by default)
+print("Example 1: Running basic compliance check for both NIST frameworks...")
+os.system("./run_compliance_check.sh")
 
-def run_compliance_check_example():
-    """Example of running compliance checks programmatically."""
+# Example 2: Parallel execution for faster scans
+print("\nExample 2: Running with parallel execution (20 workers)...")
+os.system("./run_compliance_check.sh -p -w 20")
 
-    # Load configurations
-    with open("security_checks/checks_config.json", "r") as f:
-        security_checks = json.load(f)
+# Example 3: Generate only NIST 800-171 report
+print("\nExample 3: Generating NIST 800-171 compliance report only...")
+os.system("./run_compliance_check.sh -w 800-171")
 
-    with open("mappings/nist_800_53_mappings.json", "r") as f:
-        nist_mappings = json.load(f)
+# Example 4: High-severity checks with only NIST 800-53 report
+print("\nExample 4: Running high-severity checks with NIST 800-53 report only...")
+os.system("./run_compliance_check.sh -l HIGH -p -w 20 -w 800-53")
 
-    # Initialize AWS connector
-    # You can pass credentials directly or use environment variables
-    aws_connector = AWSConnector(
-        access_key=os.getenv("AWS_ACCESS_KEY_ID"),
-        secret_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        session_token=os.getenv("AWS_SESSION_TOKEN"),
-        region="us-east-1",
-    )
+# Example 5: Generate both framework reports with markdown format only
+print("\nExample 5: Generating both NIST framework reports (markdown only)...")
+os.system("./run_compliance_check.sh -f markdown -w both")
 
-    print(f"Connected to AWS Account: {aws_connector.account_id}")
+# Example 6: Specific service checks (IAM and encryption)
+print("\nExample 6: Running specific security checks...")
+iam_checks = "CHECK-001,CHECK-002,CHECK-009,CHECK-010,CHECK-011,CHECK-032,CHECK-033,CHECK-048"
+encryption_checks = "CHECK-006,CHECK-007,CHECK-014,CHECK-023,CHECK-026,CHECK-027,CHECK-028"
+os.system(f"./run_compliance_check.sh -c '{iam_checks},{encryption_checks}' -p -w 15")
 
-    # Initialize security checker
-    security_checker = SecurityCheck(aws_connector)
+# Example 7: Generate all reports for audit
+print("\nExample 7: Generating comprehensive audit package...")
+os.system("./run_compliance_check.sh -f all -p -w 20")
 
-    # Run specific checks (or all checks)
-    results = []
-    checks_to_run = security_checks["security_checks"][:5]  # Run first 5 checks as example
+# Example 8: Using Python to process results
+print("\nExample 8: Processing compliance results programmatically...")
 
-    for check_config in checks_to_run:
-        print(f"Running check: {check_config['name']}...")
-        result = security_checker.run_check(check_config)
-        results.append(result)
+# Run check and capture results
+os.system("./run_compliance_check.sh -f json -o ./temp_reports")
 
-        # Print immediate feedback
-        if result["status"] == "FAIL":
-            print(f"  ❌ FAILED - {len(result['findings'])} issues found")
-        elif result["status"] == "PASS":
-            print(f"  ✅ PASSED")
-        else:
-            print(f"  ⚠️  ERROR")
+# Find the latest JSON report
+import glob
+json_files = glob.glob("./temp_reports/compliance_summary_*.json")
+if json_files:
+    latest_report = max(json_files, key=os.path.getctime)
+    
+    with open(latest_report, 'r') as f:
+        results = json.load(f)
+    
+    # Analyze results
+    total_checks = len(results.get('results', []))
+    passed_checks = sum(1 for r in results.get('results', []) if r['status'] == 'PASS')
+    failed_checks = sum(1 for r in results.get('results', []) if r['status'] == 'FAIL')
+    
+    print(f"\nCompliance Summary:")
+    print(f"Total Checks: {total_checks}")
+    print(f"Passed: {passed_checks} ({passed_checks/total_checks*100:.1f}%)")
+    print(f"Failed: {failed_checks} ({failed_checks/total_checks*100:.1f}%)")
+    
+    # Show failed critical checks
+    critical_failures = [
+        r for r in results.get('results', []) 
+        if r['status'] == 'FAIL' and r.get('severity') == 'CRITICAL'
+    ]
+    
+    if critical_failures:
+        print(f"\nCritical Failures ({len(critical_failures)}):")
+        for failure in critical_failures:
+            print(f"- {failure['check_name']} ({failure['check_id']})")
+            print(f"  Affected Resources: {', '.join(failure.get('affected_resources', []))}")
 
-    # Generate reports
-    report_generator = ReportGenerator(results, nist_mappings)
+# Example 9: Custom check filtering
+print("\nExample 9: Running checks for specific AWS services...")
 
-    # Generate all report types
-    csv_path = report_generator.generate_csv_report()
-    md_path = report_generator.generate_markdown_report()
-    json_path = report_generator.generate_summary_json()
-    # Generate the new resource-level report
-    resources_path = report_generator.generate_resources_report()
+# Database security checks
+db_checks = [
+    "CHECK-014",  # RDS Encryption
+    "CHECK-027",  # DynamoDB Encryption
+    "CHECK-035",  # RDS Automated Backups
+    "CHECK-043",  # Redshift Encryption
+    "CHECK-050",  # Aurora Activity Streams
+    "CHECK-059",  # DocumentDB Encryption
+    "CHECK-060",  # Neptune Encryption
+]
 
-    print(f"\nReports generated:")
-    print(f"  - CSV: {csv_path}")
-    print(f"  - Markdown: {md_path}")
-    print(f"  - JSON: {json_path}")
-    print(f"  - Resources CSV: {resources_path}")
+os.system(f"./run_compliance_check.sh -c '{','.join(db_checks)}' -p -w 10")
 
-    # Example: Process results programmatically
-    failed_checks = [r for r in results if r["status"] == "FAIL"]
-    if failed_checks:
-        print(f"\n⚠️  {len(failed_checks)} checks failed:")
-        for check in failed_checks:
-            print(f"  - {check['check_name']}: {len(check['findings'])} findings")
+# Example 10: Scheduled compliance checking (cron example)
+print("\nExample 10: Setting up scheduled compliance checks...")
+print("""
+# Add to crontab for daily compliance checks at 2 AM:
+# 0 2 * * * cd /path/to/kovr-aws-nist-compliance && ./run_compliance_check.sh -l HIGH -p -w 20 -f csv
 
-    return results
+# Weekly comprehensive scan on Sundays:
+# 0 3 * * 0 cd /path/to/kovr-aws-nist-compliance && ./run_compliance_check.sh -p -w 30 -f all
+""")
 
+# Example 11: Multi-account scanning
+print("\nExample 11: Multi-account compliance scanning...")
+accounts = [
+    {"name": "Production", "access_key": "PROD_KEY", "secret_key": "PROD_SECRET"},
+    {"name": "Staging", "access_key": "STAGE_KEY", "secret_key": "STAGE_SECRET"},
+]
 
-def analyze_by_nist_control(results):
-    """Example of analyzing results by NIST control."""
-    control_summary = {}
+for account in accounts:
+    print(f"\nScanning {account['name']} account...")
+    # Note: Replace with actual credentials
+    # os.system(f"./run_compliance_check.sh -k '{account['access_key']}' -s '{account['secret_key']}' -l HIGH")
 
-    for result in results:
-        for control in result["nist_mappings"]:
-            if control not in control_summary:
-                control_summary[control] = {"total": 0, "passed": 0, "failed": 0, "checks": []}
+# Example 12: Comparing compliance over time
+print("\nExample 12: Tracking compliance improvement...")
+print("""
+# Save reports with date stamps for trend analysis:
+TODAY=$(date +%Y%m%d)
+./run_compliance_check.sh -o ./reports/$TODAY
 
-            control_summary[control]["total"] += 1
-            control_summary[control]["checks"].append(result["check_id"])
+# Compare with previous run:
+# diff ./reports/20240115/compliance_results_enhanced_*.csv ./reports/20240122/compliance_results_enhanced_*.csv
+""")
 
-            if result["status"] == "PASS":
-                control_summary[control]["passed"] += 1
-            elif result["status"] == "FAIL":
-                control_summary[control]["failed"] += 1
-
-    print("\nNIST Control Coverage Summary:")
-    for control, stats in sorted(control_summary.items()):
-        coverage = (stats["passed"] / stats["total"]) * 100
-        print(
-            f"  {control}: {coverage:.1f}% compliant ({stats['passed']}/{stats['total']} checks passed)"
-        )
-
-
-def check_critical_controls(results):
-    """Example of checking specific critical controls."""
-    critical_controls = ["AC-2", "AU-2", "SC-28", "IA-2"]
-
-    print("\nCritical Control Status:")
-    for control in critical_controls:
-        control_results = [r for r in results if control in r["nist_mappings"]]
-
-        if control_results:
-            failed = sum(1 for r in control_results if r["status"] == "FAIL")
-            total = len(control_results)
-            status = (
-                "✅ COMPLIANT"
-                if failed == 0
-                else f"❌ NON-COMPLIANT ({failed}/{total} checks failed)"
-            )
-            print(f"  {control}: {status}")
-        else:
-            print(f"  {control}: ⚠️  No checks mapped")
-
-
-if __name__ == "__main__":
-    # Run the compliance check
-    results = run_compliance_check_example()
-
-    # Analyze results by NIST control
-    analyze_by_nist_control(results)
-
-    # Check critical controls
-    check_critical_controls(results)
+print("\n✅ All examples completed!")
+print("\nKey Features Demonstrated:")
+print("- Parallel execution for 70-80% faster scans")
+print("- Dual NIST framework support (800-53 and 800-171)")
+print("- Default generation of both framework reports")
+print("- Framework-specific report generation options")
+print("- Service-specific security assessments")
+print("- Programmatic result processing")
+print("- Scheduled compliance checking")
+print("\nCheck the ./reports directory for all generated reports!")

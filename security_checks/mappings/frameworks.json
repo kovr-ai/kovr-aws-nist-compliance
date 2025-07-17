@@ -1,0 +1,2758 @@
+{
+  "frameworks": {
+    "nist_800_53": {
+      "name": "NIST 800-53",
+      "version": "Rev 5",
+      "description": "Security and Privacy Controls for Information Systems and Organizations",
+      "url": "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+    },
+    "nist_800_171": {
+      "name": "NIST 800-171",
+      "version": "Rev 2",
+      "description": "Protecting Controlled Unclassified Information in Nonfederal Systems",
+      "url": "https://csrc.nist.gov/publications/detail/sp/800-171/rev-2/final"
+    },
+    "cis_aws": {
+      "name": "CIS AWS Foundations Benchmark",
+      "version": "1.5.0",
+      "description": "Security best practices for AWS",
+      "url": "https://www.cisecurity.org/benchmark/amazon_web_services"
+    },
+    "mitre_attack": {
+      "name": "MITRE ATT&CK",
+      "version": "12.0",
+      "description": "Adversarial tactics, techniques, and common knowledge",
+      "url": "https://attack.mitre.org/"
+    },
+    "owasp_cloud": {
+      "name": "OWASP Cloud Security",
+      "version": "1.0",
+      "description": "Cloud security testing guide",
+      "url": "https://owasp.org/www-project-cloud-security/"
+    },
+    "aws_well_architected": {
+      "name": "AWS Well-Architected Framework",
+      "version": "2023",
+      "description": "AWS architectural best practices",
+      "url": "https://aws.amazon.com/architecture/well-architected/"
+    },
+    "nist_csf": {
+      "name": "NIST Cybersecurity Framework",
+      "version": "1.1",
+      "description": "Framework for Improving Critical Infrastructure Cybersecurity",
+      "url": "https://www.nist.gov/cyberframework"
+    },
+    "csa_ccm": {
+      "name": "CSA Cloud Controls Matrix",
+      "version": "4.0",
+      "description": "Cloud Security Alliance controls framework",
+      "url": "https://cloudsecurityalliance.org/research/cloud-controls-matrix/"
+    },
+    "sans_top20": {
+      "name": "SANS CIS Critical Security Controls",
+      "version": "8.0",
+      "description": "Prioritized set of actions to protect against cyber attacks",
+      "url": "https://www.sans.org/critical-security-controls/"
+    },
+    "zero_trust": {
+      "name": "Zero Trust NIST SP 800-207",
+      "version": "1.0",
+      "description": "Zero Trust Architecture",
+      "url": "https://csrc.nist.gov/publications/detail/sp/800-207/final"
+    }
+  },
+  "check_mappings": {
+    "CHECK-001": {
+      "name": "IAM Root Account Usage",
+      "frameworks": {
+        "nist_800_53": [
+          "AC-2",
+          "AC-6"
+        ],
+        "cis_aws": [
+          "1.1"
+        ],
+        "nist_800_171": [
+          "3.1.2",
+          "3.1.5",
+          "3.1.1",
+          "3.1.6"
+        ]
+      }
+    },
+    "CHECK-002": {
+      "name": "MFA on Root Account",
+      "frameworks": {
+        "nist_800_53": [
+          "IA-2"
+        ],
+        "cis_aws": [
+          "1.1",
+          "1.5",
+          "1.6"
+        ],
+        "nist_800_171": [
+          "3.5.2",
+          "3.5.1",
+          "3.5.3"
+        ]
+      }
+    },
+    "CHECK-003": {
+      "name": "CloudTrail Enabled",
+      "frameworks": {
+        "nist_800_53": [
+          "AU-2",
+          "AU-3"
+        ],
+        "cis_aws": [
+          "3.1",
+          "3.2",
+          "3.4"
+        ],
+        "nist_800_171": [
+          "3.3.1",
+          "3.3.2"
+        ]
+      }
+    },
+    "CHECK-004": {
+      "name": "CloudTrail Log File Validation",
+      "frameworks": {
+        "nist_800_53": [
+          "AU-9"
+        ],
+        "mitre_attack": [
+          "T1530"
+        ],
+        "nist_800_171": [
+          "3.3.8"
+        ]
+      }
+    },
+    "CHECK-005": {
+      "name": "S3 Bucket Public Access",
+      "frameworks": {
+        "nist_800_53": [
+          "AC-3",
+          "SC-7"
+        ],
+        "owasp_cloud": [
+          "OCST-1.1",
+          "OCST-1.2"
+        ],
+        "nist_800_171": [
+          "3.1.2",
+          "3.13.5",
+          "3.1.1",
+          "3.13.1"
+        ]
+      }
+    },
+    "CHECK-006": {
+      "name": "S3 Bucket Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "aws_well_architected": [
+          "SEC-1",
+          "SEC-2",
+          "SEC-3"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ]
+      }
+    },
+    "CHECK-007": {
+      "name": "EBS Volume Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ]
+      }
+    },
+    "CHECK-008": {
+      "name": "Security Group SSH Access",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-7",
+          "AC-3"
+        ],
+        "cis_aws": [
+          "5.1",
+          "5.2",
+          "5.3"
+        ],
+        "nist_800_171": [
+          "3.1.2",
+          "3.13.5",
+          "3.1.1",
+          "3.13.1"
+        ]
+      }
+    },
+    "CHECK-009": {
+      "name": "IAM Password Policy",
+      "frameworks": {
+        "nist_800_53": [
+          "IA-5"
+        ],
+        "cis_aws": [
+          "1.8",
+          "1.9",
+          "1.10",
+          "1.11",
+          "1.12",
+          "1.13",
+          "1.14"
+        ],
+        "nist_800_171": [
+          "3.5.9",
+          "3.5.10",
+          "3.5.8",
+          "3.5.7"
+        ]
+      }
+    },
+    "CHECK-010": {
+      "name": "IAM Access Key Rotation",
+      "frameworks": {
+        "nist_800_53": [
+          "IA-5",
+          "AC-2"
+        ],
+        "aws_well_architected": [
+          "SEC-1",
+          "SEC-2",
+          "SEC-3"
+        ],
+        "nist_800_171": [
+          "3.5.10",
+          "3.1.1",
+          "3.5.9",
+          "3.1.2",
+          "3.5.8",
+          "3.5.7"
+        ]
+      }
+    },
+    "CHECK-011": {
+      "name": "Unused IAM Credentials",
+      "frameworks": {
+        "nist_800_53": [
+          "AC-2"
+        ],
+        "nist_800_171": [
+          "3.1.2",
+          "3.1.1"
+        ]
+      }
+    },
+    "CHECK-012": {
+      "name": "EC2 Instance Metadata Service V2",
+      "frameworks": {
+        "nist_800_53": [
+          "AC-3",
+          "CM-7"
+        ],
+        "nist_800_171": [
+          "3.1.2",
+          "3.4.6",
+          "3.1.1",
+          "3.4.7"
+        ]
+      }
+    },
+    "CHECK-013": {
+      "name": "VPC Flow Logs",
+      "frameworks": {
+        "nist_800_53": [
+          "AU-2",
+          "AU-3"
+        ],
+        "mitre_attack": [
+          "T1530"
+        ],
+        "nist_800_171": [
+          "3.3.1",
+          "3.3.2"
+        ]
+      }
+    },
+    "CHECK-014": {
+      "name": "RDS Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ]
+      }
+    },
+    "CHECK-015": {
+      "name": "Config Service Enabled",
+      "frameworks": {
+        "nist_800_53": [
+          "CM-2",
+          "CM-8"
+        ],
+        "aws_well_architected": [
+          "SEC-1",
+          "SEC-2",
+          "SEC-3"
+        ],
+        "nist_800_171": [
+          "3.4.1",
+          "3.4.2"
+        ]
+      }
+    },
+    "CHECK-016": {
+      "name": "CloudWatch Anomaly Detection",
+      "frameworks": {
+        "nist_800_53": [
+          "SI-4"
+        ],
+        "aws_well_architected": [
+          "SEC-1",
+          "SEC-2",
+          "SEC-3"
+        ],
+        "nist_800_171": [
+          "3.14.6",
+          "3.14.7"
+        ]
+      }
+    },
+    "CHECK-017": {
+      "name": "GuardDuty Enabled",
+      "frameworks": {
+        "nist_800_53": [
+          "SI-4",
+          "SI-5"
+        ],
+        "nist_800_171": [
+          "3.14.6",
+          "3.14.7"
+        ]
+      }
+    },
+    "CHECK-018": {
+      "name": "AWS Inspector Assessments",
+      "frameworks": {
+        "nist_800_53": [
+          "SI-2",
+          "SI-3"
+        ],
+        "nist_800_171": [
+          "3.14.2",
+          "3.14.1"
+        ]
+      }
+    },
+    "CHECK-019": {
+      "name": "Systems Manager Patch Compliance",
+      "frameworks": {
+        "nist_800_53": [
+          "SI-2"
+        ],
+        "nist_800_171": [
+          "3.14.1"
+        ]
+      }
+    },
+    "CHECK-020": {
+      "name": "Security Hub Enabled",
+      "frameworks": {
+        "nist_800_53": [
+          "SI-4",
+          "SI-6"
+        ],
+        "nist_800_171": [
+          "3.14.6",
+          "3.14.7"
+        ]
+      }
+    },
+    "CHECK-021": {
+      "name": "CloudWatch Alarms for Security Events",
+      "frameworks": {
+        "nist_800_53": [
+          "IR-4",
+          "IR-5"
+        ],
+        "aws_well_architected": [
+          "SEC-1",
+          "SEC-2",
+          "SEC-3"
+        ]
+      }
+    },
+    "CHECK-022": {
+      "name": "SNS Topics for Security Notifications",
+      "frameworks": {
+        "nist_800_53": [
+          "IR-6"
+        ]
+      }
+    },
+    "CHECK-023": {
+      "name": "KMS Key Rotation",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-12",
+          "SC-13"
+        ]
+      }
+    },
+    "CHECK-024": {
+      "name": "Secrets Manager Usage",
+      "frameworks": {
+        "nist_800_53": [
+          "IA-5",
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.5.10",
+          "3.5.9",
+          "3.5.8",
+          "3.13.11",
+          "3.5.7"
+        ]
+      }
+    },
+    "CHECK-025": {
+      "name": "VPC Endpoint Usage",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-7",
+          "AC-4"
+        ],
+        "aws_well_architected": [
+          "SEC-1",
+          "SEC-2",
+          "SEC-3"
+        ],
+        "nist_800_171": [
+          "3.13.5",
+          "3.13.1"
+        ]
+      }
+    },
+    "CHECK-026": {
+      "name": "EFS Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ]
+      }
+    },
+    "CHECK-027": {
+      "name": "DynamoDB Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ]
+      }
+    },
+    "CHECK-028": {
+      "name": "ElastiCache Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ]
+      }
+    },
+    "CHECK-029": {
+      "name": "Network ACL Rules",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-7",
+          "AC-4"
+        ],
+        "nist_800_171": [
+          "3.13.5",
+          "3.13.1"
+        ]
+      }
+    },
+    "CHECK-030": {
+      "name": "AWS WAF Enabled",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-7",
+          "SI-4"
+        ],
+        "aws_well_architected": [
+          "SEC-1",
+          "SEC-2",
+          "SEC-3"
+        ],
+        "nist_800_171": [
+          "3.14.6",
+          "3.13.5",
+          "3.14.7",
+          "3.13.1"
+        ]
+      }
+    },
+    "CHECK-031": {
+      "name": "CloudFront Security Headers",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-8"
+        ],
+        "owasp_cloud": [
+          "OCST-1.1",
+          "OCST-1.2"
+        ]
+      }
+    },
+    "CHECK-032": {
+      "name": "IAM Roles for Service Accounts",
+      "frameworks": {
+        "nist_800_53": [
+          "AC-2",
+          "IA-2"
+        ],
+        "nist_800_171": [
+          "3.5.1",
+          "3.1.1",
+          "3.1.2",
+          "3.5.2",
+          "3.5.3"
+        ]
+      }
+    },
+    "CHECK-033": {
+      "name": "Cross-Account Access Review",
+      "frameworks": {
+        "nist_800_53": [
+          "AC-2",
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.1.2",
+          "3.1.1"
+        ]
+      }
+    },
+    "CHECK-034": {
+      "name": "AWS Backup Plans",
+      "frameworks": {
+        "nist_800_53": [
+          "CP-9",
+          "CP-10"
+        ],
+        "aws_well_architected": [
+          "SEC-1",
+          "SEC-2",
+          "SEC-3"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ]
+      }
+    },
+    "CHECK-035": {
+      "name": "RDS Automated Backups",
+      "frameworks": {
+        "nist_800_53": [
+          "CP-9"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ]
+      }
+    },
+    "CHECK-036": {
+      "name": "CloudWatch Logs Retention",
+      "frameworks": {
+        "nist_800_53": [
+          "AU-4",
+          "AU-11"
+        ]
+      }
+    },
+    "CHECK-037": {
+      "name": "API Gateway Logging",
+      "frameworks": {
+        "nist_800_53": [
+          "AU-2",
+          "AU-3"
+        ],
+        "nist_800_171": [
+          "3.3.1",
+          "3.3.2"
+        ]
+      }
+    },
+    "CHECK-038": {
+      "name": "Lambda Function Logging",
+      "frameworks": {
+        "nist_800_53": [
+          "AU-2",
+          "AU-3"
+        ],
+        "nist_800_171": [
+          "3.3.1",
+          "3.3.2"
+        ]
+      }
+    },
+    "CHECK-039": {
+      "name": "CloudTrail KMS Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "AU-9",
+          "SC-28"
+        ],
+        "cis_aws": [
+          "3.1",
+          "3.2",
+          "3.4"
+        ],
+        "nist_800_171": [
+          "3.13.11",
+          "3.3.8"
+        ]
+      }
+    },
+    "CHECK-040": {
+      "name": "S3 Bucket Logging",
+      "frameworks": {
+        "nist_800_53": [
+          "AU-2",
+          "AU-3"
+        ],
+        "nist_800_171": [
+          "3.3.1",
+          "3.3.2"
+        ]
+      }
+    },
+    "CHECK-041": {
+      "name": "Lambda Function Resource Policies",
+      "frameworks": {
+        "nist_800_53": [
+          "AC-3",
+          "AC-4"
+        ],
+        "nist_800_171": [
+          "3.1.1",
+          "3.1.2"
+        ],
+        "cis_aws": [
+          "2.5"
+        ],
+        "mitre_attack": [
+          "T1190"
+        ],
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "zero_trust": [
+          "ZT-4.2"
+        ]
+      }
+    },
+    "CHECK-042": {
+      "name": "EKS Cluster Public Access",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-7",
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.13.1",
+          "3.13.5"
+        ],
+        "cis_aws": [
+          "5.4.1"
+        ],
+        "mitre_attack": [
+          "T1133"
+        ],
+        "aws_well_architected": [
+          "SEC-6"
+        ],
+        "nist_csf": [
+          "PR.AC-5"
+        ],
+        "zero_trust": [
+          "ZT-4.3"
+        ]
+      }
+    },
+    "CHECK-043": {
+      "name": "Redshift Cluster Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "cis_aws": [
+          "4.6"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ],
+        "sans_top20": [
+          "14.1"
+        ]
+      }
+    },
+    "CHECK-044": {
+      "name": "ALB Access Logging",
+      "frameworks": {
+        "nist_800_53": [
+          "AU-2",
+          "AU-3"
+        ],
+        "nist_800_171": [
+          "3.3.1",
+          "3.3.2"
+        ],
+        "cis_aws": [
+          "2.6"
+        ],
+        "aws_well_architected": [
+          "SEC-4"
+        ],
+        "csa_ccm": [
+          "LOG-01"
+        ],
+        "sans_top20": [
+          "8.2"
+        ]
+      }
+    },
+    "CHECK-045": {
+      "name": "ECR Image Scanning",
+      "frameworks": {
+        "nist_800_53": [
+          "SI-2",
+          "SI-3"
+        ],
+        "nist_800_171": [
+          "3.14.1",
+          "3.14.2"
+        ],
+        "cis_aws": [
+          "5.1"
+        ],
+        "mitre_attack": [
+          "T1525"
+        ],
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "owasp_cloud": [
+          "OCST-2.1.1"
+        ]
+      }
+    },
+    "CHECK-046": {
+      "name": "SQS Queue Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ],
+        "sans_top20": [
+          "14.1"
+        ]
+      }
+    },
+    "CHECK-047": {
+      "name": "SNS Topic Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ]
+      }
+    },
+    "CHECK-048": {
+      "name": "IAM Policy Least Privilege Analysis",
+      "frameworks": {
+        "nist_800_53": [
+          "AC-6"
+        ],
+        "nist_800_171": [
+          "3.1.5"
+        ],
+        "cis_aws": [
+          "1.16"
+        ],
+        "mitre_attack": [
+          "T1078"
+        ],
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "zero_trust": [
+          "ZT-2.2"
+        ],
+        "sans_top20": [
+          "5.4"
+        ]
+      }
+    },
+    "CHECK-049": {
+      "name": "CloudFormation Stack Drift Detection",
+      "frameworks": {
+        "nist_800_53": [
+          "CM-2",
+          "CM-3"
+        ],
+        "nist_800_171": [
+          "3.4.1",
+          "3.4.2"
+        ],
+        "aws_well_architected": [
+          "OPS-5"
+        ],
+        "csa_ccm": [
+          "CCC-03"
+        ]
+      }
+    },
+    "CHECK-050": {
+      "name": "Aurora Database Activity Streams",
+      "frameworks": {
+        "nist_800_53": [
+          "AU-2",
+          "AU-3",
+          "AU-12"
+        ],
+        "nist_800_171": [
+          "3.3.1",
+          "3.3.2"
+        ],
+        "csa_ccm": [
+          "LOG-03"
+        ],
+        "sans_top20": [
+          "8.5"
+        ]
+      }
+    },
+    "CHECK-051": {
+      "name": "ECS Task Definition Security",
+      "frameworks": {
+        "nist_800_53": [
+          "CM-7",
+          "AC-6"
+        ],
+        "nist_800_171": [
+          "3.1.5",
+          "3.4.2"
+        ],
+        "cis_aws": [
+          "5.3"
+        ],
+        "mitre_attack": [
+          "T1610"
+        ],
+        "owasp_cloud": [
+          "OCST-2.2.1"
+        ]
+      }
+    },
+    "CHECK-052": {
+      "name": "Athena Workgroup Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ]
+      }
+    },
+    "CHECK-053": {
+      "name": "Glue Data Catalog Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ]
+      }
+    },
+    "CHECK-054": {
+      "name": "Step Functions Logging",
+      "frameworks": {
+        "nist_800_53": [
+          "AU-2",
+          "AU-3"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "aws_well_architected": [
+          "OPS-8"
+        ]
+      }
+    },
+    "CHECK-055": {
+      "name": "EventBridge Rule Security",
+      "frameworks": {
+        "nist_800_53": [
+          "AC-3",
+          "AC-4"
+        ],
+        "nist_800_171": [
+          "3.1.1",
+          "3.1.2"
+        ],
+        "aws_well_architected": [
+          "SEC-5"
+        ]
+      }
+    },
+    "CHECK-056": {
+      "name": "Kinesis Stream Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "cis_aws": [
+          "3.10"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ]
+      }
+    },
+    "CHECK-057": {
+      "name": "MSK Cluster Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-8",
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.8",
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ]
+      }
+    },
+    "CHECK-058": {
+      "name": "AppSync API Authentication",
+      "frameworks": {
+        "nist_800_53": [
+          "IA-2",
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.5.1",
+          "3.5.2"
+        ],
+        "owasp_cloud": [
+          "OCST-1.2.1"
+        ],
+        "aws_well_architected": [
+          "SEC-5"
+        ]
+      }
+    },
+    "CHECK-059": {
+      "name": "DocumentDB Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ]
+      }
+    },
+    "CHECK-060": {
+      "name": "Neptune Database Encryption",
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ]
+      }
+    },
+    "CHECK-061": {
+      "name": "IAM Root Access Key Deletion",
+      "frameworks": {
+        "cis_aws": [
+          "1.4"
+        ],
+        "nist_800_53": [
+          "IA-2(1)",
+          "AC-6(5)"
+        ],
+        "nist_800_171": [
+          "3.5.2"
+        ],
+        "mitre_attack": [
+          "T1078.004"
+        ],
+        "zero_trust": [
+          "ZT-2.1"
+        ]
+      }
+    },
+    "CHECK-062": {
+      "name": "IAM Password Policy Uppercase",
+      "frameworks": {
+        "cis_aws": [
+          "1.10"
+        ],
+        "nist_800_53": [
+          "IA-5(1)(a)"
+        ],
+        "nist_800_171": [
+          "3.5.7"
+        ],
+        "sans_top20": [
+          "4.4"
+        ]
+      }
+    },
+    "CHECK-063": {
+      "name": "Hardware MFA for Root",
+      "frameworks": {
+        "cis_aws": [
+          "1.14"
+        ],
+        "nist_800_53": [
+          "IA-2(11)"
+        ],
+        "nist_800_171": [
+          "3.5.3"
+        ],
+        "zero_trust": [
+          "ZT-3.2"
+        ]
+      }
+    },
+    "CHECK-064": {
+      "name": "S3 Bucket Versioning",
+      "frameworks": {
+        "cis_aws": [
+          "2.1.1"
+        ],
+        "nist_800_53": [
+          "CP-10",
+          "SI-12"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "aws_well_architected": [
+          "REL-11"
+        ]
+      }
+    },
+    "CHECK-065": {
+      "name": "S3 Bucket MFA Delete",
+      "frameworks": {
+        "cis_aws": [
+          "2.1.2"
+        ],
+        "nist_800_53": [
+          "AC-2(11)"
+        ],
+        "nist_800_171": [
+          "3.5.3"
+        ],
+        "csa_ccm": [
+          "DSI-06"
+        ]
+      }
+    },
+    "CHECK-066": {
+      "name": "EBS Default Encryption",
+      "frameworks": {
+        "cis_aws": [
+          "2.2.1"
+        ],
+        "nist_800_53": [
+          "SC-28(1)"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-03"
+        ]
+      }
+    },
+    "CHECK-067": {
+      "name": "CloudTrail S3 Bucket Logging",
+      "frameworks": {
+        "cis_aws": [
+          "3.3"
+        ],
+        "nist_800_53": [
+          "AU-9(2)"
+        ],
+        "nist_800_171": [
+          "3.3.8"
+        ],
+        "sans_top20": [
+          "8.2"
+        ]
+      }
+    },
+    "CHECK-068": {
+      "name": "KMS Key Rotation",
+      "frameworks": {
+        "cis_aws": [
+          "3.8"
+        ],
+        "nist_800_53": [
+          "SC-12(2)"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ]
+      }
+    },
+    "CHECK-069": {
+      "name": "VPC Flow Logs for All VPCs",
+      "frameworks": {
+        "cis_aws": [
+          "3.9"
+        ],
+        "nist_800_53": [
+          "AU-12(c)"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "mitre_attack": [
+          "T1040"
+        ]
+      }
+    },
+    "CHECK-070": {
+      "name": "Security Group SSH Restriction",
+      "frameworks": {
+        "cis_aws": [
+          "4.1"
+        ],
+        "nist_800_53": [
+          "SC-7(4)(b)"
+        ],
+        "nist_800_171": [
+          "3.13.1"
+        ],
+        "mitre_attack": [
+          "T1190"
+        ]
+      }
+    },
+    "CHECK-071": {
+      "name": "Account Manipulation Detection",
+      "frameworks": {
+        "mitre_attack": [
+          "T1098"
+        ],
+        "nist_800_53": [
+          "AC-2(4)",
+          "AU-6"
+        ],
+        "nist_800_171": [
+          "3.1.1",
+          "3.3.5"
+        ],
+        "cis_aws": [
+          "3.4"
+        ],
+        "zero_trust": [
+          "ZT-5.1"
+        ]
+      }
+    },
+    "CHECK-072": {
+      "name": "Create Account Detection",
+      "frameworks": {
+        "mitre_attack": [
+          "T1136"
+        ],
+        "nist_800_53": [
+          "AC-2(2)"
+        ],
+        "nist_800_171": [
+          "3.1.1"
+        ],
+        "sans_top20": [
+          "16.8"
+        ]
+      }
+    },
+    "CHECK-073": {
+      "name": "Network Sniffing Prevention",
+      "frameworks": {
+        "mitre_attack": [
+          "T1040"
+        ],
+        "nist_800_53": [
+          "SC-8"
+        ],
+        "nist_800_171": [
+          "3.13.8"
+        ],
+        "csa_ccm": [
+          "EKM-03"
+        ]
+      }
+    },
+    "CHECK-074": {
+      "name": "Data Destruction Protection",
+      "frameworks": {
+        "mitre_attack": [
+          "T1485"
+        ],
+        "nist_800_53": [
+          "CP-9"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "aws_well_architected": [
+          "REL-9"
+        ]
+      }
+    },
+    "CHECK-075": {
+      "name": "DoS Protection",
+      "frameworks": {
+        "mitre_attack": [
+          "T1498"
+        ],
+        "nist_800_53": [
+          "SC-5"
+        ],
+        "nist_800_171": [
+          "3.13.2"
+        ],
+        "owasp_cloud": [
+          "OCST-5.1"
+        ]
+      }
+    },
+    "CHECK-076": {
+      "name": "Segregation of Production",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-1"
+        ],
+        "nist_800_53": [
+          "SC-32"
+        ],
+        "nist_800_171": [
+          "3.13.2"
+        ],
+        "zero_trust": [
+          "ZT-4.4"
+        ]
+      }
+    },
+    "CHECK-077": {
+      "name": "Cross-Account Role Trust",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "nist_800_53": [
+          "AC-4"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "csa_ccm": [
+          "IAM-12"
+        ]
+      }
+    },
+    "CHECK-078": {
+      "name": "Data Classification Tags",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-7"
+        ],
+        "nist_800_53": [
+          "RA-2"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "csa_ccm": [
+          "DSI-01"
+        ]
+      }
+    },
+    "CHECK-079": {
+      "name": "Service Quotas Monitoring",
+      "frameworks": {
+        "aws_well_architected": [
+          "REL-2"
+        ],
+        "nist_800_53": [
+          "SI-4"
+        ],
+        "nist_800_171": [
+          "3.14.3"
+        ],
+        "sans_top20": [
+          "8.8"
+        ]
+      }
+    },
+    "CHECK-080": {
+      "name": "Auto Scaling Configuration",
+      "frameworks": {
+        "aws_well_architected": [
+          "PERF-1"
+        ],
+        "nist_800_53": [
+          "CP-10"
+        ],
+        "nist_800_171": [
+          "3.11.1"
+        ],
+        "csa_ccm": [
+          "IVS-09"
+        ]
+      }
+    },
+    "CHECK-081": {
+      "name": "API Gateway Authentication",
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-1.3.1"
+        ],
+        "nist_800_53": [
+          "IA-2"
+        ],
+        "nist_800_171": [
+          "3.5.1"
+        ],
+        "cis_aws": [
+          "4.2"
+        ]
+      }
+    },
+    "CHECK-082": {
+      "name": "Container Image Signing",
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-2.2.1"
+        ],
+        "nist_800_53": [
+          "SI-7"
+        ],
+        "nist_800_171": [
+          "3.14.1"
+        ],
+        "mitre_attack": [
+          "T1525"
+        ]
+      }
+    },
+    "CHECK-083": {
+      "name": "Secrets in Code",
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-3.1.1"
+        ],
+        "nist_800_53": [
+          "IA-5"
+        ],
+        "nist_800_171": [
+          "3.5.2"
+        ],
+        "cis_aws": [
+          "7.1"
+        ]
+      }
+    },
+    "CHECK-084": {
+      "name": "CORS Configuration",
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-4.2.1"
+        ],
+        "nist_800_53": [
+          "AC-4"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "sans_top20": [
+          "18.1"
+        ]
+      }
+    },
+    "CHECK-085": {
+      "name": "Input Validation",
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-5.3.1"
+        ],
+        "nist_800_53": [
+          "SI-10"
+        ],
+        "nist_800_171": [
+          "3.14.2"
+        ],
+        "mitre_attack": [
+          "T1190"
+        ]
+      }
+    },
+    "CHECK-086": {
+      "name": "Network Micro-segmentation",
+      "frameworks": {
+        "zero_trust": [
+          "ZT-4.1"
+        ],
+        "nist_800_53": [
+          "SC-7(5)"
+        ],
+        "nist_800_171": [
+          "3.13.5"
+        ],
+        "csa_ccm": [
+          "IVS-06"
+        ]
+      }
+    },
+    "CHECK-087": {
+      "name": "Continuous Identity Verification",
+      "frameworks": {
+        "zero_trust": [
+          "ZT-3.3"
+        ],
+        "nist_800_53": [
+          "IA-2(12)"
+        ],
+        "nist_800_171": [
+          "3.5.1"
+        ],
+        "sans_top20": [
+          "16.1"
+        ]
+      }
+    },
+    "CHECK-088": {
+      "name": "Device Trust Verification",
+      "frameworks": {
+        "zero_trust": [
+          "ZT-5.2"
+        ],
+        "nist_800_53": [
+          "AC-19"
+        ],
+        "nist_800_171": [
+          "3.1.18"
+        ],
+        "cis_aws": [
+          "1.21"
+        ]
+      }
+    },
+    "CHECK-089": {
+      "name": "Data Encryption Everywhere",
+      "frameworks": {
+        "zero_trust": [
+          "ZT-6.1"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-01"
+        ]
+      }
+    },
+    "CHECK-090": {
+      "name": "Time-bound Privileged Access",
+      "frameworks": {
+        "zero_trust": [
+          "ZT-2.3"
+        ],
+        "nist_800_53": [
+          "AC-2(5)"
+        ],
+        "nist_800_171": [
+          "3.1.5"
+        ],
+        "aws_well_architected": [
+          "SEC-3"
+        ]
+      }
+    },
+    "CHECK-091": {
+      "name": "Application Security Metrics",
+      "frameworks": {
+        "csa_ccm": [
+          "AIS-02"
+        ],
+        "nist_800_53": [
+          "SI-4"
+        ],
+        "nist_800_171": [
+          "3.14.3"
+        ],
+        "sans_top20": [
+          "20.1"
+        ]
+      }
+    },
+    "CHECK-092": {
+      "name": "Data Retention Policies",
+      "frameworks": {
+        "csa_ccm": [
+          "BCR-11"
+        ],
+        "nist_800_53": [
+          "AU-11"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "cis_aws": [
+          "3.11"
+        ]
+      }
+    },
+    "CHECK-093": {
+      "name": "Configuration Change Detection",
+      "frameworks": {
+        "csa_ccm": [
+          "CCC-04"
+        ],
+        "nist_800_53": [
+          "CM-3(5)"
+        ],
+        "nist_800_171": [
+          "3.4.2"
+        ],
+        "aws_well_architected": [
+          "OPS-5"
+        ]
+      }
+    },
+    "CHECK-094": {
+      "name": "Production Data in Non-Production",
+      "frameworks": {
+        "csa_ccm": [
+          "DCS-06"
+        ],
+        "nist_800_53": [
+          "SC-4"
+        ],
+        "nist_800_171": [
+          "3.13.6"
+        ],
+        "owasp_cloud": [
+          "OCST-3.2"
+        ]
+      }
+    },
+    "CHECK-095": {
+      "name": "Key Management Lifecycle",
+      "frameworks": {
+        "csa_ccm": [
+          "EKM-02"
+        ],
+        "nist_800_53": [
+          "SC-12"
+        ],
+        "nist_800_171": [
+          "3.13.10"
+        ],
+        "cis_aws": [
+          "3.8"
+        ]
+      }
+    },
+    "CHECK-096": {
+      "name": "Hardware Asset Inventory",
+      "frameworks": {
+        "sans_top20": [
+          "1.1"
+        ],
+        "nist_800_53": [
+          "CM-8"
+        ],
+        "nist_800_171": [
+          "3.4.1"
+        ],
+        "csa_ccm": [
+          "CCC-01"
+        ]
+      }
+    },
+    "CHECK-097": {
+      "name": "Software Asset Inventory",
+      "frameworks": {
+        "sans_top20": [
+          "2.1"
+        ],
+        "nist_800_53": [
+          "CM-8(3)"
+        ],
+        "nist_800_171": [
+          "3.4.1"
+        ],
+        "aws_well_architected": [
+          "OPS-1"
+        ]
+      }
+    },
+    "CHECK-098": {
+      "name": "Configuration Enforcement",
+      "frameworks": {
+        "sans_top20": [
+          "3.5"
+        ],
+        "nist_800_53": [
+          "CM-7"
+        ],
+        "nist_800_171": [
+          "3.4.6"
+        ],
+        "zero_trust": [
+          "ZT-4.5"
+        ]
+      }
+    },
+    "CHECK-099": {
+      "name": "Centralized Log Collection",
+      "frameworks": {
+        "sans_top20": [
+          "6.1"
+        ],
+        "nist_800_53": [
+          "AU-3"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "cis_aws": [
+          "3.10"
+        ]
+      }
+    },
+    "CHECK-100": {
+      "name": "Continuous Network Monitoring",
+      "frameworks": {
+        "sans_top20": [
+          "12.1"
+        ],
+        "nist_800_53": [
+          "SI-4"
+        ],
+        "nist_800_171": [
+          "3.14.3"
+        ],
+        "mitre_attack": [
+          "Multiple"
+        ]
+      }
+    },
+    "CHECK-101": {
+      "name": "Multi-Region KMS Keys",
+      "frameworks": {
+        "aws_well_architected": [
+          "REL-11"
+        ],
+        "nist_800_53": [
+          "CP-9(6)"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "csa_ccm": [
+          "BCR-05"
+        ]
+      }
+    },
+    "CHECK-102": {
+      "name": "Database Activity Monitoring",
+      "frameworks": {
+        "cis_aws": [
+          "4.9"
+        ],
+        "nist_800_53": [
+          "AU-12"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "mitre_attack": [
+          "T1055"
+        ]
+      }
+    },
+    "CHECK-103": {
+      "name": "API Gateway Request Validation",
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-5.3.1"
+        ],
+        "nist_800_53": [
+          "SI-10"
+        ],
+        "nist_800_171": [
+          "3.14.2"
+        ],
+        "sans_top20": [
+          "18.3"
+        ]
+      }
+    },
+    "CHECK-104": {
+      "name": "ElastiCache Encryption in Transit",
+      "frameworks": {
+        "cis_aws": [
+          "7.3"
+        ],
+        "nist_800_53": [
+          "SC-8"
+        ],
+        "nist_800_171": [
+          "3.13.8"
+        ],
+        "zero_trust": [
+          "ZT-6.2"
+        ]
+      }
+    },
+    "CHECK-105": {
+      "name": "Backup Vault Encryption",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "CP-9(8)"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "csa_ccm": [
+          "BCR-02"
+        ]
+      }
+    },
+    "CHECK-106": {
+      "name": "Service Control Policies",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-1"
+        ],
+        "nist_800_53": [
+          "AC-3(7)"
+        ],
+        "nist_800_171": [
+          "3.1.2"
+        ],
+        "zero_trust": [
+          "ZT-2.4"
+        ]
+      }
+    },
+    "CHECK-107": {
+      "name": "Network Load Balancer TLS",
+      "frameworks": {
+        "cis_aws": [
+          "7.5"
+        ],
+        "nist_800_53": [
+          "SC-8(1)"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-4.1"
+        ]
+      }
+    },
+    "CHECK-108": {
+      "name": "IAM Access Analyzer",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "nist_800_53": [
+          "AC-6(9)"
+        ],
+        "nist_800_171": [
+          "3.1.5"
+        ],
+        "zero_trust": [
+          "ZT-2.5"
+        ]
+      }
+    },
+    "CHECK-109": {
+      "name": "EKS Private Endpoints",
+      "frameworks": {
+        "cis_aws": [
+          "5.4.2"
+        ],
+        "nist_800_53": [
+          "SC-7(4)"
+        ],
+        "nist_800_171": [
+          "3.13.1"
+        ],
+        "mitre_attack": [
+          "T1133"
+        ]
+      }
+    },
+    "CHECK-110": {
+      "name": "Macie for S3 Scanning",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-7"
+        ],
+        "nist_800_53": [
+          "RA-5(11)"
+        ],
+        "nist_800_171": [
+          "3.11.2"
+        ],
+        "csa_ccm": [
+          "DSI-05"
+        ]
+      }
+    },
+    "CHECK-111": {
+      "name": "SSM Session Manager Logging",
+      "frameworks": {
+        "cis_aws": [
+          "3.12"
+        ],
+        "nist_800_53": [
+          "AU-14"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "sans_top20": [
+          "8.6"
+        ]
+      }
+    },
+    "CHECK-112": {
+      "name": "Certificate Manager Expiry",
+      "frameworks": {
+        "aws_well_architected": [
+          "OPS-8"
+        ],
+        "nist_800_53": [
+          "SC-17"
+        ],
+        "nist_800_171": [
+          "3.13.12"
+        ],
+        "csa_ccm": [
+          "EKM-02"
+        ]
+      }
+    },
+    "CHECK-113": {
+      "name": "Transit Gateway Route Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-6"
+        ],
+        "nist_800_53": [
+          "SC-7(5)"
+        ],
+        "nist_800_171": [
+          "3.13.5"
+        ],
+        "zero_trust": [
+          "ZT-4.3"
+        ]
+      }
+    },
+    "CHECK-114": {
+      "name": "CodeBuild Environment Variables",
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-3.1.1"
+        ],
+        "nist_800_53": [
+          "IA-5(7)"
+        ],
+        "nist_800_171": [
+          "3.5.2"
+        ],
+        "sans_top20": [
+          "14.8"
+        ]
+      }
+    },
+    "CHECK-115": {
+      "name": "Glacier Vault Lock",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "AU-9(4)"
+        ],
+        "nist_800_171": [
+          "3.3.8"
+        ],
+        "csa_ccm": [
+          "BCR-03"
+        ]
+      }
+    },
+    "CHECK-116": {
+      "name": "CloudFront Field Level Encryption",
+      "frameworks": {
+        "cis_aws": [
+          "9.3"
+        ],
+        "nist_800_53": [
+          "SC-28(1)"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-4.3"
+        ]
+      }
+    },
+    "CHECK-117": {
+      "name": "WorkSpaces Encryption",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-03"
+        ]
+      }
+    },
+    "CHECK-118": {
+      "name": "API Gateway Cache Encryption",
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-4.3.2"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "cis_aws": [
+          "7.7"
+        ]
+      }
+    },
+    "CHECK-119": {
+      "name": "Lake Formation Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-7"
+        ],
+        "nist_800_53": [
+          "AC-3(10)"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "csa_ccm": [
+          "AIS-04"
+        ]
+      }
+    },
+    "CHECK-120": {
+      "name": "EMR Encryption",
+      "frameworks": {
+        "cis_aws": [
+          "7.10"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "sans_top20": [
+          "14.2"
+        ]
+      }
+    },
+    "CHECK-121": {
+      "name": "SageMaker Notebook Encryption",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-2.3"
+        ]
+      }
+    },
+    "CHECK-122": {
+      "name": "Direct Connect MACsec",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-9"
+        ],
+        "nist_800_53": [
+          "SC-8(1)"
+        ],
+        "nist_800_171": [
+          "3.13.8"
+        ],
+        "zero_trust": [
+          "ZT-6.3"
+        ]
+      }
+    },
+    "CHECK-123": {
+      "name": "Control Tower Guardrails",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-1"
+        ],
+        "nist_800_53": [
+          "CM-2(2)"
+        ],
+        "nist_800_171": [
+          "3.4.1"
+        ],
+        "csa_ccm": [
+          "CCC-04"
+        ]
+      }
+    },
+    "CHECK-124": {
+      "name": "Cost Anomaly Detection",
+      "frameworks": {
+        "aws_well_architected": [
+          "COST-1"
+        ],
+        "nist_800_53": [
+          "SI-4(13)"
+        ],
+        "nist_800_171": [
+          "3.14.3"
+        ],
+        "sans_top20": [
+          "20.7"
+        ]
+      }
+    },
+    "CHECK-125": {
+      "name": "Resource Access Manager",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "nist_800_53": [
+          "AC-4(17)"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "zero_trust": [
+          "ZT-4.6"
+        ]
+      }
+    },
+    "CHECK-126": {
+      "name": "Batch Job Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "nist_800_53": [
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.1.1"
+        ],
+        "mitre_attack": [
+          "T1053"
+        ]
+      }
+    },
+    "CHECK-127": {
+      "name": "Amplify Security Headers",
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-4.2.2"
+        ],
+        "nist_800_53": [
+          "SC-8"
+        ],
+        "nist_800_171": [
+          "3.13.8"
+        ],
+        "cis_aws": [
+          "9.4"
+        ]
+      }
+    },
+    "CHECK-128": {
+      "name": "Timestream Encryption",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-03"
+        ]
+      }
+    },
+    "CHECK-129": {
+      "name": "IoT Core Policies",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "nist_800_53": [
+          "AC-3(15)"
+        ],
+        "nist_800_171": [
+          "3.1.2"
+        ],
+        "mitre_attack": [
+          "T1072"
+        ]
+      }
+    },
+    "CHECK-130": {
+      "name": "FSx Encryption",
+      "frameworks": {
+        "cis_aws": [
+          "2.4.1"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "sans_top20": [
+          "14.2"
+        ]
+      }
+    },
+    "CHECK-131": {
+      "name": "DataSync Task Logging",
+      "frameworks": {
+        "aws_well_architected": [
+          "OPS-8"
+        ],
+        "nist_800_53": [
+          "AU-2"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "csa_ccm": [
+          "LOG-02"
+        ]
+      }
+    },
+    "CHECK-132": {
+      "name": "MediaStore Container Policies",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "nist_800_53": [
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.1.2"
+        ],
+        "owasp_cloud": [
+          "OCST-1.3"
+        ]
+      }
+    },
+    "CHECK-133": {
+      "name": "Comprehend Encryption",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "DSI-07"
+        ]
+      }
+    },
+    "CHECK-134": {
+      "name": "Personalize Dataset Encryption",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-3.3"
+        ]
+      }
+    },
+    "CHECK-135": {
+      "name": "Forecast Dataset Encryption",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-03"
+        ]
+      }
+    },
+    "CHECK-136": {
+      "name": "Kendra Index Encryption",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "sans_top20": [
+          "14.2"
+        ]
+      }
+    },
+    "CHECK-137": {
+      "name": "Lex Bot Security",
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-5.3"
+        ],
+        "nist_800_53": [
+          "SI-10"
+        ],
+        "nist_800_171": [
+          "3.14.2"
+        ],
+        "mitre_attack": [
+          "T1190"
+        ]
+      }
+    },
+    "CHECK-138": {
+      "name": "Polly Data Privacy",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-4"
+        ],
+        "nist_800_53": [
+          "AU-2"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "csa_ccm": [
+          "LOG-04"
+        ]
+      }
+    },
+    "CHECK-139": {
+      "name": "Textract Encryption",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-3.3"
+        ]
+      }
+    },
+    "CHECK-140": {
+      "name": "Translate Encryption",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "DSI-07"
+        ]
+      }
+    },
+    "CHECK-141": {
+      "name": "Backup Plan Testing",
+      "frameworks": {
+        "aws_well_architected": [
+          "REL-9"
+        ],
+        "nist_800_53": [
+          "CP-9(1)"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "sans_top20": [
+          "10.1"
+        ]
+      }
+    },
+    "CHECK-142": {
+      "name": "Disaster Recovery Testing",
+      "frameworks": {
+        "aws_well_architected": [
+          "REL-13"
+        ],
+        "nist_800_53": [
+          "CP-4"
+        ],
+        "nist_800_171": [
+          "3.11.1"
+        ],
+        "csa_ccm": [
+          "BCR-04"
+        ]
+      }
+    },
+    "CHECK-143": {
+      "name": "Multi-Account EventBridge",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "nist_800_53": [
+          "AC-4"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "zero_trust": [
+          "ZT-4.7"
+        ]
+      }
+    },
+    "CHECK-144": {
+      "name": "PrivateLink Endpoints",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-6"
+        ],
+        "nist_800_53": [
+          "SC-7(8)"
+        ],
+        "nist_800_171": [
+          "3.13.1"
+        ],
+        "zero_trust": [
+          "ZT-4.8"
+        ]
+      }
+    },
+    "CHECK-145": {
+      "name": "CloudHSM Cluster Backup",
+      "frameworks": {
+        "aws_well_architected": [
+          "REL-9"
+        ],
+        "nist_800_53": [
+          "CP-9"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "csa_ccm": [
+          "EKM-06"
+        ]
+      }
+    },
+    "CHECK-146": {
+      "name": "Outposts Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-10"
+        ],
+        "nist_800_53": [
+          "PE-3"
+        ],
+        "nist_800_171": [
+          "3.10.1"
+        ],
+        "sans_top20": [
+          "11.1"
+        ]
+      }
+    },
+    "CHECK-147": {
+      "name": "Local Zones Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-6"
+        ],
+        "nist_800_53": [
+          "SC-7"
+        ],
+        "nist_800_171": [
+          "3.13.1"
+        ],
+        "zero_trust": [
+          "ZT-4.9"
+        ]
+      }
+    },
+    "CHECK-148": {
+      "name": "Wavelength Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-6"
+        ],
+        "nist_800_53": [
+          "SC-7"
+        ],
+        "nist_800_171": [
+          "3.13.1"
+        ],
+        "mitre_attack": [
+          "T1205"
+        ]
+      }
+    },
+    "CHECK-149": {
+      "name": "App Runner Security",
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-2.2"
+        ],
+        "nist_800_53": [
+          "CM-7"
+        ],
+        "nist_800_171": [
+          "3.4.6"
+        ],
+        "cis_aws": [
+          "5.5"
+        ]
+      }
+    },
+    "CHECK-150": {
+      "name": "Lightsail Instance Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "nist_800_53": [
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.1.1"
+        ],
+        "sans_top20": [
+          "5.1"
+        ]
+      }
+    },
+    "CHECK-151": {
+      "name": "GameLift Fleet Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "nist_800_53": [
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.1.2"
+        ],
+        "owasp_cloud": [
+          "OCST-2.1"
+        ]
+      }
+    },
+    "CHECK-152": {
+      "name": "Elastic Transcoder Pipeline",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "DSI-04"
+        ]
+      }
+    },
+    "CHECK-153": {
+      "name": "MediaConvert Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-3.3"
+        ]
+      }
+    },
+    "CHECK-154": {
+      "name": "Quantum Ledger Database",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "AU-9(4)"
+        ],
+        "nist_800_171": [
+          "3.3.8"
+        ],
+        "csa_ccm": [
+          "LOG-09"
+        ]
+      }
+    },
+    "CHECK-155": {
+      "name": "Managed Blockchain",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "zero_trust": [
+          "ZT-6.4"
+        ]
+      }
+    },
+    "CHECK-156": {
+      "name": "Ground Station Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-9"
+        ],
+        "nist_800_53": [
+          "SC-8"
+        ],
+        "nist_800_171": [
+          "3.13.8"
+        ],
+        "mitre_attack": [
+          "T1205"
+        ]
+      }
+    },
+    "CHECK-157": {
+      "name": "Braket Quantum Computing",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "DSI-07"
+        ]
+      }
+    },
+    "CHECK-158": {
+      "name": "RoboMaker Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "nist_800_53": [
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.1.2"
+        ],
+        "owasp_cloud": [
+          "OCST-2.1"
+        ]
+      }
+    },
+    "CHECK-159": {
+      "name": "IoT Analytics Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "sans_top20": [
+          "14.2"
+        ]
+      }
+    },
+    "CHECK-160": {
+      "name": "Migration Hub Security",
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-7"
+        ],
+        "nist_800_53": [
+          "AU-2"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "csa_ccm": [
+          "LOG-08"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,3564 @@
+{
+  "version": "2.0",
+  "metadata": {
+    "description": "Enhanced security checks configuration with multi-framework support",
+    "last_updated": "2025-01-17",
+    "total_checks": 120
+  },
+  "execution_settings": {
+    "parallel_execution": true,
+    "max_workers": 10,
+    "rate_limit_delay": 0.1,
+    "batch_size": 50
+  },
+  "security_checks": [
+    {
+      "id": "CHECK-041",
+      "name": "Lambda Function Resource Policies",
+      "description": "Ensure Lambda functions have restrictive resource policies",
+      "detailed_description": "This check verifies that Lambda function resource policies do not allow public or overly permissive access. Resource policies control who can invoke functions from outside the account. Overly permissive policies can lead to unauthorized function execution and potential data exposure.",
+      "category": "Compute Security",
+      "severity": "HIGH",
+      "service": "lambda",
+      "check_function": "check_lambda_resource_policies",
+      "execution": {
+        "module": "security_checks.checks.compute.lambda_policies",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "AC-3",
+          "AC-4"
+        ],
+        "nist_800_171": [
+          "3.1.1",
+          "3.1.2"
+        ],
+        "cis_aws": [
+          "2.5"
+        ],
+        "mitre_attack": [
+          "T1190"
+        ],
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "zero_trust": [
+          "ZT-4.2"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-042",
+      "name": "EKS Cluster Public Access",
+      "description": "Ensure EKS clusters do not have public API endpoints",
+      "detailed_description": "This check verifies that Amazon EKS clusters are not configured with public API endpoints unless explicitly required. Public endpoints expose the Kubernetes API to the internet, increasing the attack surface. Private endpoints ensure that cluster management traffic stays within the VPC.",
+      "category": "Container Security",
+      "severity": "HIGH",
+      "service": "eks",
+      "check_function": "check_eks_public_access",
+      "execution": {
+        "module": "security_checks.checks.compute.eks_security",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "SC-7",
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.13.1",
+          "3.13.5"
+        ],
+        "cis_aws": [
+          "5.4.1"
+        ],
+        "mitre_attack": [
+          "T1133"
+        ],
+        "aws_well_architected": [
+          "SEC-6"
+        ],
+        "nist_csf": [
+          "PR.AC-5"
+        ],
+        "zero_trust": [
+          "ZT-4.3"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-043",
+      "name": "Redshift Cluster Encryption",
+      "description": "Ensure Redshift clusters are encrypted at rest",
+      "detailed_description": "This check verifies that Amazon Redshift clusters have encryption enabled for data at rest. Encryption protects sensitive data stored in data warehouses from unauthorized access. This is critical for clusters containing business intelligence data, PII, or other sensitive information.",
+      "category": "Database Security",
+      "severity": "HIGH",
+      "service": "redshift",
+      "check_function": "check_redshift_encryption",
+      "execution": {
+        "module": "security_checks.checks.database.redshift_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "cis_aws": [
+          "4.6"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ],
+        "sans_top20": [
+          "14.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-044",
+      "name": "ALB Access Logging",
+      "description": "Ensure Application Load Balancers have access logging enabled",
+      "detailed_description": "This check verifies that Application Load Balancers (ALBs) have access logging enabled. Access logs provide detailed information about requests sent to the load balancer, which is essential for security analysis, troubleshooting, and compliance auditing.",
+      "category": "Network Security",
+      "severity": "MEDIUM",
+      "service": "elbv2",
+      "check_function": "check_alb_logging",
+      "execution": {
+        "module": "security_checks.checks.network.alb_logging",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "AU-2",
+          "AU-3"
+        ],
+        "nist_800_171": [
+          "3.3.1",
+          "3.3.2"
+        ],
+        "cis_aws": [
+          "2.6"
+        ],
+        "aws_well_architected": [
+          "SEC-4"
+        ],
+        "csa_ccm": [
+          "LOG-01"
+        ],
+        "sans_top20": [
+          "8.2"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-045",
+      "name": "ECR Image Scanning",
+      "description": "Ensure ECR repositories have image scanning enabled",
+      "detailed_description": "This check verifies that Amazon ECR repositories have image scanning enabled to detect vulnerabilities in container images. Scanning on push ensures that vulnerabilities are identified before deployment, reducing the risk of deploying vulnerable containers to production.",
+      "category": "Container Security",
+      "severity": "HIGH",
+      "service": "ecr",
+      "check_function": "check_ecr_scanning",
+      "execution": {
+        "module": "security_checks.checks.compute.ecr_security",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "SI-2",
+          "SI-3"
+        ],
+        "nist_800_171": [
+          "3.14.1",
+          "3.14.2"
+        ],
+        "cis_aws": [
+          "5.1"
+        ],
+        "mitre_attack": [
+          "T1525"
+        ],
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "owasp_cloud": [
+          "OCST-2.1.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-046",
+      "name": "SQS Queue Encryption",
+      "description": "Ensure SQS queues are encrypted at rest",
+      "detailed_description": "This check verifies that Amazon SQS queues have server-side encryption (SSE) enabled. Encryption protects message data at rest and helps meet compliance requirements for data protection. This is especially important for queues processing sensitive or regulated data.",
+      "category": "Application Integration",
+      "severity": "MEDIUM",
+      "service": "sqs",
+      "check_function": "check_sqs_encryption",
+      "execution": {
+        "module": "security_checks.checks.integration.sqs_security",
+        "parallelizable": true,
+        "estimated_runtime": "2s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ],
+        "sans_top20": [
+          "14.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-047",
+      "name": "SNS Topic Encryption",
+      "description": "Ensure SNS topics are encrypted at rest",
+      "detailed_description": "This check verifies that Amazon SNS topics have encryption enabled for data at rest. SNS encryption ensures that messages are protected while stored in the service. This is critical for topics that handle sensitive notifications or integrate with compliance-regulated systems.",
+      "category": "Application Integration",
+      "severity": "MEDIUM",
+      "service": "sns",
+      "check_function": "check_sns_encryption",
+      "execution": {
+        "module": "security_checks.checks.integration.sns_security",
+        "parallelizable": true,
+        "estimated_runtime": "2s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-048",
+      "name": "IAM Policy Least Privilege Analysis",
+      "description": "Analyze IAM policies for overly permissive permissions",
+      "detailed_description": "This check analyzes IAM policies to identify overly permissive permissions such as wildcard actions (*) or resources. Following the principle of least privilege reduces the risk of unauthorized access and limits the potential impact of compromised credentials.",
+      "category": "Identity and Access Management",
+      "severity": "HIGH",
+      "service": "iam",
+      "check_function": "check_iam_policy_least_privilege",
+      "execution": {
+        "module": "security_checks.checks.iam.policy_analysis",
+        "parallelizable": true,
+        "estimated_runtime": "10s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "AC-6"
+        ],
+        "nist_800_171": [
+          "3.1.5"
+        ],
+        "cis_aws": [
+          "1.16"
+        ],
+        "mitre_attack": [
+          "T1078"
+        ],
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "zero_trust": [
+          "ZT-2.2"
+        ],
+        "sans_top20": [
+          "5.4"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-049",
+      "name": "CloudFormation Stack Drift Detection",
+      "description": "Ensure CloudFormation stacks are monitored for drift",
+      "detailed_description": "This check verifies that CloudFormation stacks have drift detection enabled and are regularly checked for configuration drift. Drift detection helps identify unauthorized changes to infrastructure that could introduce security vulnerabilities or compliance violations.",
+      "category": "Configuration Management",
+      "severity": "MEDIUM",
+      "service": "cloudformation",
+      "check_function": "check_cfn_drift_detection",
+      "execution": {
+        "module": "security_checks.checks.management.cfn_drift",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "CM-2",
+          "CM-3"
+        ],
+        "nist_800_171": [
+          "3.4.1",
+          "3.4.2"
+        ],
+        "aws_well_architected": [
+          "OPS-5"
+        ],
+        "csa_ccm": [
+          "CCC-03"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-050",
+      "name": "Aurora Database Activity Streams",
+      "description": "Ensure Aurora clusters have database activity streams enabled",
+      "detailed_description": "This check verifies that Amazon Aurora clusters have database activity streams enabled for real-time auditing. Activity streams provide a near real-time stream of database activity for compliance, security analysis, and troubleshooting without impacting database performance.",
+      "category": "Database Security",
+      "severity": "MEDIUM",
+      "service": "rds",
+      "check_function": "check_aurora_activity_streams",
+      "execution": {
+        "module": "security_checks.checks.database.aurora_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "AU-2",
+          "AU-3",
+          "AU-12"
+        ],
+        "nist_800_171": [
+          "3.3.1",
+          "3.3.2"
+        ],
+        "csa_ccm": [
+          "LOG-03"
+        ],
+        "sans_top20": [
+          "8.5"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-051",
+      "name": "ECS Task Definition Security",
+      "description": "Ensure ECS task definitions follow security best practices",
+      "detailed_description": "This check verifies that ECS task definitions follow security best practices including: not running as privileged, not using host network mode, using read-only root filesystems where possible, and not storing secrets in environment variables.",
+      "category": "Container Security",
+      "severity": "HIGH",
+      "service": "ecs",
+      "check_function": "check_ecs_task_security",
+      "execution": {
+        "module": "security_checks.checks.compute.ecs_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "CM-7",
+          "AC-6"
+        ],
+        "nist_800_171": [
+          "3.1.5",
+          "3.4.2"
+        ],
+        "cis_aws": [
+          "5.3"
+        ],
+        "mitre_attack": [
+          "T1610"
+        ],
+        "owasp_cloud": [
+          "OCST-2.2.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-052",
+      "name": "Athena Workgroup Encryption",
+      "description": "Ensure Athena workgroups enforce encryption for query results",
+      "detailed_description": "This check verifies that Amazon Athena workgroups are configured to enforce encryption for query results. Encrypting query results protects sensitive data that may be exposed through analytical queries and ensures compliance with data protection requirements.",
+      "category": "Analytics Security",
+      "severity": "MEDIUM",
+      "service": "athena",
+      "check_function": "check_athena_encryption",
+      "execution": {
+        "module": "security_checks.checks.analytics.athena_security",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-053",
+      "name": "Glue Data Catalog Encryption",
+      "description": "Ensure AWS Glue Data Catalog is encrypted",
+      "detailed_description": "This check verifies that AWS Glue Data Catalog has encryption enabled for metadata. The Data Catalog contains metadata about data sources, which could reveal sensitive information about data structure and content if exposed.",
+      "category": "Analytics Security",
+      "severity": "MEDIUM",
+      "service": "glue",
+      "check_function": "check_glue_catalog_encryption",
+      "execution": {
+        "module": "security_checks.checks.analytics.glue_security",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-054",
+      "name": "Step Functions Logging",
+      "description": "Ensure Step Functions state machines have logging enabled",
+      "detailed_description": "This check verifies that AWS Step Functions state machines have logging enabled to CloudWatch Logs. Logging provides visibility into workflow execution, helps with debugging, and enables security monitoring of automated processes.",
+      "category": "Application Integration",
+      "severity": "LOW",
+      "service": "stepfunctions",
+      "check_function": "check_sfn_logging",
+      "execution": {
+        "module": "security_checks.checks.integration.sfn_security",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "AU-2",
+          "AU-3"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "aws_well_architected": [
+          "OPS-8"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-055",
+      "name": "EventBridge Rule Security",
+      "description": "Ensure EventBridge rules have appropriate targets and permissions",
+      "detailed_description": "This check verifies that EventBridge rules are configured with appropriate targets and do not have overly permissive permissions. Misconfigured rules could lead to unauthorized event routing or exposure of sensitive event data.",
+      "category": "Application Integration",
+      "severity": "MEDIUM",
+      "service": "events",
+      "check_function": "check_eventbridge_security",
+      "execution": {
+        "module": "security_checks.checks.integration.eventbridge_security",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "AC-3",
+          "AC-4"
+        ],
+        "nist_800_171": [
+          "3.1.1",
+          "3.1.2"
+        ],
+        "aws_well_architected": [
+          "SEC-5"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-056",
+      "name": "Kinesis Stream Encryption",
+      "description": "Ensure Kinesis data streams are encrypted",
+      "detailed_description": "This check verifies that Amazon Kinesis data streams have server-side encryption enabled. Encryption protects streaming data at rest and is essential for streams processing sensitive or regulated data such as financial transactions or personal information.",
+      "category": "Analytics Security",
+      "severity": "HIGH",
+      "service": "kinesis",
+      "check_function": "check_kinesis_encryption",
+      "execution": {
+        "module": "security_checks.checks.analytics.kinesis_security",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "cis_aws": [
+          "3.10"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-057",
+      "name": "MSK Cluster Encryption",
+      "description": "Ensure Amazon MSK clusters have encryption in transit and at rest",
+      "detailed_description": "This check verifies that Amazon Managed Streaming for Apache Kafka (MSK) clusters have both encryption in transit and at rest enabled. This ensures that sensitive data flowing through Kafka is protected from unauthorized access.",
+      "category": "Analytics Security",
+      "severity": "HIGH",
+      "service": "kafka",
+      "check_function": "check_msk_encryption",
+      "execution": {
+        "module": "security_checks.checks.analytics.msk_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "SC-8",
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.8",
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-058",
+      "name": "AppSync API Authentication",
+      "description": "Ensure AppSync APIs have appropriate authentication configured",
+      "detailed_description": "This check verifies that AWS AppSync GraphQL APIs have appropriate authentication mechanisms configured (API Key, AWS IAM, Cognito User Pools, or OIDC). APIs without proper authentication are vulnerable to unauthorized access and data exposure.",
+      "category": "API Security",
+      "severity": "HIGH",
+      "service": "appsync",
+      "check_function": "check_appsync_auth",
+      "execution": {
+        "module": "security_checks.checks.api.appsync_security",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "IA-2",
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.5.1",
+          "3.5.2"
+        ],
+        "owasp_cloud": [
+          "OCST-1.2.1"
+        ],
+        "aws_well_architected": [
+          "SEC-5"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-059",
+      "name": "DocumentDB Encryption",
+      "description": "Ensure DocumentDB clusters are encrypted at rest",
+      "detailed_description": "This check verifies that Amazon DocumentDB clusters have encryption at rest enabled. DocumentDB often stores document-oriented data that may contain sensitive information, making encryption essential for data protection.",
+      "category": "Database Security",
+      "severity": "HIGH",
+      "service": "docdb",
+      "check_function": "check_docdb_encryption",
+      "execution": {
+        "module": "security_checks.checks.database.docdb_security",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-060",
+      "name": "Neptune Database Encryption",
+      "description": "Ensure Neptune graph databases are encrypted at rest",
+      "detailed_description": "This check verifies that Amazon Neptune graph databases have encryption at rest enabled. Graph databases often contain relationship data that could reveal sensitive patterns or connections, making encryption critical for protecting this information.",
+      "category": "Database Security",
+      "severity": "HIGH",
+      "service": "neptune",
+      "check_function": "check_neptune_encryption",
+      "execution": {
+        "module": "security_checks.checks.database.neptune_security",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-061",
+      "name": "IAM Root Access Key Deletion",
+      "description": "Ensure no root account access keys exist",
+      "detailed_description": "This check verifies that the AWS root account does not have any access keys. Root access keys provide unrestricted access to all resources in the AWS account. Using root access keys violates the principle of least privilege and significantly increases security risk.",
+      "category": "Identity and Access Management",
+      "severity": "CRITICAL",
+      "service": "iam",
+      "check_function": "check_root_access_keys",
+      "execution": {
+        "module": "security_checks.checks.iam.root_access_keys",
+        "parallelizable": false,
+        "estimated_runtime": "2s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "1.4"
+        ],
+        "nist_800_53": [
+          "IA-2(1)",
+          "AC-6(5)"
+        ],
+        "nist_800_171": [
+          "3.5.2"
+        ],
+        "mitre_attack": [
+          "T1078.004"
+        ],
+        "zero_trust": [
+          "ZT-2.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-062",
+      "name": "IAM Password Policy Uppercase",
+      "description": "Ensure IAM password policy requires uppercase letters",
+      "detailed_description": "This check verifies that the IAM password policy requires at least one uppercase letter. Strong password policies that include character complexity requirements help prevent brute force attacks and improve overall account security.",
+      "category": "Identity and Access Management",
+      "severity": "MEDIUM",
+      "service": "iam",
+      "check_function": "check_password_policy_uppercase",
+      "execution": {
+        "module": "security_checks.checks.iam.password_policy",
+        "parallelizable": false,
+        "estimated_runtime": "2s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "1.10"
+        ],
+        "nist_800_53": [
+          "IA-5(1)(a)"
+        ],
+        "nist_800_171": [
+          "3.5.7"
+        ],
+        "sans_top20": [
+          "4.4"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-063",
+      "name": "Hardware MFA for Root",
+      "description": "Ensure hardware MFA is enabled for root account",
+      "detailed_description": "This check verifies that hardware MFA (not virtual MFA) is enabled for the root account. Hardware MFA devices provide stronger protection against phishing and other attacks compared to virtual MFA, making them essential for protecting the most privileged account.",
+      "category": "Identity and Access Management",
+      "severity": "HIGH",
+      "service": "iam",
+      "check_function": "check_root_hardware_mfa",
+      "execution": {
+        "module": "security_checks.checks.iam.root_mfa",
+        "parallelizable": false,
+        "estimated_runtime": "2s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "1.14"
+        ],
+        "nist_800_53": [
+          "IA-2(11)"
+        ],
+        "nist_800_171": [
+          "3.5.3"
+        ],
+        "zero_trust": [
+          "ZT-3.2"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-064",
+      "name": "S3 Bucket Versioning",
+      "description": "Ensure S3 buckets have versioning enabled",
+      "detailed_description": "This check verifies that S3 bucket versioning is enabled. Versioning helps protect against accidental deletion and provides the ability to recover from both unintended user actions and application failures. It's essential for data recovery and compliance requirements.",
+      "category": "Storage Security",
+      "severity": "MEDIUM",
+      "service": "s3",
+      "check_function": "check_s3_versioning",
+      "execution": {
+        "module": "security_checks.checks.storage.s3_versioning",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "2.1.1"
+        ],
+        "nist_800_53": [
+          "CP-10",
+          "SI-12"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "aws_well_architected": [
+          "REL-11"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-065",
+      "name": "S3 Bucket MFA Delete",
+      "description": "Ensure S3 buckets have MFA delete enabled",
+      "detailed_description": "This check verifies that S3 buckets with versioning enabled also have MFA Delete configured. MFA Delete adds an extra layer of security by requiring multi-factor authentication to permanently delete object versions or change versioning state, protecting against accidental or malicious deletions.",
+      "category": "Storage Security",
+      "severity": "HIGH",
+      "service": "s3",
+      "check_function": "check_s3_mfa_delete",
+      "execution": {
+        "module": "security_checks.checks.storage.s3_mfa_delete",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "2.1.2"
+        ],
+        "nist_800_53": [
+          "AC-2(11)"
+        ],
+        "nist_800_171": [
+          "3.5.3"
+        ],
+        "csa_ccm": [
+          "DSI-06"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-066",
+      "name": "EBS Default Encryption",
+      "description": "Ensure EBS default encryption is enabled",
+      "detailed_description": "This check verifies that EBS default encryption is enabled at the account level. When enabled, all new EBS volumes are automatically encrypted, ensuring data at rest protection without requiring developers to remember to enable encryption for each volume.",
+      "category": "Storage Security",
+      "severity": "HIGH",
+      "service": "ec2",
+      "check_function": "check_ebs_default_encryption",
+      "execution": {
+        "module": "security_checks.checks.storage.ebs_default_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "2.2.1"
+        ],
+        "nist_800_53": [
+          "SC-28(1)"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-03"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-067",
+      "name": "CloudTrail S3 Bucket Logging",
+      "description": "Ensure S3 bucket access logging is enabled on CloudTrail S3 bucket",
+      "detailed_description": "This check verifies that the S3 bucket storing CloudTrail logs has access logging enabled. This provides detailed records about requests made to the CloudTrail bucket, enabling detection of unauthorized access attempts to audit logs.",
+      "category": "Logging and Monitoring",
+      "severity": "MEDIUM",
+      "service": "cloudtrail",
+      "check_function": "check_cloudtrail_s3_logging",
+      "execution": {
+        "module": "security_checks.checks.monitoring.cloudtrail_s3_logging",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "3.3"
+        ],
+        "nist_800_53": [
+          "AU-9(2)"
+        ],
+        "nist_800_171": [
+          "3.3.8"
+        ],
+        "sans_top20": [
+          "8.2"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-068",
+      "name": "KMS Key Rotation",
+      "description": "Ensure rotation for customer-created KMS keys is enabled",
+      "detailed_description": "This check verifies that automatic key rotation is enabled for customer-managed KMS keys. Key rotation helps limit the amount of data encrypted under a single key version and reduces the impact of key compromise.",
+      "category": "Encryption and Key Management",
+      "severity": "MEDIUM",
+      "service": "kms",
+      "check_function": "check_kms_key_rotation",
+      "execution": {
+        "module": "security_checks.checks.encryption.kms_rotation",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "3.8"
+        ],
+        "nist_800_53": [
+          "SC-12(2)"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-04"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-069",
+      "name": "VPC Flow Logs for All VPCs",
+      "description": "Ensure VPC flow logging is enabled in all VPCs",
+      "detailed_description": "This check verifies that VPC Flow Logs are enabled for all VPCs. Flow logs capture information about IP traffic going to and from network interfaces in VPCs, essential for security analysis, compliance, and troubleshooting.",
+      "category": "Network Security",
+      "severity": "MEDIUM",
+      "service": "ec2",
+      "check_function": "check_vpc_flow_logs_all",
+      "execution": {
+        "module": "security_checks.checks.network.vpc_flow_logs_all",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "3.9"
+        ],
+        "nist_800_53": [
+          "AU-12(c)"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "mitre_attack": [
+          "T1040"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-070",
+      "name": "Security Group SSH Restriction",
+      "description": "Ensure no security groups allow ingress from 0.0.0.0/0 to port 22",
+      "detailed_description": "This check verifies that security groups do not allow unrestricted SSH access from the internet. Open SSH access significantly increases the attack surface and risk of unauthorized access. SSH should be restricted to known IP ranges or accessed via bastion hosts.",
+      "category": "Network Security",
+      "severity": "HIGH",
+      "service": "ec2",
+      "check_function": "check_sg_ssh_restriction",
+      "execution": {
+        "module": "security_checks.checks.network.sg_ssh_restriction",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "4.1"
+        ],
+        "nist_800_53": [
+          "SC-7(4)(b)"
+        ],
+        "nist_800_171": [
+          "3.13.1"
+        ],
+        "mitre_attack": [
+          "T1190"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-071",
+      "name": "Account Manipulation Detection",
+      "description": "Monitor for unauthorized IAM policy changes",
+      "detailed_description": "This check monitors CloudTrail for unauthorized IAM policy modifications that could indicate account manipulation attempts. It looks for policy changes outside of approved change windows or by unauthorized users, which could indicate privilege escalation attempts.",
+      "category": "Threat Detection",
+      "severity": "HIGH",
+      "service": "cloudtrail",
+      "check_function": "check_account_manipulation",
+      "execution": {
+        "module": "security_checks.checks.threat.account_manipulation",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "mitre_attack": [
+          "T1098"
+        ],
+        "nist_800_53": [
+          "AC-2(4)",
+          "AU-6"
+        ],
+        "nist_800_171": [
+          "3.1.1",
+          "3.3.5"
+        ],
+        "cis_aws": [
+          "3.4"
+        ],
+        "zero_trust": [
+          "ZT-5.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-072",
+      "name": "Create Account Detection",
+      "description": "Alert on new IAM user/role creation",
+      "detailed_description": "This check monitors for creation of new IAM users or roles, which could indicate unauthorized access attempts. It verifies that CloudWatch alarms are configured to alert on CreateUser, CreateRole, and CreateAccessKey API calls.",
+      "category": "Threat Detection",
+      "severity": "MEDIUM",
+      "service": "cloudwatch",
+      "check_function": "check_create_account_detection",
+      "execution": {
+        "module": "security_checks.checks.threat.create_account_detection",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "mitre_attack": [
+          "T1136"
+        ],
+        "nist_800_53": [
+          "AC-2(2)"
+        ],
+        "nist_800_171": [
+          "3.1.1"
+        ],
+        "sans_top20": [
+          "16.8"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-073",
+      "name": "Network Sniffing Prevention",
+      "description": "Ensure encryption for all data in transit",
+      "detailed_description": "This check verifies that all data in transit is encrypted using TLS 1.2 or higher. It examines load balancers, API gateways, and other services that handle data transmission to ensure they enforce encryption, preventing network sniffing attacks.",
+      "category": "Network Security",
+      "severity": "HIGH",
+      "service": "multiple",
+      "check_function": "check_network_encryption",
+      "execution": {
+        "module": "security_checks.checks.network.encryption_in_transit",
+        "parallelizable": true,
+        "estimated_runtime": "6s"
+      },
+      "frameworks": {
+        "mitre_attack": [
+          "T1040"
+        ],
+        "nist_800_53": [
+          "SC-8"
+        ],
+        "nist_800_171": [
+          "3.13.8"
+        ],
+        "csa_ccm": [
+          "EKM-03"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-074",
+      "name": "Data Destruction Protection",
+      "description": "Implement immutable backups",
+      "detailed_description": "This check verifies that critical data is protected with immutable backups using AWS Backup vault lock or S3 Object Lock. This prevents ransomware and insider threats from destroying backups, ensuring data can be recovered even after destructive attacks.",
+      "category": "Data Protection",
+      "severity": "HIGH",
+      "service": "backup",
+      "check_function": "check_immutable_backups",
+      "execution": {
+        "module": "security_checks.checks.backup.immutable_backups",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "mitre_attack": [
+          "T1485"
+        ],
+        "nist_800_53": [
+          "CP-9"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "aws_well_architected": [
+          "REL-9"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-075",
+      "name": "DoS Protection",
+      "description": "Enable AWS Shield and rate limiting",
+      "detailed_description": "This check verifies that AWS Shield is enabled and appropriate rate limiting is configured on APIs and applications. It ensures protection against DDoS attacks and implements throttling to prevent resource exhaustion.",
+      "category": "Network Security",
+      "severity": "MEDIUM",
+      "service": "shield",
+      "check_function": "check_dos_protection",
+      "execution": {
+        "module": "security_checks.checks.network.dos_protection",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "mitre_attack": [
+          "T1498"
+        ],
+        "nist_800_53": [
+          "SC-5"
+        ],
+        "nist_800_171": [
+          "3.13.2"
+        ],
+        "owasp_cloud": [
+          "OCST-5.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-076",
+      "name": "Segregation of Production",
+      "description": "Ensure production accounts are separated",
+      "detailed_description": "This check verifies that production workloads are isolated in separate AWS accounts from development and testing environments. Account separation provides strong security boundaries and prevents accidental or intentional cross-environment access.",
+      "category": "Account Management",
+      "severity": "HIGH",
+      "service": "organizations",
+      "check_function": "check_account_segregation",
+      "execution": {
+        "module": "security_checks.checks.account.segregation",
+        "parallelizable": false,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-1"
+        ],
+        "nist_800_53": [
+          "SC-32"
+        ],
+        "nist_800_171": [
+          "3.13.2"
+        ],
+        "zero_trust": [
+          "ZT-4.4"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-077",
+      "name": "Cross-Account Role Trust",
+      "description": "Review cross-account role trust policies",
+      "detailed_description": "This check reviews IAM roles that allow cross-account access to ensure trust relationships are appropriate and follow least privilege. It identifies overly permissive trust policies that could allow unauthorized account access.",
+      "category": "Identity and Access Management",
+      "severity": "HIGH",
+      "service": "iam",
+      "check_function": "check_cross_account_trust",
+      "execution": {
+        "module": "security_checks.checks.iam.cross_account_trust",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "nist_800_53": [
+          "AC-4"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "csa_ccm": [
+          "IAM-12"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-078",
+      "name": "Data Classification Tags",
+      "description": "Ensure resources are tagged with data classification",
+      "detailed_description": "This check verifies that all resources handling sensitive data are properly tagged with data classification levels. Proper tagging enables automated security controls and helps ensure appropriate protection based on data sensitivity.",
+      "category": "Data Governance",
+      "severity": "MEDIUM",
+      "service": "resourcegroupstaggingapi",
+      "check_function": "check_data_classification_tags",
+      "execution": {
+        "module": "security_checks.checks.governance.data_classification",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-7"
+        ],
+        "nist_800_53": [
+          "RA-2"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "csa_ccm": [
+          "DSI-01"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-079",
+      "name": "Service Quotas Monitoring",
+      "description": "Monitor service quota utilization",
+      "detailed_description": "This check verifies that CloudWatch alarms are configured to monitor service quota utilization. This prevents service disruptions due to hitting quotas and helps identify potential resource exhaustion attacks.",
+      "category": "Operational Excellence",
+      "severity": "LOW",
+      "service": "service-quotas",
+      "check_function": "check_service_quota_monitoring",
+      "execution": {
+        "module": "security_checks.checks.operations.quota_monitoring",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "REL-2"
+        ],
+        "nist_800_53": [
+          "SI-4"
+        ],
+        "nist_800_171": [
+          "3.14.3"
+        ],
+        "sans_top20": [
+          "8.8"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-080",
+      "name": "Auto Scaling Configuration",
+      "description": "Ensure auto scaling is properly configured",
+      "detailed_description": "This check verifies that auto scaling groups are configured with appropriate scaling policies, health checks, and termination policies. Proper auto scaling ensures availability and helps defend against resource exhaustion attacks.",
+      "category": "Compute Security",
+      "severity": "MEDIUM",
+      "service": "autoscaling",
+      "check_function": "check_auto_scaling_config",
+      "execution": {
+        "module": "security_checks.checks.compute.auto_scaling",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "PERF-1"
+        ],
+        "nist_800_53": [
+          "CP-10"
+        ],
+        "nist_800_171": [
+          "3.11.1"
+        ],
+        "csa_ccm": [
+          "IVS-09"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-081",
+      "name": "API Gateway Authentication",
+      "description": "Ensure all API Gateways require authentication",
+      "detailed_description": "This check verifies that all API Gateway endpoints have authentication enabled using IAM, Cognito, or API keys. Unauthenticated APIs are vulnerable to abuse and can lead to data exposure or resource exhaustion.",
+      "category": "API Security",
+      "severity": "HIGH",
+      "service": "apigateway",
+      "check_function": "check_api_gateway_auth",
+      "execution": {
+        "module": "security_checks.checks.api.gateway_auth",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-1.3.1"
+        ],
+        "nist_800_53": [
+          "IA-2"
+        ],
+        "nist_800_171": [
+          "3.5.1"
+        ],
+        "cis_aws": [
+          "4.2"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-082",
+      "name": "Container Image Signing",
+      "description": "Ensure container images are signed and verified",
+      "detailed_description": "This check verifies that container images in ECR are signed and that ECS/EKS are configured to only run signed images. Image signing prevents running tampered or malicious container images in production.",
+      "category": "Container Security",
+      "severity": "HIGH",
+      "service": "ecr",
+      "check_function": "check_container_image_signing",
+      "execution": {
+        "module": "security_checks.checks.container.image_signing",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-2.2.1"
+        ],
+        "nist_800_53": [
+          "SI-7"
+        ],
+        "nist_800_171": [
+          "3.14.1"
+        ],
+        "mitre_attack": [
+          "T1525"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-083",
+      "name": "Secrets in Code",
+      "description": "Scan for hardcoded secrets in Lambda functions",
+      "detailed_description": "This check scans Lambda function code and environment variables for hardcoded secrets, API keys, and passwords. Hardcoded secrets are a major security risk and should be stored in AWS Secrets Manager or Parameter Store.",
+      "category": "Application Security",
+      "severity": "CRITICAL",
+      "service": "lambda",
+      "check_function": "check_lambda_secrets",
+      "execution": {
+        "module": "security_checks.checks.application.lambda_secrets",
+        "parallelizable": true,
+        "estimated_runtime": "8s"
+      },
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-3.1.1"
+        ],
+        "nist_800_53": [
+          "IA-5"
+        ],
+        "nist_800_171": [
+          "3.5.2"
+        ],
+        "cis_aws": [
+          "7.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-084",
+      "name": "CORS Configuration",
+      "description": "Validate CORS policies on S3 and APIs",
+      "detailed_description": "This check validates Cross-Origin Resource Sharing (CORS) configurations on S3 buckets and API Gateways to ensure they don't allow overly permissive access. Misconfigured CORS can lead to data theft via malicious websites.",
+      "category": "API Security",
+      "severity": "MEDIUM",
+      "service": "multiple",
+      "check_function": "check_cors_configuration",
+      "execution": {
+        "module": "security_checks.checks.api.cors_validation",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-4.2.1"
+        ],
+        "nist_800_53": [
+          "AC-4"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "sans_top20": [
+          "18.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-085",
+      "name": "Input Validation",
+      "description": "Ensure WAF rules validate inputs",
+      "detailed_description": "This check verifies that Web Application Firewall (WAF) is configured with rules to validate and sanitize inputs, protecting against injection attacks. It checks for OWASP Core Rule Set or equivalent custom rules.",
+      "category": "Application Security",
+      "severity": "HIGH",
+      "service": "wafv2",
+      "check_function": "check_waf_input_validation",
+      "execution": {
+        "module": "security_checks.checks.application.waf_validation",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-5.3.1"
+        ],
+        "nist_800_53": [
+          "SI-10"
+        ],
+        "nist_800_171": [
+          "3.14.2"
+        ],
+        "mitre_attack": [
+          "T1190"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-086",
+      "name": "Network Micro-segmentation",
+      "description": "Implement micro-segmentation with Security Groups",
+      "detailed_description": "This check verifies that security groups implement proper micro-segmentation following zero trust principles. It ensures that security groups are specific to application tiers and don't allow broad internal access.",
+      "category": "Network Security",
+      "severity": "HIGH",
+      "service": "ec2",
+      "check_function": "check_network_segmentation",
+      "execution": {
+        "module": "security_checks.checks.network.micro_segmentation",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "zero_trust": [
+          "ZT-4.1"
+        ],
+        "nist_800_53": [
+          "SC-7(5)"
+        ],
+        "nist_800_171": [
+          "3.13.5"
+        ],
+        "csa_ccm": [
+          "IVS-06"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-087",
+      "name": "Continuous Identity Verification",
+      "description": "Continuous verification of user identities",
+      "detailed_description": "This check verifies that systems implement continuous identity verification through session monitoring, behavioral analytics, and re-authentication for sensitive operations. This is a key zero trust principle.",
+      "category": "Identity and Access Management",
+      "severity": "MEDIUM",
+      "service": "cognito",
+      "check_function": "check_continuous_verification",
+      "execution": {
+        "module": "security_checks.checks.iam.continuous_verification",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "zero_trust": [
+          "ZT-3.3"
+        ],
+        "nist_800_53": [
+          "IA-2(12)"
+        ],
+        "nist_800_171": [
+          "3.5.1"
+        ],
+        "sans_top20": [
+          "16.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-088",
+      "name": "Device Trust Verification",
+      "description": "Verify device compliance before access",
+      "detailed_description": "This check verifies that device trust is validated before granting access to resources. It ensures that only managed, compliant devices can access sensitive resources, implementing zero trust device security.",
+      "category": "Identity and Access Management",
+      "severity": "HIGH",
+      "service": "workspaces",
+      "check_function": "check_device_trust",
+      "execution": {
+        "module": "security_checks.checks.iam.device_trust",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "zero_trust": [
+          "ZT-5.2"
+        ],
+        "nist_800_53": [
+          "AC-19"
+        ],
+        "nist_800_171": [
+          "3.1.18"
+        ],
+        "cis_aws": [
+          "1.21"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-089",
+      "name": "Data Encryption Everywhere",
+      "description": "Encrypt data at all stages",
+      "detailed_description": "This check verifies that data is encrypted at rest, in transit, and in use across all services. It implements zero trust data security by ensuring encryption is applied consistently without exceptions.",
+      "category": "Data Protection",
+      "severity": "HIGH",
+      "service": "multiple",
+      "check_function": "check_encryption_everywhere",
+      "execution": {
+        "module": "security_checks.checks.encryption.data_encryption_all",
+        "parallelizable": true,
+        "estimated_runtime": "8s"
+      },
+      "frameworks": {
+        "zero_trust": [
+          "ZT-6.1"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-01"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-090",
+      "name": "Time-bound Privileged Access",
+      "description": "Time-bound privileged access",
+      "detailed_description": "This check verifies that privileged access is time-bound and automatically expires. It ensures that administrative permissions are granted only for the duration needed, implementing just-in-time access principles.",
+      "category": "Identity and Access Management",
+      "severity": "HIGH",
+      "service": "iam",
+      "check_function": "check_time_bound_access",
+      "execution": {
+        "module": "security_checks.checks.iam.time_bound_access",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "zero_trust": [
+          "ZT-2.3"
+        ],
+        "nist_800_53": [
+          "AC-2(5)"
+        ],
+        "nist_800_171": [
+          "3.1.5"
+        ],
+        "aws_well_architected": [
+          "SEC-3"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-091",
+      "name": "Application Security Metrics",
+      "description": "Track application security metrics",
+      "detailed_description": "This check verifies that application security metrics are being collected and monitored, including vulnerability counts, patch compliance, and security testing results. These metrics are essential for security posture management.",
+      "category": "Application Security",
+      "severity": "MEDIUM",
+      "service": "securityhub",
+      "check_function": "check_app_security_metrics",
+      "execution": {
+        "module": "security_checks.checks.application.security_metrics",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "csa_ccm": [
+          "AIS-02"
+        ],
+        "nist_800_53": [
+          "SI-4"
+        ],
+        "nist_800_171": [
+          "3.14.3"
+        ],
+        "sans_top20": [
+          "20.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-092",
+      "name": "Data Retention Policies",
+      "description": "Enforce data retention policies",
+      "detailed_description": "This check verifies that data retention policies are implemented and enforced across S3, CloudWatch Logs, and databases. It ensures compliance with regulatory requirements and prevents indefinite data storage.",
+      "category": "Data Governance",
+      "severity": "MEDIUM",
+      "service": "multiple",
+      "check_function": "check_retention_policies",
+      "execution": {
+        "module": "security_checks.checks.governance.retention_policies",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "csa_ccm": [
+          "BCR-11"
+        ],
+        "nist_800_53": [
+          "AU-11"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "cis_aws": [
+          "3.11"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-093",
+      "name": "Configuration Change Detection",
+      "description": "Detect unauthorized configuration changes",
+      "detailed_description": "This check verifies that AWS Config is enabled with rules to detect unauthorized configuration changes. It ensures that any deviations from approved configurations are quickly identified and can be remediated.",
+      "category": "Configuration Management",
+      "severity": "HIGH",
+      "service": "config",
+      "check_function": "check_config_change_detection",
+      "execution": {
+        "module": "security_checks.checks.config.change_detection",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "csa_ccm": [
+          "CCC-04"
+        ],
+        "nist_800_53": [
+          "CM-3(5)"
+        ],
+        "nist_800_171": [
+          "3.4.2"
+        ],
+        "aws_well_architected": [
+          "OPS-5"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-094",
+      "name": "Production Data in Non-Production",
+      "description": "Prevent production data in test environments",
+      "detailed_description": "This check verifies that production data is not present in development or test environments. It looks for data classification tags and cross-account access patterns to identify potential data leakage.",
+      "category": "Data Protection",
+      "severity": "HIGH",
+      "service": "multiple",
+      "check_function": "check_prod_data_isolation",
+      "execution": {
+        "module": "security_checks.checks.data.prod_data_isolation",
+        "parallelizable": true,
+        "estimated_runtime": "6s"
+      },
+      "frameworks": {
+        "csa_ccm": [
+          "DCS-06"
+        ],
+        "nist_800_53": [
+          "SC-4"
+        ],
+        "nist_800_171": [
+          "3.13.6"
+        ],
+        "owasp_cloud": [
+          "OCST-3.2"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-095",
+      "name": "Key Management Lifecycle",
+      "description": "Implement key management lifecycle",
+      "detailed_description": "This check verifies that cryptographic keys follow a complete lifecycle including generation, distribution, storage, rotation, and destruction. It ensures compliance with key management best practices.",
+      "category": "Encryption and Key Management",
+      "severity": "HIGH",
+      "service": "kms",
+      "check_function": "check_key_lifecycle",
+      "execution": {
+        "module": "security_checks.checks.encryption.key_lifecycle",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "csa_ccm": [
+          "EKM-02"
+        ],
+        "nist_800_53": [
+          "SC-12"
+        ],
+        "nist_800_171": [
+          "3.13.10"
+        ],
+        "cis_aws": [
+          "3.8"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-096",
+      "name": "Hardware Asset Inventory",
+      "description": "Maintain inventory of all AWS resources",
+      "detailed_description": "This check verifies that a complete inventory of all AWS resources is maintained using AWS Config, Systems Manager, or tagging. Asset inventory is fundamental for security management and incident response.",
+      "category": "Asset Management",
+      "severity": "MEDIUM",
+      "service": "config",
+      "check_function": "check_asset_inventory",
+      "execution": {
+        "module": "security_checks.checks.inventory.hardware_assets",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "sans_top20": [
+          "1.1"
+        ],
+        "nist_800_53": [
+          "CM-8"
+        ],
+        "nist_800_171": [
+          "3.4.1"
+        ],
+        "csa_ccm": [
+          "CCC-01"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-097",
+      "name": "Software Asset Inventory",
+      "description": "Track all software and AMIs in use",
+      "detailed_description": "This check verifies that all software components, AMIs, and container images are tracked and inventoried. It ensures that unauthorized or vulnerable software can be quickly identified and removed.",
+      "category": "Asset Management",
+      "severity": "MEDIUM",
+      "service": "ssm",
+      "check_function": "check_software_inventory",
+      "execution": {
+        "module": "security_checks.checks.inventory.software_assets",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "sans_top20": [
+          "2.1"
+        ],
+        "nist_800_53": [
+          "CM-8(3)"
+        ],
+        "nist_800_171": [
+          "3.4.1"
+        ],
+        "aws_well_architected": [
+          "OPS-1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-098",
+      "name": "Configuration Enforcement",
+      "description": "Enforce secure configurations via SCPs",
+      "detailed_description": "This check verifies that Service Control Policies (SCPs) are used to enforce secure configurations across the organization. SCPs provide preventive controls that cannot be overridden at the account level.",
+      "category": "Configuration Management",
+      "severity": "HIGH",
+      "service": "organizations",
+      "check_function": "check_scp_enforcement",
+      "execution": {
+        "module": "security_checks.checks.config.scp_enforcement",
+        "parallelizable": false,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "sans_top20": [
+          "3.5"
+        ],
+        "nist_800_53": [
+          "CM-7"
+        ],
+        "nist_800_171": [
+          "3.4.6"
+        ],
+        "zero_trust": [
+          "ZT-4.5"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-099",
+      "name": "Centralized Log Collection",
+      "description": "Centralized log collection",
+      "detailed_description": "This check verifies that all logs are centrally collected in a dedicated logging account or S3 bucket. Centralized logging is essential for security monitoring, incident response, and compliance.",
+      "category": "Logging and Monitoring",
+      "severity": "HIGH",
+      "service": "cloudtrail",
+      "check_function": "check_centralized_logging",
+      "execution": {
+        "module": "security_checks.checks.monitoring.centralized_logging",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "sans_top20": [
+          "6.1"
+        ],
+        "nist_800_53": [
+          "AU-3"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "cis_aws": [
+          "3.10"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-100",
+      "name": "Continuous Network Monitoring",
+      "description": "Continuous network monitoring",
+      "detailed_description": "This check verifies that continuous network monitoring is implemented using VPC Flow Logs, Network Firewall logs, and CloudWatch metrics. It ensures that network anomalies and attacks can be quickly detected.",
+      "category": "Network Security",
+      "severity": "HIGH",
+      "service": "ec2",
+      "check_function": "check_network_monitoring",
+      "execution": {
+        "module": "security_checks.checks.network.continuous_monitoring",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "sans_top20": [
+          "12.1"
+        ],
+        "nist_800_53": [
+          "SI-4"
+        ],
+        "nist_800_171": [
+          "3.14.3"
+        ],
+        "mitre_attack": [
+          "Multiple"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-101",
+      "name": "Multi-Region KMS Keys",
+      "description": "Ensure KMS keys are replicated across regions",
+      "detailed_description": "This check verifies that critical KMS keys are configured as multi-region keys for disaster recovery. Multi-region keys ensure that encrypted data remains accessible even if a region becomes unavailable.",
+      "category": "Encryption and Key Management",
+      "severity": "MEDIUM",
+      "service": "kms",
+      "check_function": "check_multi_region_keys",
+      "execution": {
+        "module": "security_checks.checks.encryption.multi_region_keys",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "REL-11"
+        ],
+        "nist_800_53": [
+          "CP-9(6)"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "csa_ccm": [
+          "BCR-05"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-102",
+      "name": "Database Activity Monitoring",
+      "description": "Enable database activity monitoring on all RDS instances",
+      "detailed_description": "This check verifies that database activity streams or enhanced monitoring is enabled on all RDS instances. Database activity monitoring is crucial for detecting unauthorized access and meeting compliance requirements.",
+      "category": "Database Security",
+      "severity": "HIGH",
+      "service": "rds",
+      "check_function": "check_db_activity_monitoring",
+      "execution": {
+        "module": "security_checks.checks.database.activity_monitoring",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "4.9"
+        ],
+        "nist_800_53": [
+          "AU-12"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "mitre_attack": [
+          "T1055"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-103",
+      "name": "API Gateway Request Validation",
+      "description": "Enable request validation on API Gateway",
+      "detailed_description": "This check verifies that API Gateway has request validation enabled to validate request parameters and body. Request validation helps prevent malformed requests and potential injection attacks.",
+      "category": "API Security",
+      "severity": "MEDIUM",
+      "service": "apigateway",
+      "check_function": "check_api_request_validation",
+      "execution": {
+        "module": "security_checks.checks.api.request_validation",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-5.3.1"
+        ],
+        "nist_800_53": [
+          "SI-10"
+        ],
+        "nist_800_171": [
+          "3.14.2"
+        ],
+        "sans_top20": [
+          "18.3"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-104",
+      "name": "ElastiCache Encryption in Transit",
+      "description": "Ensure ElastiCache uses encryption in transit",
+      "detailed_description": "This check verifies that ElastiCache clusters have encryption in transit enabled. This protects cached data from network sniffing attacks and ensures secure communication between clients and cache nodes.",
+      "category": "Database Security",
+      "severity": "HIGH",
+      "service": "elasticache",
+      "check_function": "check_elasticache_transit_encryption",
+      "execution": {
+        "module": "security_checks.checks.database.elasticache_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "7.3"
+        ],
+        "nist_800_53": [
+          "SC-8"
+        ],
+        "nist_800_171": [
+          "3.13.8"
+        ],
+        "zero_trust": [
+          "ZT-6.2"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-105",
+      "name": "Backup Vault Encryption",
+      "description": "Ensure all AWS Backup vaults are encrypted",
+      "detailed_description": "This check verifies that AWS Backup vaults use encryption for stored backups. Encrypted backups protect sensitive data even if backup storage is compromised.",
+      "category": "Backup and Recovery",
+      "severity": "HIGH",
+      "service": "backup",
+      "check_function": "check_backup_vault_encryption",
+      "execution": {
+        "module": "security_checks.checks.backup.vault_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "CP-9(8)"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "csa_ccm": [
+          "BCR-02"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-106",
+      "name": "Service Control Policies",
+      "description": "Implement preventive SCPs in Organizations",
+      "detailed_description": "This check verifies that Service Control Policies are implemented to prevent high-risk actions across the organization. SCPs provide defense in depth by enforcing security invariants that cannot be overridden.",
+      "category": "Account Management",
+      "severity": "HIGH",
+      "service": "organizations",
+      "check_function": "check_preventive_scps",
+      "execution": {
+        "module": "security_checks.checks.account.preventive_scps",
+        "parallelizable": false,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-1"
+        ],
+        "nist_800_53": [
+          "AC-3(7)"
+        ],
+        "nist_800_171": [
+          "3.1.2"
+        ],
+        "zero_trust": [
+          "ZT-2.4"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-107",
+      "name": "Network Load Balancer TLS",
+      "description": "Ensure NLBs use TLS 1.2 minimum",
+      "detailed_description": "This check verifies that Network Load Balancers are configured to use TLS 1.2 or higher for encrypted listeners. Older TLS versions have known vulnerabilities and should not be used.",
+      "category": "Network Security",
+      "severity": "HIGH",
+      "service": "elbv2",
+      "check_function": "check_nlb_tls_version",
+      "execution": {
+        "module": "security_checks.checks.network.nlb_tls",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "7.5"
+        ],
+        "nist_800_53": [
+          "SC-8(1)"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-4.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-108",
+      "name": "IAM Access Analyzer",
+      "description": "Enable IAM Access Analyzer for all regions",
+      "detailed_description": "This check verifies that IAM Access Analyzer is enabled in all regions to identify resources shared with external entities. Access Analyzer helps prevent unintended access by continuously analyzing resource policies.",
+      "category": "Identity and Access Management",
+      "severity": "MEDIUM",
+      "service": "accessanalyzer",
+      "check_function": "check_access_analyzer",
+      "execution": {
+        "module": "security_checks.checks.iam.access_analyzer",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "nist_800_53": [
+          "AC-6(9)"
+        ],
+        "nist_800_171": [
+          "3.1.5"
+        ],
+        "zero_trust": [
+          "ZT-2.5"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-109",
+      "name": "EKS Private Endpoints",
+      "description": "Ensure EKS clusters use private endpoints only",
+      "detailed_description": "This check verifies that EKS clusters are configured with private endpoints only, preventing direct internet access to the Kubernetes API. This reduces the attack surface and enforces access through private networks.",
+      "category": "Container Security",
+      "severity": "HIGH",
+      "service": "eks",
+      "check_function": "check_eks_private_endpoints",
+      "execution": {
+        "module": "security_checks.checks.container.eks_private",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "5.4.2"
+        ],
+        "nist_800_53": [
+          "SC-7(4)"
+        ],
+        "nist_800_171": [
+          "3.13.1"
+        ],
+        "mitre_attack": [
+          "T1133"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-110",
+      "name": "Macie for S3 Scanning",
+      "description": "Enable Macie for sensitive data discovery",
+      "detailed_description": "This check verifies that Amazon Macie is enabled and configured to scan S3 buckets for sensitive data. Macie helps identify and protect sensitive data like PII, PHI, and financial information.",
+      "category": "Data Protection",
+      "severity": "MEDIUM",
+      "service": "macie2",
+      "check_function": "check_macie_enabled",
+      "execution": {
+        "module": "security_checks.checks.data.macie_scanning",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-7"
+        ],
+        "nist_800_53": [
+          "RA-5(11)"
+        ],
+        "nist_800_171": [
+          "3.11.2"
+        ],
+        "csa_ccm": [
+          "DSI-05"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-111",
+      "name": "SSM Session Manager Logging",
+      "description": "Log all SSM session activities",
+      "detailed_description": "This check verifies that Systems Manager Session Manager is configured to log all session activities to S3 or CloudWatch. Session logging provides an audit trail of administrative actions.",
+      "category": "Logging and Monitoring",
+      "severity": "MEDIUM",
+      "service": "ssm",
+      "check_function": "check_ssm_session_logging",
+      "execution": {
+        "module": "security_checks.checks.monitoring.ssm_logging",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "3.12"
+        ],
+        "nist_800_53": [
+          "AU-14"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "sans_top20": [
+          "8.6"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-112",
+      "name": "Certificate Manager Expiry",
+      "description": "Monitor certificate expiration in ACM",
+      "detailed_description": "This check verifies that CloudWatch alarms are configured to alert on certificate expiration in AWS Certificate Manager. Expired certificates can cause service outages and security vulnerabilities.",
+      "category": "Certificate Management",
+      "severity": "MEDIUM",
+      "service": "acm",
+      "check_function": "check_acm_expiry_monitoring",
+      "execution": {
+        "module": "security_checks.checks.certificates.acm_expiry",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "OPS-8"
+        ],
+        "nist_800_53": [
+          "SC-17"
+        ],
+        "nist_800_171": [
+          "3.13.12"
+        ],
+        "csa_ccm": [
+          "EKM-02"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-113",
+      "name": "Transit Gateway Route Security",
+      "description": "Review Transit Gateway route tables",
+      "detailed_description": "This check reviews Transit Gateway route tables to ensure routes follow least privilege principles and don't create unintended connectivity between security zones.",
+      "category": "Network Security",
+      "severity": "MEDIUM",
+      "service": "ec2",
+      "check_function": "check_tgw_route_security",
+      "execution": {
+        "module": "security_checks.checks.network.tgw_routes",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-6"
+        ],
+        "nist_800_53": [
+          "SC-7(5)"
+        ],
+        "nist_800_171": [
+          "3.13.5"
+        ],
+        "zero_trust": [
+          "ZT-4.3"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-114",
+      "name": "CodeBuild Environment Variables",
+      "description": "Ensure no secrets in CodeBuild environment",
+      "detailed_description": "This check verifies that CodeBuild projects don't contain secrets in environment variables. Secrets should be stored in Secrets Manager or Parameter Store and referenced dynamically.",
+      "category": "CI/CD Security",
+      "severity": "HIGH",
+      "service": "codebuild",
+      "check_function": "check_codebuild_secrets",
+      "execution": {
+        "module": "security_checks.checks.cicd.codebuild_secrets",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-3.1.1"
+        ],
+        "nist_800_53": [
+          "IA-5(7)"
+        ],
+        "nist_800_171": [
+          "3.5.2"
+        ],
+        "sans_top20": [
+          "14.8"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-115",
+      "name": "Glacier Vault Lock",
+      "description": "Enable Glacier vault lock for compliance",
+      "detailed_description": "This check verifies that Glacier vaults containing compliance data have vault lock policies enabled. Vault lock provides immutable retention policies required for regulatory compliance.",
+      "category": "Storage Security",
+      "severity": "MEDIUM",
+      "service": "glacier",
+      "check_function": "check_glacier_vault_lock",
+      "execution": {
+        "module": "security_checks.checks.storage.glacier_vault_lock",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "AU-9(4)"
+        ],
+        "nist_800_171": [
+          "3.3.8"
+        ],
+        "csa_ccm": [
+          "BCR-03"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-116",
+      "name": "CloudFront Field Level Encryption",
+      "description": "Enable field-level encryption on CloudFront",
+      "detailed_description": "This check verifies that CloudFront distributions handling sensitive data have field-level encryption configured. This provides an additional layer of encryption for specific sensitive fields.",
+      "category": "Content Delivery",
+      "severity": "MEDIUM",
+      "service": "cloudfront",
+      "check_function": "check_cloudfront_field_encryption",
+      "execution": {
+        "module": "security_checks.checks.cdn.field_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "9.3"
+        ],
+        "nist_800_53": [
+          "SC-28(1)"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-4.3"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-117",
+      "name": "WorkSpaces Encryption",
+      "description": "Ensure WorkSpaces volumes are encrypted",
+      "detailed_description": "This check verifies that Amazon WorkSpaces have encrypted volumes for both root and user volumes. Encryption protects data on virtual desktops from unauthorized access.",
+      "category": "End User Computing",
+      "severity": "HIGH",
+      "service": "workspaces",
+      "check_function": "check_workspaces_encryption",
+      "execution": {
+        "module": "security_checks.checks.enduser.workspaces_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-03"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-118",
+      "name": "API Gateway Cache Encryption",
+      "description": "Ensure API Gateway cache is encrypted",
+      "detailed_description": "This check verifies that API Gateway caching is configured with encryption. Encrypted cache prevents exposure of sensitive cached responses if the cache storage is compromised.",
+      "category": "API Security",
+      "severity": "MEDIUM",
+      "service": "apigateway",
+      "check_function": "check_api_cache_encryption",
+      "execution": {
+        "module": "security_checks.checks.api.cache_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-4.3.2"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "cis_aws": [
+          "7.7"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-119",
+      "name": "Lake Formation Security",
+      "description": "Enable Lake Formation security features",
+      "detailed_description": "This check verifies that AWS Lake Formation is configured with fine-grained access controls and data filtering. Lake Formation provides centralized data lake security management.",
+      "category": "Data Analytics",
+      "severity": "MEDIUM",
+      "service": "lakeformation",
+      "check_function": "check_lake_formation_security",
+      "execution": {
+        "module": "security_checks.checks.analytics.lake_formation",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-7"
+        ],
+        "nist_800_53": [
+          "AC-3(10)"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "csa_ccm": [
+          "AIS-04"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-120",
+      "name": "EMR Encryption",
+      "description": "Ensure EMR clusters use encryption",
+      "detailed_description": "This check verifies that EMR clusters have encryption enabled for data at rest and in transit. EMR processes large amounts of potentially sensitive data that must be protected.",
+      "category": "Data Analytics",
+      "severity": "HIGH",
+      "service": "emr",
+      "check_function": "check_emr_encryption",
+      "execution": {
+        "module": "security_checks.checks.analytics.emr_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "7.10"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "sans_top20": [
+          "14.2"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-121",
+      "name": "SageMaker Notebook Encryption",
+      "description": "Ensure SageMaker notebooks are encrypted",
+      "detailed_description": "This check verifies that SageMaker notebook instances have encryption enabled for the storage volume. Notebooks often contain sensitive data and model code that must be protected.",
+      "category": "Machine Learning",
+      "severity": "HIGH",
+      "service": "sagemaker",
+      "check_function": "check_sagemaker_encryption",
+      "execution": {
+        "module": "security_checks.checks.ml.sagemaker_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-2.3"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-122",
+      "name": "Direct Connect MACsec",
+      "description": "Ensure Direct Connect uses MACsec encryption",
+      "detailed_description": "This check verifies that Direct Connect connections use MACsec encryption for layer 2 network security. MACsec provides hop-by-hop encryption for dedicated network connections.",
+      "category": "Network Security",
+      "severity": "HIGH",
+      "service": "directconnect",
+      "check_function": "check_dx_macsec",
+      "execution": {
+        "module": "security_checks.checks.network.dx_macsec",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-9"
+        ],
+        "nist_800_53": [
+          "SC-8(1)"
+        ],
+        "nist_800_171": [
+          "3.13.8"
+        ],
+        "zero_trust": [
+          "ZT-6.3"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-123",
+      "name": "Control Tower Guardrails",
+      "description": "Enable all mandatory Control Tower guardrails",
+      "detailed_description": "This check verifies that all mandatory and strongly recommended Control Tower guardrails are enabled. Guardrails provide preventive and detective controls for multi-account environments.",
+      "category": "Account Management",
+      "severity": "HIGH",
+      "service": "controltower",
+      "check_function": "check_control_tower_guardrails",
+      "execution": {
+        "module": "security_checks.checks.account.control_tower",
+        "parallelizable": false,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-1"
+        ],
+        "nist_800_53": [
+          "CM-2(2)"
+        ],
+        "nist_800_171": [
+          "3.4.1"
+        ],
+        "csa_ccm": [
+          "CCC-04"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-124",
+      "name": "Cost Anomaly Detection",
+      "description": "Enable Cost Anomaly Detection",
+      "detailed_description": "This check verifies that AWS Cost Anomaly Detection is enabled to identify unusual spending patterns that could indicate compromised resources or crypto mining attacks.",
+      "category": "Cost Management",
+      "severity": "LOW",
+      "service": "ce",
+      "check_function": "check_cost_anomaly_detection",
+      "execution": {
+        "module": "security_checks.checks.cost.anomaly_detection",
+        "parallelizable": false,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "COST-1"
+        ],
+        "nist_800_53": [
+          "SI-4(13)"
+        ],
+        "nist_800_171": [
+          "3.14.3"
+        ],
+        "sans_top20": [
+          "20.7"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-125",
+      "name": "Resource Access Manager",
+      "description": "Review RAM resource shares",
+      "detailed_description": "This check reviews Resource Access Manager shares to ensure resources are only shared with authorized accounts and organizations. Improper sharing can lead to data exposure.",
+      "category": "Resource Sharing",
+      "severity": "MEDIUM",
+      "service": "ram",
+      "check_function": "check_ram_shares",
+      "execution": {
+        "module": "security_checks.checks.sharing.ram_shares",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "nist_800_53": [
+          "AC-4(17)"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "zero_trust": [
+          "ZT-4.6"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-126",
+      "name": "Batch Job Security",
+      "description": "Secure AWS Batch job queues",
+      "detailed_description": "This check verifies that AWS Batch job queues and compute environments are configured securely with appropriate IAM roles and network isolation.",
+      "category": "Compute Security",
+      "severity": "MEDIUM",
+      "service": "batch",
+      "check_function": "check_batch_security",
+      "execution": {
+        "module": "security_checks.checks.compute.batch_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "nist_800_53": [
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.1.1"
+        ],
+        "mitre_attack": [
+          "T1053"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-127",
+      "name": "Amplify Security Headers",
+      "description": "Enable security headers on Amplify apps",
+      "detailed_description": "This check verifies that Amplify applications have security headers configured including Content-Security-Policy, X-Frame-Options, and other OWASP recommended headers.",
+      "category": "Application Security",
+      "severity": "MEDIUM",
+      "service": "amplify",
+      "check_function": "check_amplify_headers",
+      "execution": {
+        "module": "security_checks.checks.application.amplify_headers",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-4.2.2"
+        ],
+        "nist_800_53": [
+          "SC-8"
+        ],
+        "nist_800_171": [
+          "3.13.8"
+        ],
+        "cis_aws": [
+          "9.4"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-128",
+      "name": "Timestream Encryption",
+      "description": "Ensure Timestream databases are encrypted",
+      "detailed_description": "This check verifies that Amazon Timestream databases have encryption enabled. Timestream stores time-series data that may contain sensitive operational or IoT metrics.",
+      "category": "Database Security",
+      "severity": "MEDIUM",
+      "service": "timestream",
+      "check_function": "check_timestream_encryption",
+      "execution": {
+        "module": "security_checks.checks.database.timestream_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-03"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-129",
+      "name": "IoT Core Policies",
+      "description": "Review IoT Core thing policies",
+      "detailed_description": "This check reviews IoT Core thing policies to ensure they follow least privilege principles and don't allow overly broad permissions that could compromise IoT devices.",
+      "category": "IoT Security",
+      "severity": "HIGH",
+      "service": "iot",
+      "check_function": "check_iot_policies",
+      "execution": {
+        "module": "security_checks.checks.iot.thing_policies",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "nist_800_53": [
+          "AC-3(15)"
+        ],
+        "nist_800_171": [
+          "3.1.2"
+        ],
+        "mitre_attack": [
+          "T1072"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-130",
+      "name": "FSx Encryption",
+      "description": "Ensure FSx file systems are encrypted",
+      "detailed_description": "This check verifies that all FSx file systems (Windows File Server, Lustre, NetApp ONTAP, OpenZFS) have encryption at rest enabled.",
+      "category": "Storage Security",
+      "severity": "HIGH",
+      "service": "fsx",
+      "check_function": "check_fsx_encryption",
+      "execution": {
+        "module": "security_checks.checks.storage.fsx_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "cis_aws": [
+          "2.4.1"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "sans_top20": [
+          "14.2"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-131",
+      "name": "DataSync Task Logging",
+      "description": "Enable logging for DataSync tasks",
+      "detailed_description": "This check verifies that AWS DataSync tasks have CloudWatch logging enabled to track data transfer activities and identify potential security issues.",
+      "category": "Data Transfer",
+      "severity": "LOW",
+      "service": "datasync",
+      "check_function": "check_datasync_logging",
+      "execution": {
+        "module": "security_checks.checks.transfer.datasync_logging",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "OPS-8"
+        ],
+        "nist_800_53": [
+          "AU-2"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "csa_ccm": [
+          "LOG-02"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-132",
+      "name": "MediaStore Container Policies",
+      "description": "Review MediaStore container policies",
+      "detailed_description": "This check reviews MediaStore container policies to ensure they don't allow public access and follow least privilege principles for media content delivery.",
+      "category": "Media Services",
+      "severity": "MEDIUM",
+      "service": "mediastore",
+      "check_function": "check_mediastore_policies",
+      "execution": {
+        "module": "security_checks.checks.media.mediastore_policies",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "nist_800_53": [
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.1.2"
+        ],
+        "owasp_cloud": [
+          "OCST-1.3"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-133",
+      "name": "Comprehend Encryption",
+      "description": "Ensure Comprehend uses encryption",
+      "detailed_description": "This check verifies that Amazon Comprehend jobs and endpoints use encryption for data processing. Comprehend processes potentially sensitive text data that must be protected.",
+      "category": "AI/ML Security",
+      "severity": "MEDIUM",
+      "service": "comprehend",
+      "check_function": "check_comprehend_encryption",
+      "execution": {
+        "module": "security_checks.checks.ml.comprehend_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "DSI-07"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-134",
+      "name": "Personalize Dataset Encryption",
+      "description": "Ensure Personalize datasets are encrypted",
+      "detailed_description": "This check verifies that Amazon Personalize datasets are encrypted. Personalize processes user behavior and preference data that is often sensitive.",
+      "category": "AI/ML Security",
+      "severity": "MEDIUM",
+      "service": "personalize",
+      "check_function": "check_personalize_encryption",
+      "execution": {
+        "module": "security_checks.checks.ml.personalize_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-3.3"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-135",
+      "name": "Forecast Dataset Encryption",
+      "description": "Ensure Forecast datasets are encrypted",
+      "detailed_description": "This check verifies that Amazon Forecast datasets are encrypted. Forecast processes business metrics and predictions that may be commercially sensitive.",
+      "category": "AI/ML Security",
+      "severity": "MEDIUM",
+      "service": "forecast",
+      "check_function": "check_forecast_encryption",
+      "execution": {
+        "module": "security_checks.checks.ml.forecast_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "EKM-03"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-136",
+      "name": "Kendra Index Encryption",
+      "description": "Ensure Kendra indexes are encrypted",
+      "detailed_description": "This check verifies that Amazon Kendra search indexes are encrypted. Kendra indexes often contain sensitive enterprise documents and must be protected.",
+      "category": "Search Services",
+      "severity": "HIGH",
+      "service": "kendra",
+      "check_function": "check_kendra_encryption",
+      "execution": {
+        "module": "security_checks.checks.search.kendra_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "sans_top20": [
+          "14.2"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-137",
+      "name": "Lex Bot Security",
+      "description": "Secure Lex bot configurations",
+      "detailed_description": "This check verifies that Amazon Lex bots are configured with appropriate security settings including encryption, logging, and input validation to prevent injection attacks.",
+      "category": "AI/ML Security",
+      "severity": "MEDIUM",
+      "service": "lexv2",
+      "check_function": "check_lex_security",
+      "execution": {
+        "module": "security_checks.checks.ml.lex_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-5.3"
+        ],
+        "nist_800_53": [
+          "SI-10"
+        ],
+        "nist_800_171": [
+          "3.14.2"
+        ],
+        "mitre_attack": [
+          "T1190"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-138",
+      "name": "Polly Data Privacy",
+      "description": "Ensure Polly requests are logged",
+      "detailed_description": "This check verifies that Amazon Polly synthesis requests are logged for audit purposes. Polly may process sensitive text that should be tracked for compliance.",
+      "category": "AI/ML Security",
+      "severity": "LOW",
+      "service": "polly",
+      "check_function": "check_polly_logging",
+      "execution": {
+        "module": "security_checks.checks.ml.polly_logging",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-4"
+        ],
+        "nist_800_53": [
+          "AU-2"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "csa_ccm": [
+          "LOG-04"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-139",
+      "name": "Textract Encryption",
+      "description": "Ensure Textract uses encryption",
+      "detailed_description": "This check verifies that Amazon Textract document analysis jobs use encryption. Textract processes documents that may contain sensitive information.",
+      "category": "AI/ML Security",
+      "severity": "MEDIUM",
+      "service": "textract",
+      "check_function": "check_textract_encryption",
+      "execution": {
+        "module": "security_checks.checks.ml.textract_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-3.3"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-140",
+      "name": "Translate Encryption",
+      "description": "Ensure Translate uses encryption",
+      "detailed_description": "This check verifies that Amazon Translate jobs use encryption for text translation. Translate may process sensitive business documents requiring protection.",
+      "category": "AI/ML Security",
+      "severity": "MEDIUM",
+      "service": "translate",
+      "check_function": "check_translate_encryption",
+      "execution": {
+        "module": "security_checks.checks.ml.translate_encryption",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "DSI-07"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-141",
+      "name": "Backup Plan Testing",
+      "description": "Ensure backup plans are tested regularly",
+      "detailed_description": "This check verifies that AWS Backup plans include regular restore testing to ensure backups are viable. Untested backups may fail when needed most.",
+      "category": "Backup and Recovery",
+      "severity": "MEDIUM",
+      "service": "backup",
+      "check_function": "check_backup_testing",
+      "execution": {
+        "module": "security_checks.checks.backup.backup_testing",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "REL-9"
+        ],
+        "nist_800_53": [
+          "CP-9(1)"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "sans_top20": [
+          "10.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-142",
+      "name": "Disaster Recovery Testing",
+      "description": "Regular DR testing and validation",
+      "detailed_description": "This check verifies that disaster recovery procedures are regularly tested and documented. This includes checking for DR runbooks and evidence of recent DR exercises.",
+      "category": "Business Continuity",
+      "severity": "HIGH",
+      "service": "multiple",
+      "check_function": "check_dr_testing",
+      "execution": {
+        "module": "security_checks.checks.continuity.dr_testing",
+        "parallelizable": true,
+        "estimated_runtime": "5s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "REL-13"
+        ],
+        "nist_800_53": [
+          "CP-4"
+        ],
+        "nist_800_171": [
+          "3.11.1"
+        ],
+        "csa_ccm": [
+          "BCR-04"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-143",
+      "name": "Multi-Account EventBridge",
+      "description": "Secure cross-account EventBridge rules",
+      "detailed_description": "This check verifies that EventBridge rules allowing cross-account access are properly secured and follow least privilege principles.",
+      "category": "Application Integration",
+      "severity": "MEDIUM",
+      "service": "events",
+      "check_function": "check_eventbridge_cross_account",
+      "execution": {
+        "module": "security_checks.checks.integration.eventbridge_cross_account",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-3"
+        ],
+        "nist_800_53": [
+          "AC-4"
+        ],
+        "nist_800_171": [
+          "3.1.3"
+        ],
+        "zero_trust": [
+          "ZT-4.7"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-144",
+      "name": "PrivateLink Endpoints",
+      "description": "Use PrivateLink for service access",
+      "detailed_description": "This check verifies that PrivateLink endpoints are used for accessing AWS services instead of public endpoints, reducing exposure to the internet.",
+      "category": "Network Security",
+      "severity": "MEDIUM",
+      "service": "ec2",
+      "check_function": "check_privatelink_usage",
+      "execution": {
+        "module": "security_checks.checks.network.privatelink_endpoints",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-6"
+        ],
+        "nist_800_53": [
+          "SC-7(8)"
+        ],
+        "nist_800_171": [
+          "3.13.1"
+        ],
+        "zero_trust": [
+          "ZT-4.8"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-145",
+      "name": "CloudHSM Cluster Backup",
+      "description": "Ensure CloudHSM clusters are backed up",
+      "detailed_description": "This check verifies that CloudHSM clusters have regular backups configured. HSM backups are critical for key recovery and business continuity.",
+      "category": "Encryption and Key Management",
+      "severity": "HIGH",
+      "service": "cloudhsm",
+      "check_function": "check_cloudhsm_backup",
+      "execution": {
+        "module": "security_checks.checks.encryption.cloudhsm_backup",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "REL-9"
+        ],
+        "nist_800_53": [
+          "CP-9"
+        ],
+        "nist_800_171": [
+          "3.8.9"
+        ],
+        "csa_ccm": [
+          "EKM-06"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-146",
+      "name": "Outposts Security",
+      "description": "Secure AWS Outposts configurations",
+      "detailed_description": "This check verifies that AWS Outposts are configured with appropriate security controls including network isolation and access restrictions.",
+      "category": "Hybrid Infrastructure",
+      "severity": "HIGH",
+      "service": "outposts",
+      "check_function": "check_outposts_security",
+      "execution": {
+        "module": "security_checks.checks.hybrid.outposts_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-10"
+        ],
+        "nist_800_53": [
+          "PE-3"
+        ],
+        "nist_800_171": [
+          "3.10.1"
+        ],
+        "sans_top20": [
+          "11.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-147",
+      "name": "Local Zones Security",
+      "description": "Secure Local Zone deployments",
+      "detailed_description": "This check verifies that resources deployed in AWS Local Zones have appropriate security controls considering the different shared responsibility model.",
+      "category": "Edge Computing",
+      "severity": "MEDIUM",
+      "service": "ec2",
+      "check_function": "check_local_zones_security",
+      "execution": {
+        "module": "security_checks.checks.edge.local_zones",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-6"
+        ],
+        "nist_800_53": [
+          "SC-7"
+        ],
+        "nist_800_171": [
+          "3.13.1"
+        ],
+        "zero_trust": [
+          "ZT-4.9"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-148",
+      "name": "Wavelength Security",
+      "description": "Secure Wavelength Zone deployments",
+      "detailed_description": "This check verifies that applications deployed in AWS Wavelength Zones have appropriate security controls for 5G edge computing.",
+      "category": "Edge Computing",
+      "severity": "MEDIUM",
+      "service": "ec2",
+      "check_function": "check_wavelength_security",
+      "execution": {
+        "module": "security_checks.checks.edge.wavelength_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-6"
+        ],
+        "nist_800_53": [
+          "SC-7"
+        ],
+        "nist_800_171": [
+          "3.13.1"
+        ],
+        "mitre_attack": [
+          "T1205"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-149",
+      "name": "App Runner Security",
+      "description": "Secure App Runner services",
+      "detailed_description": "This check verifies that App Runner services are configured with appropriate security settings including VPC connectivity and IAM roles.",
+      "category": "Container Security",
+      "severity": "MEDIUM",
+      "service": "apprunner",
+      "check_function": "check_apprunner_security",
+      "execution": {
+        "module": "security_checks.checks.container.apprunner_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "owasp_cloud": [
+          "OCST-2.2"
+        ],
+        "nist_800_53": [
+          "CM-7"
+        ],
+        "nist_800_171": [
+          "3.4.6"
+        ],
+        "cis_aws": [
+          "5.5"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-150",
+      "name": "Lightsail Instance Security",
+      "description": "Secure Lightsail instances",
+      "detailed_description": "This check verifies that Lightsail instances have appropriate security configurations including firewall rules and snapshot protection.",
+      "category": "Compute Security",
+      "severity": "MEDIUM",
+      "service": "lightsail",
+      "check_function": "check_lightsail_security",
+      "execution": {
+        "module": "security_checks.checks.compute.lightsail_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "nist_800_53": [
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.1.1"
+        ],
+        "sans_top20": [
+          "5.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-151",
+      "name": "GameLift Fleet Security",
+      "description": "Secure GameLift fleet configurations",
+      "detailed_description": "This check verifies that GameLift fleets are configured with appropriate security settings including VPC peering and access controls.",
+      "category": "Game Tech",
+      "severity": "MEDIUM",
+      "service": "gamelift",
+      "check_function": "check_gamelift_security",
+      "execution": {
+        "module": "security_checks.checks.gametech.gamelift_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "nist_800_53": [
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.1.2"
+        ],
+        "owasp_cloud": [
+          "OCST-2.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-152",
+      "name": "Elastic Transcoder Pipeline",
+      "description": "Secure Elastic Transcoder pipelines",
+      "detailed_description": "This check verifies that Elastic Transcoder pipelines use encryption and have appropriate S3 bucket permissions for input and output.",
+      "category": "Media Services",
+      "severity": "MEDIUM",
+      "service": "elastictranscoder",
+      "check_function": "check_transcoder_security",
+      "execution": {
+        "module": "security_checks.checks.media.transcoder_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "DSI-04"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-153",
+      "name": "MediaConvert Security",
+      "description": "Secure MediaConvert job settings",
+      "detailed_description": "This check verifies that MediaConvert jobs use encryption and have appropriate IAM roles with least privilege permissions.",
+      "category": "Media Services",
+      "severity": "MEDIUM",
+      "service": "mediaconvert",
+      "check_function": "check_mediaconvert_security",
+      "execution": {
+        "module": "security_checks.checks.media.mediaconvert_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "owasp_cloud": [
+          "OCST-3.3"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-154",
+      "name": "Quantum Ledger Database",
+      "description": "Secure QLDB configurations",
+      "detailed_description": "This check verifies that Quantum Ledger Database (QLDB) ledgers have appropriate permissions and export configurations for immutable transaction logs.",
+      "category": "Blockchain",
+      "severity": "HIGH",
+      "service": "qldb",
+      "check_function": "check_qldb_security",
+      "execution": {
+        "module": "security_checks.checks.blockchain.qldb_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "AU-9(4)"
+        ],
+        "nist_800_171": [
+          "3.3.8"
+        ],
+        "csa_ccm": [
+          "LOG-09"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-155",
+      "name": "Managed Blockchain",
+      "description": "Secure Managed Blockchain networks",
+      "detailed_description": "This check verifies that Managed Blockchain networks have appropriate access controls and encryption settings for blockchain applications.",
+      "category": "Blockchain",
+      "severity": "HIGH",
+      "service": "managedblockchain",
+      "check_function": "check_managed_blockchain_security",
+      "execution": {
+        "module": "security_checks.checks.blockchain.managed_blockchain",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "zero_trust": [
+          "ZT-6.4"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-156",
+      "name": "Ground Station Security",
+      "description": "Secure Ground Station configurations",
+      "detailed_description": "This check verifies that AWS Ground Station configurations have appropriate encryption and access controls for satellite communications.",
+      "category": "Satellite",
+      "severity": "HIGH",
+      "service": "groundstation",
+      "check_function": "check_ground_station_security",
+      "execution": {
+        "module": "security_checks.checks.satellite.ground_station",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-9"
+        ],
+        "nist_800_53": [
+          "SC-8"
+        ],
+        "nist_800_171": [
+          "3.13.8"
+        ],
+        "mitre_attack": [
+          "T1205"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-157",
+      "name": "Braket Quantum Computing",
+      "description": "Secure Braket job configurations",
+      "detailed_description": "This check verifies that Amazon Braket quantum computing jobs have appropriate access controls and data encryption for quantum algorithms.",
+      "category": "Quantum Computing",
+      "severity": "MEDIUM",
+      "service": "braket",
+      "check_function": "check_braket_security",
+      "execution": {
+        "module": "security_checks.checks.quantum.braket_security",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "csa_ccm": [
+          "DSI-07"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-158",
+      "name": "RoboMaker Security",
+      "description": "Secure RoboMaker simulations",
+      "detailed_description": "This check verifies that AWS RoboMaker simulation jobs have appropriate network isolation and IAM permissions for robotics applications.",
+      "category": "Robotics",
+      "severity": "MEDIUM",
+      "service": "robomaker",
+      "check_function": "check_robomaker_security",
+      "execution": {
+        "module": "security_checks.checks.robotics.robomaker_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-5"
+        ],
+        "nist_800_53": [
+          "AC-3"
+        ],
+        "nist_800_171": [
+          "3.1.2"
+        ],
+        "owasp_cloud": [
+          "OCST-2.1"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-159",
+      "name": "IoT Analytics Security",
+      "description": "Secure IoT Analytics datasets",
+      "detailed_description": "This check verifies that IoT Analytics datasets and channels have appropriate encryption and access controls for IoT data processing.",
+      "category": "IoT Security",
+      "severity": "HIGH",
+      "service": "iotanalytics",
+      "check_function": "check_iot_analytics_security",
+      "execution": {
+        "module": "security_checks.checks.iot.analytics_security",
+        "parallelizable": true,
+        "estimated_runtime": "4s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-8"
+        ],
+        "nist_800_53": [
+          "SC-28"
+        ],
+        "nist_800_171": [
+          "3.13.11"
+        ],
+        "sans_top20": [
+          "14.2"
+        ]
+      }
+    },
+    {
+      "id": "CHECK-160",
+      "name": "Migration Hub Security",
+      "description": "Secure Migration Hub tracking",
+      "detailed_description": "This check verifies that AWS Migration Hub has appropriate access controls and logging enabled for tracking migration activities.",
+      "category": "Migration",
+      "severity": "MEDIUM",
+      "service": "migrationhub",
+      "check_function": "check_migration_hub_security",
+      "execution": {
+        "module": "security_checks.checks.migration.hub_security",
+        "parallelizable": true,
+        "estimated_runtime": "3s"
+      },
+      "frameworks": {
+        "aws_well_architected": [
+          "SEC-7"
+        ],
+        "nist_800_53": [
+          "AU-2"
+        ],
+        "nist_800_171": [
+          "3.3.1"
+        ],
+        "csa_ccm": [
+          "LOG-08"
+        ]
+      }
+    }
+  ]
+}

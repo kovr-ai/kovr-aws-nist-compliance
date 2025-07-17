@@ -2,11 +2,15 @@
 
 A comprehensive Python application that validates AWS environments for compliance with multiple security frameworks including NIST 800-53, NIST 800-171, CIS AWS Benchmark, MITRE ATT&CK, OWASP Cloud Security, AWS Well-Architected Framework, and more. This tool provides parallel execution, multi-framework mapping, and comprehensive reporting capabilities.
 
-**New Feature**: The tool now generates separate compliance reports for both NIST 800-53 and NIST 800-171 frameworks by default, helping organizations demonstrate compliance with either or both standards.
+**New in v2.0**: 
+- Expanded to 160 security checks (from 60)
+- Enhanced NIST coverage: ~29% NIST 800-171 and growing NIST 800-53 coverage
+- New check categories: Zero Trust, CSA CCM, SANS Top 20, advanced AWS services
+- Improved parallel execution and reporting capabilities
 
 ## Features
 
-- **60+ Pre-configured Security Checks**: Comprehensive coverage across AWS services
+- **160 Pre-configured Security Checks**: Comprehensive coverage across 50+ AWS services
 - **Multi-Framework Support**: Maps to 10+ compliance frameworks:
   - NIST 800-53 Rev 5
   - NIST 800-171 Rev 2
@@ -28,7 +32,30 @@ A comprehensive Python application that validates AWS environments for complianc
 - **Resource-level Reporting**: Detailed compliance tracking for every AWS resource
 - **Intelligent Rate Limiting**: Avoids API throttling with service-aware scheduling
 
+## Framework Coverage
+
+### NIST Compliance Coverage
+- **NIST 800-53 Rev 5**: 72+ unique controls covered
+- **NIST 800-171 Rev 2**: 32 requirements covered (~29% of all 110 requirements)
+- **FedRAMP High Baseline**: Growing coverage of key controls
+
+### Coverage by NIST 800-171 Requirement Family
+- Access Control (3.1): 5 requirements covered
+- Audit and Accountability (3.3): 4 requirements covered  
+- Configuration Management (3.4): 3 requirements covered
+- Identification and Authentication (3.5): 4 requirements covered
+- Media Protection (3.8): 1 requirement covered
+- Physical Protection (3.10): 1 requirement covered
+- Risk Assessment (3.11): 2 requirements covered
+- Security Assessment (3.12): 1 requirement covered
+- System and Communications Protection (3.13): 8 requirements covered
+- System and Information Integrity (3.14): 3 requirements covered
+
+*Note: Some NIST requirement families (Awareness and Training, Incident Response, Maintenance, Personnel Security) require organizational processes beyond AWS technical controls.*
+
 ## Security Checks Included
+
+The tool includes 160 security checks across multiple categories:
 
 ### Identity and Access Management (IAM)
 | Check ID | Name | Severity | Frameworks |
@@ -134,6 +161,32 @@ A comprehensive Python application that validates AWS environments for complianc
 | CHECK-055 | EventBridge Rule Security | MEDIUM | NIST 800-53: AC-3, AC-4 |
 | CHECK-058 | AppSync API Authentication | HIGH | NIST 800-53: IA-2, AC-3; NIST 800-171: 3.5.1 |
 
+### New Check Categories (CHECK-061 to CHECK-160)
+
+#### CIS AWS Foundations Benchmark Checks
+- CHECK-061 to CHECK-070: IAM hardening, S3 security, encryption defaults, network restrictions
+
+#### MITRE ATT&CK Framework Checks  
+- CHECK-071 to CHECK-075: Threat detection, account monitoring, ransomware protection, DoS mitigation
+
+#### AWS Well-Architected Framework Checks
+- CHECK-076 to CHECK-085: Account segregation, service quotas, API security, auto-scaling
+
+#### OWASP Cloud Security Checks
+- CHECK-086 to CHECK-095: API gateway authentication, CORS validation, WAF rules, injection prevention
+
+#### Zero Trust Architecture Checks
+- CHECK-096 to CHECK-105: Micro-segmentation, continuous verification, device trust, least privilege
+
+#### CSA Cloud Controls Matrix Checks
+- CHECK-106 to CHECK-115: Security metrics, data retention, change detection, key management
+
+#### SANS Top 20 Critical Controls
+- CHECK-116 to CHECK-125: Asset inventory, centralized logging, continuous monitoring
+
+#### Advanced AWS Service Checks
+- CHECK-126 to CHECK-160: Coverage for 30+ additional AWS services including IoT, ML, Analytics, Blockchain, Quantum computing, and more
+
 ## Installation
 
 ### Prerequisites
@@ -176,6 +229,21 @@ AWS_SESSION_TOKEN="your-session-token"  # Optional
 ```
 
 The `.env` file is gitignored by default. Tests in the `test/` folder will load credentials from `.env` automatically.
+
+## Documentation
+
+### Setup & Configuration
+- [Quick Start Guide](docs/setup/quickstart.md) - Detailed setup and usage instructions
+- [IAM Permissions Required](docs/setup/IAM_PERMISSIONS_REQUIRED.md) - Complete IAM role and policy guide
+
+### Infrastructure as Code
+- [CloudFormation Template](cloudformation/compliance-checker-role.yaml) - Deploy IAM role with CloudFormation
+- [Terraform Module](terraform/compliance-checker-role.tf) - Deploy IAM role with Terraform
+
+### Helper Scripts
+- [setup.sh](setup.sh) - Initial Python environment setup
+- [run_compliance_check.sh](run_compliance_check.sh) - Main execution wrapper script
+- [setup-iam-role.sh](setup-iam-role.sh) - Interactive IAM role setup
 
 ## Usage
 

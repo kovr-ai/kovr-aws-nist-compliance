@@ -43,8 +43,10 @@ OPTIONS:
     -c, --checks CHECK_IDS     Comma-separated list of specific check IDs to run
     -x, --skip-checks IDS      Comma-separated list of check IDs to skip
     -l, --severity LEVEL       Minimum severity level (LOW, MEDIUM, HIGH, CRITICAL)
-    -f, --format FORMAT        Report format (all, csv, markdown, json)
-    -w, --framework FRAMEWORK  NIST framework (both, 800-53, 800-171) (default: both)
+    -f, --format FORMAT        Report format (all, csv, nist-53, nist-171, multi-framework, json)
+    -w, --framework FRAMEWORK  Deprecated - use --format instead
+    -p, --parallel             Enable parallel execution (default: true)
+    --workers NUM              Number of parallel workers (default: 20)
     -h, --help                 Show this help message
 
 EXAMPLES:
@@ -67,7 +69,7 @@ EOF
 }
 
 # Parse command line arguments
-TEMP=$(getopt -o k:s:t:r:g:b:o:c:x:l:f:w:h --long access-key:,secret-key:,session-token:,region:,git-repo:,git-branch:,output-dir:,checks:,skip-checks:,severity:,format:,framework:,help -n "$0" -- "$@")
+TEMP=$(getopt -o k:s:t:r:g:b:o:c:x:l:f:w:ph --long access-key:,secret-key:,session-token:,region:,git-repo:,git-branch:,output-dir:,checks:,skip-checks:,severity:,format:,framework:,parallel,workers:,help -n "$0" -- "$@")
 eval set -- "$TEMP"
 
 ACCESS_KEY=""
@@ -78,6 +80,8 @@ SKIP_CHECKS=""
 SEVERITY=""
 FORMAT="all"
 FRAMEWORK="both"
+PARALLEL="--parallel"
+WORKERS="20"
 
 while true; do
     case "$1" in
@@ -127,6 +131,14 @@ while true; do
             ;;
         -w|--framework)
             FRAMEWORK="$2"
+            shift 2
+            ;;
+        -p|--parallel)
+            PARALLEL="--parallel"
+            shift
+            ;;
+        --workers)
+            WORKERS="$2"
             shift 2
             ;;
         -h|--help)
@@ -209,7 +221,8 @@ PYTHON_ARGS=(
     "--region" "$AWS_REGION"
     "--output-dir" "$OUTPUT_DIR"
     "--format" "$FORMAT"
-    "--framework" "$FRAMEWORK"
+    "$PARALLEL"
+    "--workers" "$WORKERS"
 )
 
 if [ -n "$GIT_REPO" ]; then

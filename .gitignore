@@ -11,6 +11,9 @@ venv/
 # Reports
 reports/
 
+# Distribution
+dist/
+
 # IDE
 .vscode/
 .idea/
@@ -24,3 +27,6 @@ llm-docs/
 
 # Local environment variables
 .env
+
+# Test files
+test_reports/

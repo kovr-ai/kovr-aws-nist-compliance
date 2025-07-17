@@ -17,27 +17,29 @@ class AWSConnector:
 
     def __init__(
         self,
-        session_token: Optional[str] = None,
         access_key: Optional[str] = None,
         secret_key: Optional[str] = None,
+        session_token: Optional[str] = None,
         region: str = "us-east-1",
     ):
         """Initialize AWS connector with credentials."""
         self.region = region
-        self.session = self._create_session(session_token, access_key, secret_key)
+        self.session = self._create_session(access_key, secret_key, session_token)
         self.account_id = self._get_account_id()
 
     def _create_session(
-        self, session_token: Optional[str], access_key: Optional[str], secret_key: Optional[str]
+        self, access_key: Optional[str], secret_key: Optional[str], session_token: Optional[str]
     ) -> boto3.Session:
         """Create boto3 session with provided credentials."""
-        if session_token and access_key and secret_key:
-            return boto3.Session(
-                aws_access_key_id=access_key,
-                aws_secret_access_key=secret_key,
-                aws_session_token=session_token,
-                region_name=self.region,
-            )
+        if access_key and secret_key:
+            session_params = {
+                "aws_access_key_id": access_key,
+                "aws_secret_access_key": secret_key,
+                "region_name": self.region,
+            }
+            if session_token:
+                session_params["aws_session_token"] = session_token
+            return boto3.Session(**session_params)
         else:
             # Use default credentials chain
             return boto3.Session(region_name=self.region)

@@ -1,0 +1,141 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'IAM Role for AWS NIST Compliance Checker'
+
+Parameters:
+  RoleName:
+    Type: String
+    Default: AWSNISTComplianceChecker
+    Description: Name for the IAM role
+  
+  ExternalId:
+    Type: String
+    Default: ''
+    Description: External ID for cross-account access (optional)
+  
+  TrustedAccountId:
+    Type: String
+    Default: ''
+    Description: AWS Account ID that can assume this role (leave empty for same account)
+
+Conditions:
+  HasExternalId: !Not [!Equals [!Ref ExternalId, '']]
+  HasTrustedAccount: !Not [!Equals [!Ref TrustedAccountId, '']]
+  UseCurrentAccount: !Equals [!Ref TrustedAccountId, '']
+
+Resources:
+  ComplianceCheckerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Ref RoleName
+      Description: Role for AWS NIST Compliance Checker - Read-only access to assess security compliance
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !If
+                - UseCurrentAccount
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+                - !Sub 'arn:aws:iam::${TrustedAccountId}:root'
+            Action: 'sts:AssumeRole'
+            Condition: !If
+              - HasExternalId
+              - StringEquals:
+                  'sts:ExternalId': !Ref ExternalId
+              - !Ref 'AWS::NoValue'
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/SecurityAudit'
+        - 'arn:aws:iam::aws:policy/ViewOnlyAccess'
+      Tags:
+        - Key: Purpose
+          Value: Compliance-Checking
+        - Key: ManagedBy
+          Value: CloudFormation
+        - Key: Application
+          Value: AWS-NIST-Compliance-Checker
+
+  # Optional: Instance profile for EC2 instances
+  ComplianceCheckerInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: !Sub '${RoleName}-InstanceProfile'
+      Roles:
+        - !Ref ComplianceCheckerRole
+
+  # Additional policy for enhanced permissions
+  EnhancedCompliancePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub '${RoleName}-EnhancedPermissions'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AdditionalSecurityServices
+            Effect: Allow
+            Action:
+              # Additional Inspector v2 permissions
+              - 'inspector2:BatchGetAccountStatus'
+              - 'inspector2:ListCoverage'
+              - 'inspector2:ListFindings'
+              
+              # Additional GuardDuty permissions
+              - 'guardduty:GetMasterAccount'
+              - 'guardduty:ListDetectors'
+              - 'guardduty:GetDetector'
+              
+              # Additional Config permissions
+              - 'config:GetComplianceDetailsByConfigRule'
+              - 'config:DescribeComplianceByConfigRule'
+              
+              # CloudFormation drift detection
+              - 'cloudformation:DetectStackDrift'
+              - 'cloudformation:DetectStackResourceDrift'
+              - 'cloudformation:DescribeStackDriftDetectionStatus'
+              
+              # SSM compliance
+              - 'ssm:ListComplianceItems'
+              - 'ssm:ListResourceComplianceSummaries'
+              
+              # Access Analyzer
+              - 'access-analyzer:ListAnalyzers'
+              - 'access-analyzer:ListFindings'
+              
+              # Organizations (for multi-account setup)
+              - 'organizations:DescribeOrganization'
+              - 'organizations:ListAccounts'
+              
+            Resource: '*'
+      Roles:
+        - !Ref ComplianceCheckerRole
+
+Outputs:
+  RoleArn:
+    Description: ARN of the IAM role for compliance checking
+    Value: !GetAtt ComplianceCheckerRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-RoleArn'
+  
+  InstanceProfileArn:
+    Description: ARN of the instance profile for EC2 instances
+    Value: !GetAtt ComplianceCheckerInstanceProfile.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-InstanceProfileArn'
+  
+  AssumeRoleCommand:
+    Description: AWS CLI command to assume this role
+    Value: !Sub |
+      aws sts assume-role --role-arn ${ComplianceCheckerRole.Arn} --role-session-name compliance-check-session
+  
+  TrustPolicy:
+    Description: Current trust policy for the role
+    Value: !If
+      - HasExternalId
+      - !Sub 'Trusted Account: ${TrustedAccountId} with External ID: ${ExternalId}'
+      - !If
+        - HasTrustedAccount
+        - !Sub 'Trusted Account: ${TrustedAccountId}'
+        - !Sub 'Current Account: ${AWS::AccountId}'
