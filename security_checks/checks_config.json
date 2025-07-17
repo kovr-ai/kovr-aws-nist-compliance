@@ -1,0 +1,169 @@
+{
+  "security_checks": [
+    {
+      "id": "CHECK-001",
+      "name": "IAM Root Account Usage",
+      "description": "Ensure root account is not used for daily operations",
+      "category": "Identity and Access Management",
+      "framework": "CIS AWS Benchmark",
+      "severity": "CRITICAL",
+      "nist_mappings": ["AC-2", "AC-6"],
+      "service": "iam",
+      "check_function": "check_root_account_usage"
+    },
+    {
+      "id": "CHECK-002",
+      "name": "MFA on Root Account",
+      "description": "Ensure MFA is enabled for root account",
+      "category": "Identity and Access Management",
+      "framework": "CIS AWS Benchmark",
+      "severity": "CRITICAL",
+      "nist_mappings": ["IA-2"],
+      "service": "iam",
+      "check_function": "check_root_mfa"
+    },
+    {
+      "id": "CHECK-003",
+      "name": "CloudTrail Enabled",
+      "description": "Ensure CloudTrail is enabled in all regions",
+      "category": "Logging and Monitoring",
+      "framework": "CIS AWS Benchmark",
+      "severity": "HIGH",
+      "nist_mappings": ["AU-2", "AU-3"],
+      "service": "cloudtrail",
+      "check_function": "check_cloudtrail_enabled"
+    },
+    {
+      "id": "CHECK-004",
+      "name": "CloudTrail Log File Validation",
+      "description": "Ensure CloudTrail log file validation is enabled",
+      "category": "Logging and Monitoring",
+      "framework": "MITRE ATT&CK",
+      "severity": "MEDIUM",
+      "nist_mappings": ["AU-9"],
+      "service": "cloudtrail",
+      "check_function": "check_cloudtrail_validation"
+    },
+    {
+      "id": "CHECK-005",
+      "name": "S3 Bucket Public Access",
+      "description": "Ensure S3 buckets are not publicly accessible",
+      "category": "Data Protection",
+      "framework": "OWASP Cloud Security",
+      "severity": "HIGH",
+      "nist_mappings": ["AC-3", "SC-7"],
+      "service": "s3",
+      "check_function": "check_s3_public_access"
+    },
+    {
+      "id": "CHECK-006",
+      "name": "S3 Bucket Encryption",
+      "description": "Ensure S3 buckets have encryption enabled",
+      "category": "Data Protection",
+      "framework": "AWS Well-Architected",
+      "severity": "HIGH",
+      "nist_mappings": ["SC-28"],
+      "service": "s3",
+      "check_function": "check_s3_encryption"
+    },
+    {
+      "id": "CHECK-007",
+      "name": "EBS Volume Encryption",
+      "description": "Ensure EBS volumes are encrypted",
+      "category": "Data Protection",
+      "framework": "CIS AWS Benchmark",
+      "severity": "HIGH",
+      "nist_mappings": ["SC-28"],
+      "service": "ec2",
+      "check_function": "check_ebs_encryption"
+    },
+    {
+      "id": "CHECK-008",
+      "name": "Security Group SSH Access",
+      "description": "Ensure no security groups allow unrestricted SSH access",
+      "category": "Network Security",
+      "framework": "CIS AWS Benchmark",
+      "severity": "HIGH",
+      "nist_mappings": ["SC-7", "AC-3"],
+      "service": "ec2",
+      "check_function": "check_sg_ssh_access"
+    },
+    {
+      "id": "CHECK-009",
+      "name": "IAM Password Policy",
+      "description": "Ensure IAM password policy meets complexity requirements",
+      "category": "Identity and Access Management",
+      "framework": "CIS AWS Benchmark",
+      "severity": "MEDIUM",
+      "nist_mappings": ["IA-5"],
+      "service": "iam",
+      "check_function": "check_password_policy"
+    },
+    {
+      "id": "CHECK-010",
+      "name": "IAM Access Key Rotation",
+      "description": "Ensure access keys are rotated every 90 days",
+      "category": "Identity and Access Management",
+      "framework": "AWS Well-Architected",
+      "severity": "MEDIUM",
+      "nist_mappings": ["IA-5", "AC-2"],
+      "service": "iam",
+      "check_function": "check_access_key_rotation"
+    },
+    {
+      "id": "CHECK-011",
+      "name": "Unused IAM Credentials",
+      "description": "Ensure credentials unused for 90 days are removed",
+      "category": "Identity and Access Management",
+      "framework": "CIS AWS Benchmark",
+      "severity": "MEDIUM",
+      "nist_mappings": ["AC-2"],
+      "service": "iam",
+      "check_function": "check_unused_credentials"
+    },
+    {
+      "id": "CHECK-012",
+      "name": "EC2 Instance Metadata Service V2",
+      "description": "Ensure IMDSv2 is enforced on EC2 instances",
+      "category": "Compute Security",
+      "framework": "AWS Security Best Practices",
+      "severity": "MEDIUM",
+      "nist_mappings": ["AC-3", "CM-7"],
+      "service": "ec2",
+      "check_function": "check_imdsv2"
+    },
+    {
+      "id": "CHECK-013",
+      "name": "VPC Flow Logs",
+      "description": "Ensure VPC flow logs are enabled",
+      "category": "Network Security",
+      "framework": "MITRE ATT&CK",
+      "severity": "MEDIUM",
+      "nist_mappings": ["AU-2", "AU-3"],
+      "service": "vpc",
+      "check_function": "check_vpc_flow_logs"
+    },
+    {
+      "id": "CHECK-014",
+      "name": "RDS Encryption",
+      "description": "Ensure RDS databases are encrypted at rest",
+      "category": "Database Security",
+      "framework": "CIS AWS Benchmark",
+      "severity": "HIGH",
+      "nist_mappings": ["SC-28"],
+      "service": "rds",
+      "check_function": "check_rds_encryption"
+    },
+    {
+      "id": "CHECK-015",
+      "name": "Config Service Enabled",
+      "description": "Ensure AWS Config is enabled in all regions",
+      "category": "Configuration Management",
+      "framework": "AWS Well-Architected",
+      "severity": "MEDIUM",
+      "nist_mappings": ["CM-2", "CM-8"],
+      "service": "config",
+      "check_function": "check_config_enabled"
+    }
+  ]
+}

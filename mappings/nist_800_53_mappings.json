@@ -1,0 +1,127 @@
+{
+  "control_families": {
+    "AC": {
+      "name": "Access Control",
+      "controls": {
+        "AC-2": {
+          "title": "Account Management",
+          "requirements": [
+            "AC-2(1): Automated System Account Management",
+            "AC-2(2): Removal of Temporary Accounts",
+            "AC-2(3): Disable Inactive Accounts",
+            "AC-2(4): Automated Audit Actions"
+          ]
+        },
+        "AC-3": {
+          "title": "Access Enforcement",
+          "requirements": [
+            "AC-3(1): Access Enforcement",
+            "AC-3(2): Dual Authorization"
+          ]
+        },
+        "AC-6": {
+          "title": "Least Privilege",
+          "requirements": [
+            "AC-6(1): Authorize Access to Security Functions",
+            "AC-6(2): Non-Privileged Access for Nonsecurity Functions",
+            "AC-6(5): Privileged Accounts"
+          ]
+        }
+      }
+    },
+    "AU": {
+      "name": "Audit and Accountability",
+      "controls": {
+        "AU-2": {
+          "title": "Event Logging",
+          "requirements": [
+            "AU-2(a): Auditable Events",
+            "AU-2(b): Coordinated Audit"
+          ]
+        },
+        "AU-3": {
+          "title": "Content of Audit Records",
+          "requirements": [
+            "AU-3(1): Additional Audit Information"
+          ]
+        },
+        "AU-9": {
+          "title": "Protection of Audit Information",
+          "requirements": [
+            "AU-9(1): Hardware Write-Once Media",
+            "AU-9(2): Backup Audit Record"
+          ]
+        }
+      }
+    },
+    "CM": {
+      "name": "Configuration Management",
+      "controls": {
+        "CM-2": {
+          "title": "Baseline Configuration",
+          "requirements": [
+            "CM-2(1): Reviews and Updates",
+            "CM-2(2): Automation Support"
+          ]
+        },
+        "CM-7": {
+          "title": "Least Functionality",
+          "requirements": [
+            "CM-7(1): Periodic Review",
+            "CM-7(2): Prevent Program Execution"
+          ]
+        },
+        "CM-8": {
+          "title": "System Component Inventory",
+          "requirements": [
+            "CM-8(1): Updates During Installation",
+            "CM-8(2): Automated Maintenance"
+          ]
+        }
+      }
+    },
+    "IA": {
+      "name": "Identification and Authentication",
+      "controls": {
+        "IA-2": {
+          "title": "Identification and Authentication",
+          "requirements": [
+            "IA-2(1): Multi-Factor Authentication",
+            "IA-2(2): Multi-Factor Authentication for Network Access"
+          ]
+        },
+        "IA-5": {
+          "title": "Authenticator Management",
+          "requirements": [
+            "IA-5(1): Password-Based Authentication",
+            "IA-5(2): Public Key-Based Authentication"
+          ]
+        }
+      }
+    },
+    "SC": {
+      "name": "System and Communications Protection",
+      "controls": {
+        "SC-7": {
+          "title": "Boundary Protection",
+          "requirements": [
+            "SC-7(1): Physically Separated Subnetworks",
+            "SC-7(3): Access Points"
+          ]
+        },
+        "SC-8": {
+          "title": "Transmission Confidentiality and Integrity",
+          "requirements": [
+            "SC-8(1): Cryptographic Protection"
+          ]
+        },
+        "SC-28": {
+          "title": "Protection of Information at Rest",
+          "requirements": [
+            "SC-28(1): Cryptographic Protection"
+          ]
+        }
+      }
+    }
+  }
+}
