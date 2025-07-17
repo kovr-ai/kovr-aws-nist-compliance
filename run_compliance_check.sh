@@ -30,7 +30,7 @@ usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-AWS NIST 800-53 Compliance Checker
+AWS NIST Compliance Checker (800-53 and 800-171)
 
 OPTIONS:
     -k, --access-key KEY        AWS Access Key ID
@@ -44,6 +44,7 @@ OPTIONS:
     -x, --skip-checks IDS      Comma-separated list of check IDs to skip
     -l, --severity LEVEL       Minimum severity level (LOW, MEDIUM, HIGH, CRITICAL)
     -f, --format FORMAT        Report format (all, csv, markdown, json)
+    -w, --framework FRAMEWORK  NIST framework (both, 800-53, 800-171) (default: both)
     -h, --help                 Show this help message
 
 EXAMPLES:
@@ -66,7 +67,7 @@ EOF
 }
 
 # Parse command line arguments
-TEMP=$(getopt -o k:s:t:r:g:b:o:c:x:l:f:h --long access-key:,secret-key:,session-token:,region:,git-repo:,git-branch:,output-dir:,checks:,skip-checks:,severity:,format:,help -n "$0" -- "$@")
+TEMP=$(getopt -o k:s:t:r:g:b:o:c:x:l:f:w:h --long access-key:,secret-key:,session-token:,region:,git-repo:,git-branch:,output-dir:,checks:,skip-checks:,severity:,format:,framework:,help -n "$0" -- "$@")
 eval set -- "$TEMP"
 
 ACCESS_KEY=""
@@ -76,6 +77,7 @@ CHECKS=""
 SKIP_CHECKS=""
 SEVERITY=""
 FORMAT="all"
+FRAMEWORK="both"
 
 while true; do
     case "$1" in
@@ -123,6 +125,10 @@ while true; do
             FORMAT="$2"
             shift 2
             ;;
+        -w|--framework)
+            FRAMEWORK="$2"
+            shift 2
+            ;;
         -h|--help)
             usage
             exit 0
@@ -141,8 +147,9 @@ done
 # Header
 print_message "$BLUE" "
 ╔═══════════════════════════════════════════════════════════╗
-║          AWS NIST 800-53 Compliance Checker               ║
-║                 Bash Wrapper v1.0.0                       ║
+║             AWS NIST Compliance Checker                   ║
+║            Supporting 800-53 and 800-171                  ║
+║                 Bash Wrapper v1.1.0                       ║
 ╚═══════════════════════════════════════════════════════════╝
 "
 
@@ -202,6 +209,7 @@ PYTHON_ARGS=(
     "--region" "$AWS_REGION"
     "--output-dir" "$OUTPUT_DIR"
     "--format" "$FORMAT"
+    "--framework" "$FRAMEWORK"
 )
 
 if [ -n "$GIT_REPO" ]; then

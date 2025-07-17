@@ -27,17 +27,24 @@ def load_configurations():
     """Load security checks and NIST mappings configurations."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
-    # Load security checks
+    # Load security checks - use original config
     checks_path = os.path.join(base_dir, "..", "security_checks", "checks_config.json")
     with open(checks_path, "r") as f:
         security_checks = json.load(f)
 
-    # Load NIST mappings
+    # Load NIST 800-53 mappings
     mappings_path = os.path.join(base_dir, "..", "mappings", "nist_800_53_mappings.json")
     with open(mappings_path, "r") as f:
         nist_mappings = json.load(f)
 
-    return security_checks, nist_mappings
+    # Load NIST 800-171 mappings
+    nist_171_mappings = None
+    mappings_171_path = os.path.join(base_dir, "..", "mappings", "nist_800_171_mappings.json")
+    if os.path.exists(mappings_171_path):
+        with open(mappings_171_path, "r") as f:
+            nist_171_mappings = json.load(f)
+
+    return security_checks, nist_mappings, nist_171_mappings
 
 
 def download_from_git(repo_url: str, branch: str = "main") -> str:
@@ -82,6 +89,12 @@ def download_from_git(repo_url: str, branch: str = "main") -> str:
     default="all",
     help="Report format to generate",
 )
+@click.option(
+    "--framework",
+    type=click.Choice(["both", "800-53", "800-171"]),
+    default="both",
+    help="NIST framework for compliance report (both, 800-53, or 800-171)",
+)
 def main(
     access_key,
     secret_key,
@@ -94,14 +107,16 @@ def main(
     skip_checks,
     severity,
     format,
+    framework,
 ):
-    """AWS NIST 800-53 Compliance Checker"""
+    """AWS NIST Compliance Checker (800-53 and 800-171)"""
 
     print(
         """
     ╔═══════════════════════════════════════════════════════════╗
-    ║          AWS NIST 800-53 Compliance Checker               ║
-    ║                    Version 1.0.0                          ║
+    ║             AWS NIST Compliance Checker                   ║
+    ║            Supporting 800-53 and 800-171                  ║
+    ║                    Version 1.1.0                          ║
     ╚═══════════════════════════════════════════════════════════╝
     """
     )
@@ -116,7 +131,7 @@ def main(
 
         # Load configurations
         logger.info("Loading security check configurations...")
-        security_checks, nist_mappings = load_configurations()
+        security_checks, nist_mappings, nist_171_mappings = load_configurations()
 
         # Initialize AWS connector
         logger.info("Connecting to AWS...")
@@ -161,11 +176,21 @@ def main(
 
         # Generate reports
         logger.info("Generating compliance reports...")
-        report_generator = ReportGenerator(results, nist_mappings)
+        report_generator = ReportGenerator(results, nist_mappings, nist_171_mappings)
 
         # Convert single format to list for generate_reports method
         formats = [format] if format != "all" else ["all"]
-        generated_reports = report_generator.generate_reports(formats)
+        
+        # Determine which frameworks to generate reports for
+        frameworks = []
+        if framework == "both":
+            frameworks = ["800-53", "800-171"]
+        elif framework == "800-53":
+            frameworks = ["800-53"]
+        elif framework == "800-171":
+            frameworks = ["800-171"]
+            
+        generated_reports = report_generator.generate_reports(formats, frameworks)
 
         # Print summary
         print("\n" + "=" * 60)

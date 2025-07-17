@@ -15,9 +15,10 @@ from tabulate import tabulate
 class ReportGenerator:
     """Generates CSV and Markdown reports from compliance check results."""
 
-    def __init__(self, results: List[Dict[str, Any]], nist_mappings: Dict[str, Any]):
+    def __init__(self, results: List[Dict[str, Any]], nist_mappings: Dict[str, Any], nist_171_mappings: Dict[str, Any] = None):
         self.results = results
         self.nist_mappings = nist_mappings
+        self.nist_171_mappings = nist_171_mappings
         self.timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
 
     def generate_csv_report(self, output_dir: str = "./reports") -> str:
@@ -85,31 +86,40 @@ class ReportGenerator:
         print(f"CSV report generated: {csv_path}")
         return csv_path
 
-    def generate_markdown_report(self, output_dir: str = "./reports") -> str:
+    def generate_markdown_report(self, output_dir: str = "./reports", framework: str = "800-53") -> str:
         """Generate detailed Markdown report organized by NIST control families."""
         os.makedirs(output_dir, exist_ok=True)
-        md_path = os.path.join(output_dir, f"nist_compliance_report_{self.timestamp}.md")
+        if framework == "800-53":
+            md_path = os.path.join(output_dir, f"nist_800-53_compliance_report_{self.timestamp}.md")
+        else:
+            md_path = os.path.join(output_dir, f"nist_800-171_compliance_report_{self.timestamp}.md")
 
         try:
             with open(md_path, "w", encoding="utf-8") as f:
                 # Write header
-                f.write("# NIST 800-53 Compliance Report\n\n")
+                if framework == "800-53":
+                    f.write("# NIST 800-53 Compliance Report\n\n")
+                else:
+                    f.write("# NIST 800-171 Compliance Report\n\n")
                 f.write(f"**Generated:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}\n")
                 f.write(
                     f"**Account ID:** {self.results[0]['account_id'] if self.results else 'Unknown'}\n\n"
                 )
 
                 # Write executive summary
-                self._write_executive_summary(f)
+                self._write_executive_summary(f, framework)
 
                 # Write detailed findings by control family
-                self._write_control_family_details(f)
+                if framework == "800-53":
+                    self._write_control_family_details(f)
+                else:
+                    self._write_nist_171_control_family_details(f)
 
                 # Write detailed passed checks section
-                self._write_passed_checks_details(f)
+                self._write_passed_checks_details(f, framework)
 
                 # Write appendix with all check details
-                self._write_appendix(f)
+                self._write_appendix(f, framework)
 
             print(f"Markdown report generated: {md_path}")
             return md_path
@@ -117,7 +127,7 @@ class ReportGenerator:
             print(f"Error generating Markdown report: {str(e)}")
             raise
 
-    def _write_executive_summary(self, f):
+    def _write_executive_summary(self, f, framework="800-53"):
         """Write executive summary section."""
         f.write("## Executive Summary\n\n")
 
@@ -267,8 +277,73 @@ class ReportGenerator:
 
             if not family_has_results:
                 f.write("*No security checks mapped to this control family.*\n\n")
+    
+    def _write_nist_171_control_family_details(self, f):
+        """Write detailed findings organized by NIST 800-171 control families."""
+        f.write("## NIST 800-171 Control Family Analysis\n\n")
+        
+        if not self.nist_171_mappings:
+            f.write("*NIST 800-171 mappings not available.*\n\n")
+            return
+        
+        # Group results by NIST 800-171 control
+        control_results = defaultdict(list)
+        for result in self.results:
+            check_id = result["check_id"]
+            if check_id in self.nist_171_mappings["check_mappings"]:
+                for control in self.nist_171_mappings["check_mappings"][check_id]:
+                    control_results[control].append(result)
+        
+        # Process each control family
+        for family_id, family_info in sorted(self.nist_171_mappings["control_families"].items()):
+            f.write(f"### {family_id} - {family_info['name']}\n\n")
+            f.write(f"{family_info['description']}\n\n")
+            
+            # Find all controls in this family
+            family_has_results = False
+            for control_id, checks in sorted(control_results.items()):
+                if control_id.startswith(family_id + "."):
+                    family_has_results = True
+                    f.write(f"#### Control {control_id}\n\n")
+                    
+                    # Get all checks for this control
+                    passed = sum(1 for c in checks if c["status"] == "PASS")
+                    failed = sum(1 for c in checks if c["status"] == "FAIL")
+                    
+                    f.write(f"**Coverage:** {len(checks)} checks ({passed} passed, {failed} failed)\n\n")
+                    
+                    # Failed checks details
+                    failed_checks = [c for c in checks if c["status"] == "FAIL"]
+                    if failed_checks:
+                        f.write("**Failed Checks:**\n\n")
+                        for check in failed_checks:
+                            f.write(f"- **{check['check_name']}** ({check['check_id']})\n")
+                            f.write(f"  - Framework: {check['framework']}\n")
+                            f.write(f"  - Severity: {check['severity']}\n")
+                            if check["findings"]:
+                                f.write(f"  - Findings:\n")
+                                for finding in check["findings"]:
+                                    f.write(f"    - {finding.get('type', 'Unknown')}: {finding.get('details', '')}\n")
+                            f.write("\n")
+                    
+                    # Passed checks details
+                    passed_checks = [c for c in checks if c["status"] == "PASS"]
+                    if passed_checks:
+                        f.write("**Passed Checks:**\n\n")
+                        for check in passed_checks:
+                            f.write(f"- **{check['check_name']}** ({check['check_id']})\n")
+                            f.write(f"  - Framework: {check['framework']}\n")
+                            f.write(f"  - Severity: {check['severity']}\n")
+                            if "check_details" in check and check["check_details"].get("verification_details"):
+                                f.write(f"  - Verification: {check['check_details']['verification_details']}\n")
+                            if check.get("resources_checked"):
+                                f.write(f"  - Resources Tested: {', '.join(check['resources_checked'])}\n")
+                            f.write("\n")
+            
+            if not family_has_results:
+                f.write("*No security checks mapped to this control family.*\n\n")
 
-    def _write_appendix(self, f):
+    def _write_appendix(self, f, framework="800-53"):
         """Write appendix with all check details."""
         f.write("## Appendix: All Security Checks\n\n")
 
@@ -282,7 +357,7 @@ class ReportGenerator:
                     result["status"],
                     result["severity"],
                     result["framework"],
-                    ", ".join(result["nist_mappings"]),
+                    ", ".join(result["nist_mappings"]) if framework == "800-53" else ", ".join(self.nist_171_mappings["check_mappings"].get(result["check_id"], [])),
                     len(result["findings"]),
                     (
                         result.get("detailed_description", result.get("description", ""))[:100]
@@ -305,7 +380,7 @@ class ReportGenerator:
             "Status",
             "Severity",
             "Framework",
-            "NIST Controls",
+            "NIST 800-53 Controls" if framework == "800-53" else "NIST 800-171 Controls",
             "Findings",
             "Description",
             "Resources Tested",
@@ -327,7 +402,7 @@ class ReportGenerator:
                     f.write(f"- **Details:** {finding.get('details', 'No details available')}\n")
                     f.write("\n")
 
-    def _write_passed_checks_details(self, f):
+    def _write_passed_checks_details(self, f, framework="800-53"):
         """Write detailed information about all passed checks."""
         f.write("## Passed Security Checks - Detailed Analysis\n\n")
         f.write(
@@ -355,7 +430,10 @@ class ReportGenerator:
                 f.write(f"#### {check['check_name']} ({check['check_id']})\n\n")
                 f.write(f"**Framework:** {check['framework']}  \n")
                 f.write(f"**Severity:** {check['severity']}  \n")
-                f.write(f"**NIST Controls:** {', '.join(check['nist_mappings'])}  \n\n")
+                if framework == "800-53":
+                    f.write(f"**NIST 800-53 Controls:** {', '.join(check['nist_mappings'])}  \n\n")
+                else:
+                    f.write(f"**NIST 800-171 Controls:** {', '.join(self.nist_171_mappings['check_mappings'].get(check['check_id'], []))}  \n\n")
 
                 # Detailed description
                 if "detailed_description" in check:
@@ -947,7 +1025,7 @@ class ReportGenerator:
         else:
             return "Unknown Resource"
 
-    def generate_reports(self, formats: List[str]) -> List[str]:
+    def generate_reports(self, formats: List[str], frameworks: List[str] = ["800-53"]) -> List[str]:
         """Generate compliance reports in the specified formats."""
         generated_reports = []
 
@@ -956,8 +1034,13 @@ class ReportGenerator:
             generated_reports.append(csv_path)
 
         if "markdown" in formats or "all" in formats:
-            markdown_path = self.generate_markdown_report()
-            generated_reports.append(markdown_path)
+            for framework in frameworks:
+                if framework == "800-53":
+                    markdown_path = self.generate_markdown_report(framework="800-53")
+                    generated_reports.append(markdown_path)
+                elif framework == "800-171" and self.nist_171_mappings:
+                    markdown_path = self.generate_markdown_report(framework="800-171")
+                    generated_reports.append(markdown_path)
 
         if "json" in formats or "all" in formats:
             json_path = self.generate_summary_json()

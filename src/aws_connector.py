@@ -1995,3 +1995,762 @@ class SecurityCheck:
             logger.error(f"Error checking S3 bucket logging: {str(e)}")
 
         return findings
+    
+    def check_lambda_resource_policies(self) -> List[Dict[str, Any]]:
+        """Check Lambda function resource policies for public access."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("lambda", region):
+                continue
+                
+            try:
+                lambda_client = self.aws.get_client("lambda", region)
+                
+                # List all Lambda functions
+                paginator = lambda_client.get_paginator("list_functions")
+                for page in paginator.paginate():
+                    for function in page.get("Functions", []):
+                        function_name = function["FunctionName"]
+                        
+                        try:
+                            # Get function policy
+                            policy_response = lambda_client.get_policy(FunctionName=function_name)
+                            policy = json.loads(policy_response["Policy"])
+                            
+                            # Check for overly permissive policies
+                            for statement in policy.get("Statement", []):
+                                principal = statement.get("Principal", {})
+                                
+                                # Check for public access
+                                if principal == "*" or principal.get("AWS") == "*":
+                                    findings.append({
+                                        "type": "Lambda Function",
+                                        "id": function["FunctionArn"],
+                                        "region": region,
+                                        "details": f"Lambda function {function_name} has public access in resource policy"
+                                    })
+                                    
+                        except ClientError as e:
+                            if e.response["Error"]["Code"] != "ResourceNotFoundException":
+                                logger.error(f"Error checking Lambda policy: {str(e)}")
+                                
+            except Exception as e:
+                logger.error(f"Error checking Lambda resource policies in {region}: {str(e)}")
+                
+        return findings
+
+    def check_eks_public_access(self) -> List[Dict[str, Any]]:
+        """Check EKS clusters for public API endpoints."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("eks", region):
+                continue
+                
+            try:
+                eks_client = self.aws.get_client("eks", region)
+                
+                # List all EKS clusters
+                clusters = eks_client.list_clusters().get("clusters", [])
+                
+                for cluster_name in clusters:
+                    # Describe cluster
+                    cluster = eks_client.describe_cluster(name=cluster_name)["cluster"]
+                    
+                    # Check if endpoint is public
+                    endpoint_public = cluster.get("resourcesVpcConfig", {}).get("endpointPublicAccess", True)
+                    endpoint_private = cluster.get("resourcesVpcConfig", {}).get("endpointPrivateAccess", False)
+                    
+                    if endpoint_public and not endpoint_private:
+                        findings.append({
+                            "type": "EKS Cluster",
+                            "id": cluster["arn"],
+                            "region": region,
+                            "details": f"EKS cluster {cluster_name} has public API endpoint without private endpoint"
+                        })
+                        
+            except Exception as e:
+                logger.error(f"Error checking EKS public access in {region}: {str(e)}")
+                
+        return findings
+
+    def check_redshift_encryption(self) -> List[Dict[str, Any]]:
+        """Check Redshift clusters for encryption at rest."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("redshift", region):
+                continue
+                
+            try:
+                redshift_client = self.aws.get_client("redshift", region)
+                
+                # Describe all clusters
+                paginator = redshift_client.get_paginator("describe_clusters")
+                for page in paginator.paginate():
+                    for cluster in page.get("Clusters", []):
+                        if not cluster.get("Encrypted", False):
+                            findings.append({
+                                "type": "Redshift Cluster",
+                                "id": cluster["ClusterIdentifier"],
+                                "region": region,
+                                "details": f"Redshift cluster {cluster['ClusterIdentifier']} is not encrypted at rest"
+                            })
+                            
+            except Exception as e:
+                logger.error(f"Error checking Redshift encryption in {region}: {str(e)}")
+                
+        return findings
+
+    def check_alb_logging(self) -> List[Dict[str, Any]]:
+        """Check Application Load Balancers for access logging."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("elasticloadbalancing", region):
+                continue
+                
+            try:
+                elb_client = self.aws.get_client("elasticloadbalancing", region)
+                
+                # Describe all ALBs
+                paginator = elb_client.get_paginator("describe_load_balancers")
+                for page in paginator.paginate():
+                    for lb in page.get("LoadBalancers", []):
+                        if lb["Type"] == "application":
+                            lb_arn = lb["LoadBalancerArn"]
+                            lb_name = lb["LoadBalancerName"]
+                            
+                            # Get load balancer attributes
+                            attrs = elb_client.describe_load_balancer_attributes(
+                                LoadBalancerArn=lb_arn
+                            )
+                            
+                            # Check if access logs are enabled
+                            access_logs_enabled = False
+                            for attr in attrs["Attributes"]:
+                                if attr["Key"] == "access_logs.s3.enabled" and attr["Value"] == "true":
+                                    access_logs_enabled = True
+                                    break
+                                    
+                            if not access_logs_enabled:
+                                findings.append({
+                                    "type": "Application Load Balancer",
+                                    "id": lb_arn,
+                                    "region": region,
+                                    "details": f"ALB {lb_name} does not have access logging enabled"
+                                })
+                                
+            except Exception as e:
+                logger.error(f"Error checking ALB logging in {region}: {str(e)}")
+                
+        return findings
+
+    def check_ecr_scanning(self) -> List[Dict[str, Any]]:
+        """Check ECR repositories for image scanning configuration."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("ecr", region):
+                continue
+                
+            try:
+                ecr_client = self.aws.get_client("ecr", region)
+                
+                # List all repositories
+                paginator = ecr_client.get_paginator("describe_repositories")
+                for page in paginator.paginate():
+                    for repo in page.get("repositories", []):
+                        repo_name = repo["repositoryName"]
+                        
+                        # Check scan on push configuration
+                        scan_config = repo.get("imageScanningConfiguration", {})
+                        if not scan_config.get("scanOnPush", False):
+                            findings.append({
+                                "type": "ECR Repository",
+                                "id": repo["repositoryArn"],
+                                "region": region,
+                                "details": f"ECR repository {repo_name} does not have scan on push enabled"
+                            })
+                            
+            except Exception as e:
+                logger.error(f"Error checking ECR scanning in {region}: {str(e)}")
+                
+        return findings
+
+    def check_sqs_encryption(self) -> List[Dict[str, Any]]:
+        """Check SQS queues for encryption at rest."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("sqs", region):
+                continue
+                
+            try:
+                sqs_client = self.aws.get_client("sqs", region)
+                
+                # List all queues
+                queues = sqs_client.list_queues().get("QueueUrls", [])
+                
+                for queue_url in queues:
+                    # Get queue attributes
+                    attrs = sqs_client.get_queue_attributes(
+                        QueueUrl=queue_url,
+                        AttributeNames=["All"]
+                    )["Attributes"]
+                    
+                    # Check if encryption is enabled
+                    kms_key = attrs.get("KmsMasterKeyId")
+                    if not kms_key:
+                        queue_name = queue_url.split("/")[-1]
+                        findings.append({
+                            "type": "SQS Queue",
+                            "id": attrs["QueueArn"],
+                            "region": region,
+                            "details": f"SQS queue {queue_name} is not encrypted at rest"
+                        })
+                        
+            except Exception as e:
+                logger.error(f"Error checking SQS encryption in {region}: {str(e)}")
+                
+        return findings
+
+    def check_sns_encryption(self) -> List[Dict[str, Any]]:
+        """Check SNS topics for encryption at rest."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("sns", region):
+                continue
+                
+            try:
+                sns_client = self.aws.get_client("sns", region)
+                
+                # List all topics
+                paginator = sns_client.get_paginator("list_topics")
+                for page in paginator.paginate():
+                    for topic in page.get("Topics", []):
+                        topic_arn = topic["TopicArn"]
+                        
+                        # Get topic attributes
+                        attrs = sns_client.get_topic_attributes(TopicArn=topic_arn)["Attributes"]
+                        
+                        # Check if encryption is enabled
+                        kms_key = attrs.get("KmsMasterKeyId")
+                        if not kms_key:
+                            topic_name = topic_arn.split(":")[-1]
+                            findings.append({
+                                "type": "SNS Topic",
+                                "id": topic_arn,
+                                "region": region,
+                                "details": f"SNS topic {topic_name} is not encrypted at rest"
+                            })
+                            
+            except Exception as e:
+                logger.error(f"Error checking SNS encryption in {region}: {str(e)}")
+                
+        return findings
+
+    def check_iam_policy_least_privilege(self) -> List[Dict[str, Any]]:
+        """Check IAM policies for overly permissive permissions."""
+        findings = []
+        
+        try:
+            iam_client = self.aws.get_client("iam")
+            
+            # Get all customer managed policies
+            paginator = iam_client.get_paginator("list_policies")
+            for page in paginator.paginate(Scope="Local"):
+                for policy in page.get("Policies", []):
+                    policy_arn = policy["Arn"]
+                    
+                    # Get policy version
+                    policy_version = iam_client.get_policy_version(
+                        PolicyArn=policy_arn,
+                        VersionId=policy["DefaultVersionId"]
+                    )
+                    
+                    policy_doc = policy_version["PolicyVersion"]["Document"]
+                    
+                    # Check for overly permissive permissions
+                    for statement in policy_doc.get("Statement", []):
+                        if statement.get("Effect") == "Allow":
+                            actions = statement.get("Action", [])
+                            if isinstance(actions, str):
+                                actions = [actions]
+                                
+                            resources = statement.get("Resource", [])
+                            if isinstance(resources, str):
+                                resources = [resources]
+                                
+                            # Check for wildcard actions
+                            for action in actions:
+                                if action == "*" or action.endswith(":*"):
+                                    findings.append({
+                                        "type": "IAM Policy",
+                                        "id": policy_arn,
+                                        "region": "global",
+                                        "details": f"Policy {policy['PolicyName']} contains wildcard action: {action}"
+                                    })
+                                    
+                            # Check for wildcard resources with sensitive actions
+                            sensitive_actions = ["iam:", "s3:Delete", "ec2:Terminate", "rds:Delete"]
+                            for action in actions:
+                                if any(action.startswith(prefix) for prefix in sensitive_actions):
+                                    if "*" in resources:
+                                        findings.append({
+                                            "type": "IAM Policy",
+                                            "id": policy_arn,
+                                            "region": "global",
+                                            "details": f"Policy {policy['PolicyName']} has sensitive action {action} with wildcard resource"
+                                        })
+                                        
+        except Exception as e:
+            logger.error(f"Error checking IAM policy least privilege: {str(e)}")
+            
+        return findings
+
+    def check_cfn_drift_detection(self) -> List[Dict[str, Any]]:
+        """Check CloudFormation stacks for drift detection."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("cloudformation", region):
+                continue
+                
+            try:
+                cfn_client = self.aws.get_client("cloudformation", region)
+                
+                # List all stacks
+                paginator = cfn_client.get_paginator("list_stacks")
+                for page in paginator.paginate(StackStatusFilter=["CREATE_COMPLETE", "UPDATE_COMPLETE"]):
+                    for stack in page.get("StackSummaries", []):
+                        stack_name = stack["StackName"]
+                        
+                        # Check if drift detection has been run
+                        try:
+                            # Get stack drift status
+                            stack_detail = cfn_client.describe_stacks(StackName=stack_name)["Stacks"][0]
+                            
+                            if "DriftInformation" not in stack_detail:
+                                findings.append({
+                                    "type": "CloudFormation Stack",
+                                    "id": stack["StackId"],
+                                    "region": region,
+                                    "details": f"Stack {stack_name} has never had drift detection run"
+                                })
+                            else:
+                                drift_info = stack_detail["DriftInformation"]
+                                if drift_info.get("StackDriftStatus") == "DRIFTED":
+                                    findings.append({
+                                        "type": "CloudFormation Stack",
+                                        "id": stack["StackId"],
+                                        "region": region,
+                                        "details": f"Stack {stack_name} has drifted from its template"
+                                    })
+                                    
+                        except ClientError:
+                            pass
+                            
+            except Exception as e:
+                logger.error(f"Error checking CloudFormation drift in {region}: {str(e)}")
+                
+        return findings
+
+    def check_aurora_activity_streams(self) -> List[Dict[str, Any]]:
+        """Check Aurora clusters for database activity streams."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("rds", region):
+                continue
+                
+            try:
+                rds_client = self.aws.get_client("rds", region)
+                
+                # Describe all DB clusters
+                paginator = rds_client.get_paginator("describe_db_clusters")
+                for page in paginator.paginate():
+                    for cluster in page.get("DBClusters", []):
+                        # Check if it's Aurora
+                        if "aurora" in cluster.get("Engine", ""):
+                            # Check activity stream status
+                            if cluster.get("ActivityStreamStatus") != "started":
+                                findings.append({
+                                    "type": "Aurora Cluster",
+                                    "id": cluster["DBClusterArn"],
+                                    "region": region,
+                                    "details": f"Aurora cluster {cluster['DBClusterIdentifier']} does not have activity streams enabled"
+                                })
+                                
+            except Exception as e:
+                logger.error(f"Error checking Aurora activity streams in {region}: {str(e)}")
+                
+        return findings
+
+    def check_ecs_task_security(self) -> List[Dict[str, Any]]:
+        """Check ECS task definitions for security best practices."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("ecs", region):
+                continue
+                
+            try:
+                ecs_client = self.aws.get_client("ecs", region)
+                
+                # List all task definitions
+                task_defs = ecs_client.list_task_definitions(status="ACTIVE")["taskDefinitionArns"]
+                
+                for task_def_arn in task_defs:
+                    # Describe task definition
+                    task_def = ecs_client.describe_task_definition(taskDefinition=task_def_arn)["taskDefinition"]
+                    
+                    for container in task_def.get("containerDefinitions", []):
+                        container_name = container["name"]
+                        
+                        # Check for privileged mode
+                        if container.get("privileged", False):
+                            findings.append({
+                                "type": "ECS Task Definition",
+                                "id": task_def_arn,
+                                "region": region,
+                                "details": f"Container {container_name} runs in privileged mode"
+                            })
+                            
+                        # Check for host network mode
+                        if task_def.get("networkMode") == "host":
+                            findings.append({
+                                "type": "ECS Task Definition",
+                                "id": task_def_arn,
+                                "region": region,
+                                "details": f"Task definition uses host network mode"
+                            })
+                            
+                        # Check for secrets in environment variables
+                        env_vars = container.get("environment", [])
+                        for env_var in env_vars:
+                            name = env_var.get("name", "").lower()
+                            if any(secret in name for secret in ["password", "secret", "key", "token"]):
+                                findings.append({
+                                    "type": "ECS Task Definition",
+                                    "id": task_def_arn,
+                                    "region": region,
+                                    "details": f"Container {container_name} may have secrets in environment variable: {env_var['name']}"
+                                })
+                                
+            except Exception as e:
+                logger.error(f"Error checking ECS task security in {region}: {str(e)}")
+                
+        return findings
+
+    def check_athena_encryption(self) -> List[Dict[str, Any]]:
+        """Check Athena workgroups for encryption configuration."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("athena", region):
+                continue
+                
+            try:
+                athena_client = self.aws.get_client("athena", region)
+                
+                # List all workgroups
+                paginator = athena_client.get_paginator("list_work_groups")
+                for page in paginator.paginate():
+                    for workgroup in page.get("WorkGroups", []):
+                        wg_name = workgroup["Name"]
+                        
+                        # Get workgroup details
+                        wg_details = athena_client.get_work_group(WorkGroup=wg_name)["WorkGroup"]
+                        
+                        # Check encryption configuration
+                        config = wg_details.get("Configuration", {})
+                        result_config = config.get("ResultConfigurationUpdates", config.get("ResultConfiguration", {}))
+                        
+                        encryption_config = result_config.get("EncryptionConfiguration", {})
+                        if not encryption_config.get("EncryptionOption"):
+                            findings.append({
+                                "type": "Athena Workgroup",
+                                "id": wg_details["WorkGroupArn"],
+                                "region": region,
+                                "details": f"Athena workgroup {wg_name} does not enforce encryption for query results"
+                            })
+                            
+            except Exception as e:
+                logger.error(f"Error checking Athena encryption in {region}: {str(e)}")
+                
+        return findings
+
+    def check_glue_catalog_encryption(self) -> List[Dict[str, Any]]:
+        """Check AWS Glue Data Catalog for encryption."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("glue", region):
+                continue
+                
+            try:
+                glue_client = self.aws.get_client("glue", region)
+                
+                # Get data catalog encryption settings
+                encryption_settings = glue_client.get_data_catalog_encryption_settings()
+                
+                catalog_encryption = encryption_settings.get("DataCatalogEncryptionSettings", {})
+                
+                # Check if encryption is enabled
+                encryption_at_rest = catalog_encryption.get("EncryptionAtRest", {})
+                if encryption_at_rest.get("CatalogEncryptionMode") == "DISABLED":
+                    findings.append({
+                        "type": "Glue Data Catalog",
+                        "id": f"arn:aws:glue:{region}:{self.aws.account_id}:catalog",
+                        "region": region,
+                        "details": "Glue Data Catalog encryption is disabled"
+                    })
+                    
+            except Exception as e:
+                logger.error(f"Error checking Glue catalog encryption in {region}: {str(e)}")
+                
+        return findings
+
+    def check_sfn_logging(self) -> List[Dict[str, Any]]:
+        """Check Step Functions state machines for logging."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("states", region):
+                continue
+                
+            try:
+                sfn_client = self.aws.get_client("states", region)
+                
+                # List all state machines
+                paginator = sfn_client.get_paginator("list_state_machines")
+                for page in paginator.paginate():
+                    for sm in page.get("stateMachines", []):
+                        sm_arn = sm["stateMachineArn"]
+                        
+                        # Describe state machine
+                        sm_details = sfn_client.describe_state_machine(stateMachineArn=sm_arn)
+                        
+                        # Check logging configuration
+                        logging_config = sm_details.get("loggingConfiguration", {})
+                        if logging_config.get("level") == "OFF" or not logging_config:
+                            findings.append({
+                                "type": "Step Functions State Machine",
+                                "id": sm_arn,
+                                "region": region,
+                                "details": f"State machine {sm['name']} does not have logging enabled"
+                            })
+                            
+            except Exception as e:
+                logger.error(f"Error checking Step Functions logging in {region}: {str(e)}")
+                
+        return findings
+
+    def check_eventbridge_security(self) -> List[Dict[str, Any]]:
+        """Check EventBridge rules for security configuration."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("events", region):
+                continue
+                
+            try:
+                events_client = self.aws.get_client("events", region)
+                
+                # List all rules
+                paginator = events_client.get_paginator("list_rules")
+                for page in paginator.paginate():
+                    for rule in page.get("Rules", []):
+                        rule_name = rule["Name"]
+                        
+                        # List targets for the rule
+                        targets = events_client.list_targets_by_rule(Rule=rule_name)["Targets"]
+                        
+                        for target in targets:
+                            # Check if target is Lambda with wildcard permissions
+                            if "arn:aws:lambda" in target["Arn"]:
+                                # This is a simplified check - in production you'd check the Lambda's resource policy
+                                findings.append({
+                                    "type": "EventBridge Rule",
+                                    "id": rule["Arn"],
+                                    "region": region,
+                                    "details": f"EventBridge rule {rule_name} targets Lambda function - verify permissions"
+                                })
+                                
+            except Exception as e:
+                logger.error(f"Error checking EventBridge security in {region}: {str(e)}")
+                
+        return findings
+
+    def check_kinesis_encryption(self) -> List[Dict[str, Any]]:
+        """Check Kinesis data streams for encryption."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("kinesis", region):
+                continue
+                
+            try:
+                kinesis_client = self.aws.get_client("kinesis", region)
+                
+                # List all streams
+                paginator = kinesis_client.get_paginator("list_streams")
+                for page in paginator.paginate():
+                    for stream_name in page.get("StreamNames", []):
+                        # Describe stream
+                        stream = kinesis_client.describe_stream(StreamName=stream_name)["StreamDescription"]
+                        
+                        # Check encryption
+                        if stream.get("EncryptionType") == "NONE":
+                            findings.append({
+                                "type": "Kinesis Data Stream",
+                                "id": stream["StreamARN"],
+                                "region": region,
+                                "details": f"Kinesis stream {stream_name} is not encrypted"
+                            })
+                            
+            except Exception as e:
+                logger.error(f"Error checking Kinesis encryption in {region}: {str(e)}")
+                
+        return findings
+
+    def check_msk_encryption(self) -> List[Dict[str, Any]]:
+        """Check MSK clusters for encryption configuration."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("kafka", region):
+                continue
+                
+            try:
+                msk_client = self.aws.get_client("kafka", region)
+                
+                # List all clusters
+                paginator = msk_client.get_paginator("list_clusters")
+                for page in paginator.paginate():
+                    for cluster in page.get("ClusterInfoList", []):
+                        cluster_name = cluster["ClusterName"]
+                        
+                        # Check encryption in transit
+                        encryption_info = cluster.get("EncryptionInfo", {})
+                        in_transit = encryption_info.get("EncryptionInTransit", {})
+                        
+                        if not in_transit.get("ClientBroker") or in_transit.get("ClientBroker") == "PLAINTEXT":
+                            findings.append({
+                                "type": "MSK Cluster",
+                                "id": cluster["ClusterArn"],
+                                "region": region,
+                                "details": f"MSK cluster {cluster_name} does not enforce encryption in transit"
+                            })
+                            
+                        # Check encryption at rest
+                        at_rest = encryption_info.get("EncryptionAtRest", {})
+                        if not at_rest.get("DataVolumeKMSKeyId"):
+                            findings.append({
+                                "type": "MSK Cluster",
+                                "id": cluster["ClusterArn"],
+                                "region": region,
+                                "details": f"MSK cluster {cluster_name} does not have encryption at rest enabled"
+                            })
+                            
+            except Exception as e:
+                logger.error(f"Error checking MSK encryption in {region}: {str(e)}")
+                
+        return findings
+
+    def check_appsync_auth(self) -> List[Dict[str, Any]]:
+        """Check AppSync APIs for authentication configuration."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("appsync", region):
+                continue
+                
+            try:
+                appsync_client = self.aws.get_client("appsync", region)
+                
+                # List all GraphQL APIs
+                paginator = appsync_client.get_paginator("list_graphql_apis")
+                for page in paginator.paginate():
+                    for api in page.get("graphqlApis", []):
+                        api_name = api["name"]
+                        
+                        # Check authentication type
+                        auth_type = api.get("authenticationType")
+                        
+                        if auth_type == "API_KEY":
+                            # API key auth without additional auth is risky
+                            additional_auth = api.get("additionalAuthenticationProviders", [])
+                            if not additional_auth:
+                                findings.append({
+                                    "type": "AppSync API",
+                                    "id": api["apiId"],
+                                    "region": region,
+                                    "details": f"AppSync API {api_name} uses only API key authentication without additional providers"
+                                })
+                                
+            except Exception as e:
+                logger.error(f"Error checking AppSync authentication in {region}: {str(e)}")
+                
+        return findings
+
+    def check_docdb_encryption(self) -> List[Dict[str, Any]]:
+        """Check DocumentDB clusters for encryption at rest."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("docdb", region):
+                continue
+                
+            try:
+                docdb_client = self.aws.get_client("docdb", region)
+                
+                # Describe all DocumentDB clusters
+                paginator = docdb_client.get_paginator("describe_db_clusters")
+                for page in paginator.paginate():
+                    for cluster in page.get("DBClusters", []):
+                        if not cluster.get("StorageEncrypted", False):
+                            findings.append({
+                                "type": "DocumentDB Cluster",
+                                "id": cluster["DBClusterArn"],
+                                "region": region,
+                                "details": f"DocumentDB cluster {cluster['DBClusterIdentifier']} is not encrypted at rest"
+                            })
+                            
+            except Exception as e:
+                logger.error(f"Error checking DocumentDB encryption in {region}: {str(e)}")
+                
+        return findings
+
+    def check_neptune_encryption(self) -> List[Dict[str, Any]]:
+        """Check Neptune graph databases for encryption at rest."""
+        findings = []
+        
+        for region in self.aws.get_all_regions():
+            if not self.aws.check_service_availability("neptune", region):
+                continue
+                
+            try:
+                neptune_client = self.aws.get_client("neptune", region)
+                
+                # Describe all Neptune clusters
+                paginator = neptune_client.get_paginator("describe_db_clusters")
+                for page in paginator.paginate():
+                    for cluster in page.get("DBClusters", []):
+                        # Check if it's a Neptune cluster
+                        if cluster.get("Engine") == "neptune":
+                            if not cluster.get("StorageEncrypted", False):
+                                findings.append({
+                                    "type": "Neptune Cluster",
+                                    "id": cluster["DBClusterArn"],
+                                    "region": region,
+                                    "details": f"Neptune cluster {cluster['DBClusterIdentifier']} is not encrypted at rest"
+                                })
+                                
+            except Exception as e:
+                logger.error(f"Error checking Neptune encryption in {region}: {str(e)}")
+                
+        return findings
