@@ -1,0 +1,7 @@
+{
+  "description": "Security checks configuration with Batch 1 additions (CHECK-041 to CHECK-060)",
+  "total_checks": 60,
+  "includes_existing": "CHECK-001 to CHECK-040",
+  "new_checks": "CHECK-041 to CHECK-060",
+  "note": "Run 'python3 merge_configs.py' to combine this with the existing checks_config.json"
+} 

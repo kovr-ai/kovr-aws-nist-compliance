@@ -1,0 +1,249 @@
+{
+  "enhanced_security_checks": [
+    {
+      "id": "CHECK-001",
+      "name": "IAM Root Account Usage",
+      "description": "Ensure root account is not used for daily operations",
+      "detailed_description": "This check verifies that the AWS root account has not been used for regular operations within the last 30 days and does not have active access keys. The root account should only be used for initial setup and emergency access. Regular use of the root account bypasses IAM policies and makes it difficult to track who performed actions, violating the principle of least privilege and audit requirements.",
+      "category": "Identity and Access Management",
+      "frameworks": {
+        "primary": "CIS AWS Benchmark v1.4 - 1.7",
+        "additional": [
+          {
+            "framework": "Zero Trust (NIST SP 800-207)",
+            "rationale": "Root account violates 'never trust, always verify' principle by having implicit trust"
+          },
+          {
+            "framework": "CSA CCM v4",
+            "control": "IAM-02",
+            "rationale": "Privileged Access Management requires controlled, monitored access"
+          },
+          {
+            "framework": "SANS Top 20",
+            "control": "Control 4",
+            "rationale": "Controlled Use of Administrative Privileges"
+          },
+          {
+            "framework": "AWS Security Hub",
+            "standard": "IAM.6",
+            "rationale": "Hardware MFA should be enabled for the root user"
+          },
+          {
+            "framework": "NIST CSF",
+            "function": "PR.AC-4",
+            "rationale": "Access permissions are managed through least privilege principle"
+          }
+        ]
+      },
+      "severity": "CRITICAL",
+      "nist_mappings": ["AC-2", "AC-6"],
+      "service": "iam",
+      "check_function": "check_root_account_usage",
+      "remediation_guidance": {
+        "manual": "1. Create individual IAM users for administrators\n2. Grant only required permissions\n3. Enable MFA on all admin accounts\n4. Delete root access keys if they exist",
+        "automated": "Use AWS Organizations SCPs to prevent root account usage",
+        "preventive_controls": ["SCP policy to deny root actions", "CloudTrail alerts on root usage"]
+      }
+    },
+    {
+      "id": "CHECK-002",
+      "name": "MFA on Root Account",
+      "description": "Ensure MFA is enabled for root account",
+      "detailed_description": "This check verifies that Multi-Factor Authentication (MFA) is enabled for the AWS root account. MFA adds an additional layer of protection beyond username and password, requiring a second form of authentication. This is critical for the root account as it has unrestricted access to all AWS services and resources, making it a high-value target for attackers.",
+      "category": "Identity and Access Management",
+      "frameworks": {
+        "primary": "CIS AWS Benchmark v1.4 - 1.5",
+        "additional": [
+          {
+            "framework": "Zero Trust (NIST SP 800-207)",
+            "rationale": "Strong authentication is fundamental to Zero Trust architecture"
+          },
+          {
+            "framework": "CSA CCM v4",
+            "control": "IAM-05",
+            "rationale": "Multi-Factor Authentication requirement for privileged access"
+          },
+          {
+            "framework": "NIST CSF",
+            "function": "PR.AC-1",
+            "rationale": "Identities and credentials are managed for authorized devices and users"
+          },
+          {
+            "framework": "SANS Top 20",
+            "control": "Control 4.5",
+            "rationale": "Use multi-factor authentication for all administrative access"
+          },
+          {
+            "framework": "MITRE ATT&CK",
+            "technique": "T1078",
+            "rationale": "Prevents use of valid accounts through stolen credentials"
+          }
+        ]
+      },
+      "severity": "CRITICAL",
+      "nist_mappings": ["IA-2"],
+      "service": "iam",
+      "check_function": "check_root_mfa"
+    },
+    {
+      "id": "CHECK-003",
+      "name": "CloudTrail Enabled",
+      "description": "Ensure CloudTrail is enabled in all regions",
+      "detailed_description": "This check verifies that AWS CloudTrail is enabled and configured to log API calls across all AWS regions. CloudTrail provides a comprehensive audit trail of all API activity, including who made the request, when it was made, what resources were accessed, and from where. This is essential for security monitoring, compliance auditing, and incident response.",
+      "category": "Logging and Monitoring",
+      "frameworks": {
+        "primary": "CIS AWS Benchmark v1.4 - 3.1",
+        "additional": [
+          {
+            "framework": "MITRE ATT&CK",
+            "techniques": ["T1078", "T1098", "T1531"],
+            "rationale": "Enables detection of Valid Accounts abuse, Account Manipulation, and Account Access Removal"
+          },
+          {
+            "framework": "CSA CCM v4",
+            "control": "LOG-01",
+            "rationale": "Logging and Monitoring of security events"
+          },
+          {
+            "framework": "SANS Top 20",
+            "control": "Control 6",
+            "rationale": "Maintenance, Monitoring, and Analysis of Audit Logs"
+          },
+          {
+            "framework": "Zero Trust (NIST SP 800-207)",
+            "rationale": "Continuous verification requires comprehensive logging"
+          },
+          {
+            "framework": "AWS Security Hub",
+            "standard": "CloudTrail.1",
+            "rationale": "CloudTrail should be enabled and configured with at least one multi-Region trail"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["AU-2", "AU-3"],
+      "service": "cloudtrail",
+      "check_function": "check_cloudtrail_enabled"
+    },
+    {
+      "id": "CHECK-005",
+      "name": "S3 Bucket Public Access",
+      "description": "Ensure S3 buckets are not publicly accessible",
+      "detailed_description": "This check verifies that S3 buckets are not configured for public access. Public access to S3 buckets can expose sensitive data to unauthorized users and increase the risk of data breaches. The check examines bucket policies, ACLs, and public access block settings to ensure data is properly protected from unauthorized access.",
+      "category": "Data Protection",
+      "frameworks": {
+        "primary": "OWASP Cloud Security Top 10",
+        "additional": [
+          {
+            "framework": "CSA CCM v4",
+            "control": "DSI-02",
+            "rationale": "Data Security and Information Lifecycle Management"
+          },
+          {
+            "framework": "SANS Top 20",
+            "control": "Control 13",
+            "rationale": "Data Protection - preventing unauthorized data exposure"
+          },
+          {
+            "framework": "AWS Security Hub",
+            "standards": ["S3.1", "S3.2", "S3.8"],
+            "rationale": "S3 buckets should prohibit public access"
+          },
+          {
+            "framework": "Zero Trust (NIST SP 800-207)",
+            "rationale": "Assume breach - minimize blast radius of exposed data"
+          },
+          {
+            "framework": "NIST CSF",
+            "function": "PR.DS-5",
+            "rationale": "Protections against data leaks are implemented"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["AC-3", "SC-7"],
+      "service": "s3",
+      "check_function": "check_s3_public_access"
+    },
+    {
+      "id": "CHECK-008",
+      "name": "Security Group SSH Access",
+      "description": "Ensure no security groups allow unrestricted SSH access",
+      "detailed_description": "This check verifies that security groups do not allow unrestricted SSH access (port 22) from the internet (0.0.0.0/0). Unrestricted SSH access increases the attack surface and makes instances vulnerable to brute force attacks. SSH access should be restricted to specific IP ranges or VPN endpoints.",
+      "category": "Network Security",
+      "frameworks": {
+        "primary": "CIS AWS Benchmark v1.4 - 5.2",
+        "additional": [
+          {
+            "framework": "MITRE ATT&CK",
+            "technique": "T1021.004",
+            "rationale": "Prevents Remote Services: SSH attacks"
+          },
+          {
+            "framework": "CSA CCM v4",
+            "control": "IVS-06",
+            "rationale": "Network Security - secure network architecture"
+          },
+          {
+            "framework": "SANS Top 20",
+            "control": "Control 11",
+            "rationale": "Secure Configuration for Network Devices"
+          },
+          {
+            "framework": "Zero Trust (NIST SP 800-207)",
+            "rationale": "Micro-segmentation and least privilege network access"
+          },
+          {
+            "framework": "AWS Security Hub",
+            "standard": "EC2.19",
+            "rationale": "Security groups should not allow unrestricted access to ports with high risk"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["SC-7", "AC-3"],
+      "service": "ec2",
+      "check_function": "check_sg_ssh_access"
+    }
+  ],
+  "framework_mappings": {
+    "Zero Trust (NIST SP 800-207)": {
+      "description": "Zero Trust Architecture principles",
+      "key_tenets": [
+        "Never trust, always verify",
+        "Assume breach",
+        "Verify explicitly",
+        "Use least privilege access"
+      ]
+    },
+    "CSA CCM v4": {
+      "description": "Cloud Security Alliance Cloud Controls Matrix",
+      "domains": [
+        "Application & Interface Security",
+        "Audit & Assurance",
+        "Business Continuity Management",
+        "Change Control & Configuration Management",
+        "Data Security & Information Lifecycle Management",
+        "Identity & Access Management"
+      ]
+    },
+    "SANS Top 20": {
+      "description": "CIS Critical Security Controls",
+      "version": "8.0",
+      "implementation_groups": ["IG1", "IG2", "IG3"]
+    },
+    "AWS Security Hub": {
+      "description": "AWS Security Hub Foundational Security Best Practices",
+      "standards": [
+        "AWS Foundational Security Best Practices",
+        "CIS AWS Foundations Benchmark",
+        "PCI DSS"
+      ]
+    },
+    "MITRE ATT&CK": {
+      "description": "Adversarial Tactics, Techniques, and Common Knowledge",
+      "matrices": ["Enterprise", "Cloud"],
+      "use_case": "Threat detection and prevention"
+    }
+  }
+} 

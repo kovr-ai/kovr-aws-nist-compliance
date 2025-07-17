@@ -1,0 +1,984 @@
+{
+  "security_checks": [
+    {
+      "id": "CHECK-021",
+      "name": "CloudWatch Alarms for Security Events",
+      "description": "Ensure CloudWatch alarms exist for critical security events",
+      "detailed_description": "This check verifies that CloudWatch alarms are configured to monitor critical security events such as failed authentication attempts, unusual API activity, and security service findings. These alarms provide real-time notification of potential security incidents, enabling rapid response to threats and maintaining security awareness.",
+      "category": "Incident Response",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Well-Architected",
+          "version": "Security Pillar",
+          "control": "SEC10"
+        },
+        "additional": [
+          {
+            "name": "MITRE ATT&CK",
+            "control": "Multiple",
+            "mapping": "Real-time threat detection and alerting"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "TVM-02",
+            "mapping": "Vulnerability / Patch Management Reporting"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 6.6",
+            "mapping": "Collect Logs from All Sources"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "CloudWatch.1",
+            "mapping": "CloudWatch alarm actions should be enabled"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "DE.AE-1",
+            "mapping": "Network operations and expected data flows are determined"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["IR-4", "IR-5"],
+      "service": "cloudwatch",
+      "check_function": "check_security_alarms",
+      "remediation": {
+        "text": "Create CloudWatch alarms for root account usage, console sign-in failures, authorization failures, and IAM policy changes.",
+        "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html"
+      }
+    },
+    {
+      "id": "CHECK-022",
+      "name": "SNS Topics for Security Notifications",
+      "description": "Ensure SNS topics are configured for security incident notifications",
+      "detailed_description": "This check verifies that SNS topics are configured to receive security notifications from AWS services like GuardDuty, Security Hub, and CloudWatch alarms. Proper notification channels ensure that security teams are promptly alerted to potential threats and can respond quickly to security incidents.",
+      "category": "Incident Response",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Security Best Practices",
+          "version": "2022",
+          "control": "IR-1"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "SEF-02",
+            "mapping": "Service / Cloud Provider Management"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 17.2",
+            "mapping": "Establish and Maintain Contact Information"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "SNS.1",
+            "mapping": "SNS topics should be encrypted at rest"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "RS.CO-1",
+            "mapping": "Personnel know their roles and order of operations"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Alert distribution for continuous monitoring"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["IR-6"],
+      "service": "sns",
+      "check_function": "check_security_sns_topics",
+      "remediation": {
+        "text": "Create SNS topics for security notifications and subscribe security team members to receive alerts.",
+        "url": "https://docs.aws.amazon.com/sns/latest/dg/welcome.html"
+      }
+    },
+    {
+      "id": "CHECK-023",
+      "name": "KMS Key Rotation",
+      "description": "Ensure KMS CMK rotation is enabled",
+      "detailed_description": "This check verifies that Customer Master Keys (CMKs) in AWS KMS have automatic key rotation enabled. Regular key rotation is a security best practice that limits the exposure window if a key is compromised. Automatic rotation ensures keys are rotated annually without manual intervention, maintaining security while reducing operational overhead.",
+      "category": "Data Protection",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "3.8"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "EKM-04",
+            "mapping": "Encryption & Key Management - Key Generation"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 14.2",
+            "mapping": "Encrypt Sensitive Data in Transit"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "KMS.4",
+            "mapping": "AWS KMS keys should have key rotation enabled"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.DS-2",
+            "mapping": "Data-in-transit is protected"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "Cryptographic agility and key management"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["SC-12", "SC-13"],
+      "service": "kms",
+      "check_function": "check_kms_key_rotation",
+      "remediation": {
+        "text": "Enable automatic key rotation for customer-managed KMS keys.",
+        "url": "https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html"
+      }
+    },
+    {
+      "id": "CHECK-024",
+      "name": "Secrets Manager Usage",
+      "description": "Ensure sensitive data is stored in AWS Secrets Manager",
+      "detailed_description": "This check verifies that sensitive information such as database credentials, API keys, and other secrets are stored in AWS Secrets Manager rather than in application code or configuration files. Secrets Manager provides secure storage, automatic rotation, and fine-grained access control for sensitive data, reducing the risk of credential exposure.",
+      "category": "Data Protection",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Security Best Practices",
+          "version": "2022",
+          "control": "DP-2"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "IAM-12",
+            "mapping": "Identity & Access Management - Credential Lifecycle"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 5",
+            "mapping": "Account Management"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "SecretsManager.1",
+            "mapping": "Secrets Manager secrets should have automatic rotation enabled"
+          },
+          {
+            "name": "OWASP",
+            "control": "A07:2021",
+            "mapping": "Identification and Authentication Failures"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.1",
+            "mapping": "Credential management and protection"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["IA-5", "SC-28"],
+      "service": "secretsmanager",
+      "check_function": "check_secrets_manager_usage",
+      "remediation": {
+        "text": "Migrate hardcoded credentials to AWS Secrets Manager and enable automatic rotation.",
+        "url": "https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html"
+      }
+    },
+    {
+      "id": "CHECK-025",
+      "name": "VPC Endpoint Usage",
+      "description": "Ensure VPC endpoints are used for AWS services",
+      "detailed_description": "This check verifies that VPC endpoints are configured for AWS services to enable private communication between VPC resources and AWS services without requiring internet gateway access. VPC endpoints enhance security by keeping traffic within the AWS network and reduce exposure to potential internet-based attacks.",
+      "category": "Network Security",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Well-Architected",
+          "version": "Security Pillar",
+          "control": "SEC06"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "IVS-08",
+            "mapping": "Infrastructure & Virtualization Security - Network Architecture"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 13.1",
+            "mapping": "Centralize Security Event Alerting"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "EC2.10",
+            "mapping": "VPC endpoints should be used for AWS services"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.1",
+            "mapping": "Private connectivity and micro-segmentation"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.AC-5",
+            "mapping": "Network integrity is protected"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["SC-7", "AC-4"],
+      "service": "ec2",
+      "check_function": "check_vpc_endpoints",
+      "remediation": {
+        "text": "Create VPC endpoints for frequently used AWS services like S3, DynamoDB, and EC2.",
+        "url": "https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints.html"
+      }
+    },
+    {
+      "id": "CHECK-026",
+      "name": "EFS Encryption",
+      "description": "Ensure EFS file systems are encrypted at rest",
+      "detailed_description": "This check verifies that Amazon EFS file systems are encrypted at rest. EFS encryption protects data stored in file systems from unauthorized access, even if the underlying storage infrastructure is compromised. This is especially important for file systems containing sensitive data or applications that require high security.",
+      "category": "Data Protection",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Security Best Practices",
+          "version": "2022",
+          "control": "DP-3"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "EKM-01",
+            "mapping": "Encryption & Key Management Policy"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 14.8",
+            "mapping": "Encrypt Sensitive Information at Rest"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "EFS.1",
+            "mapping": "EFS should be configured to encrypt file data at rest"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.DS-1",
+            "mapping": "Data-at-rest is protected"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "File system encryption"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["SC-28"],
+      "service": "efs",
+      "check_function": "check_efs_encryption",
+      "remediation": {
+        "text": "Enable encryption at rest when creating new EFS file systems or migrate data to encrypted file systems.",
+        "url": "https://docs.aws.amazon.com/efs/latest/ug/encryption-at-rest.html"
+      }
+    },
+    {
+      "id": "CHECK-027",
+      "name": "DynamoDB Encryption",
+      "description": "Ensure DynamoDB tables are encrypted at rest",
+      "detailed_description": "This check verifies that DynamoDB tables are encrypted at rest. DynamoDB encryption protects data stored in NoSQL databases from unauthorized access, ensuring that sensitive information remains secure even if the underlying storage is compromised. This is critical for databases containing PII or other sensitive data.",
+      "category": "Data Protection",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Security Best Practices",
+          "version": "2022",
+          "control": "DP-4"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "DSI-03",
+            "mapping": "Data Security & Information - Data Inventory"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 14.8",
+            "mapping": "Encrypt Sensitive Information at Rest"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "DynamoDB.1",
+            "mapping": "DynamoDB tables should have encryption at rest enabled"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.DS-1",
+            "mapping": "Data-at-rest is protected"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "NoSQL database encryption"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["SC-28"],
+      "service": "dynamodb",
+      "check_function": "check_dynamodb_encryption",
+      "remediation": {
+        "text": "Enable encryption at rest for DynamoDB tables using AWS owned keys or customer managed keys.",
+        "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/EncryptionAtRest.html"
+      }
+    },
+    {
+      "id": "CHECK-028",
+      "name": "ElastiCache Encryption",
+      "description": "Ensure ElastiCache clusters have encryption enabled",
+      "detailed_description": "This check verifies that ElastiCache clusters are encrypted at rest. ElastiCache encryption protects data stored in Redis and Memcached clusters from unauthorized access, ensuring that cached data remains secure. This is important for applications that cache sensitive information or require high security.",
+      "category": "Data Protection",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "7.1"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "DSI-06",
+            "mapping": "Data Loss Prevention"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 14.8",
+            "mapping": "Encrypt Sensitive Information at Rest"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "ElastiCache.3",
+            "mapping": "ElastiCache clusters should have encryption at rest enabled"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.DS-1",
+            "mapping": "Data-at-rest is protected"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "In-memory cache encryption"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["SC-28"],
+      "service": "elasticache",
+      "check_function": "check_elasticache_encryption",
+      "remediation": {
+        "text": "Enable at-rest encryption when creating new ElastiCache clusters.",
+        "url": "https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/at-rest-encryption.html"
+      }
+    },
+    {
+      "id": "CHECK-029",
+      "name": "Network ACL Rules",
+      "description": "Ensure Network ACLs do not allow unrestricted access",
+      "detailed_description": "This check verifies that Network ACLs (NACLs) are properly configured and do not allow unrestricted access to resources. NACLs provide an additional layer of network security by controlling traffic at the subnet level. Proper NACL configuration helps prevent unauthorized access and reduces the attack surface.",
+      "category": "Network Security",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "5.1"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "IVS-06",
+            "mapping": "Infrastructure & Virtualization Security - Network Security"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 11.2",
+            "mapping": "Document Traffic Configuration Rules"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "EC2.21",
+            "mapping": "Network ACLs should not allow ingress from 0.0.0.0/0"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.1",
+            "mapping": "Defense in depth networking"
+          },
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1590",
+            "mapping": "Gather Victim Network Information"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["SC-7", "AC-4"],
+      "service": "ec2",
+      "check_function": "check_network_acl_rules",
+      "remediation": {
+        "text": "Review and restrict Network ACL rules to allow only necessary traffic.",
+        "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html"
+      }
+    },
+    {
+      "id": "CHECK-030",
+      "name": "AWS WAF Enabled",
+      "description": "Ensure AWS WAF is enabled for web applications",
+      "detailed_description": "This check verifies that AWS WAF (Web Application Firewall) is enabled and configured to protect web applications from common web exploits. WAF helps protect against attacks such as SQL injection, cross-site scripting, and other OWASP Top 10 vulnerabilities. This is essential for web applications that handle user input or sensitive data.",
+      "category": "Network Security",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Well-Architected",
+          "version": "Security Pillar",
+          "control": "SEC05"
+        },
+        "additional": [
+          {
+            "name": "OWASP",
+            "control": "Top 10",
+            "mapping": "Web Application Security Risks"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "AIS-04",
+            "mapping": "Application Security - Application Vulnerability"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 13.6",
+            "mapping": "Deploy Network-Based IPS"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "APIGateway.4",
+            "mapping": "API Gateway stage should be associated with AWS WAF"
+          },
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1190",
+            "mapping": "Exploit Public-Facing Application"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["SC-7", "SI-4"],
+      "service": "wafv2",
+      "check_function": "check_waf_enabled",
+      "remediation": {
+        "text": "Enable AWS WAF for CloudFront distributions, ALBs, and API Gateways.",
+        "url": "https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html"
+      }
+    },
+    {
+      "id": "CHECK-031",
+      "name": "CloudFront Security Headers",
+      "description": "Ensure CloudFront distributions use security headers",
+      "detailed_description": "This check verifies that CloudFront distributions are configured with security headers to enhance web application security. Security headers such as Content-Security-Policy, X-Frame-Options, and Strict-Transport-Security help protect against various attacks including clickjacking, XSS, and protocol downgrade attacks.",
+      "category": "Network Security",
+      "frameworks": {
+        "primary": {
+          "name": "OWASP",
+          "version": "Security Headers",
+          "control": "Best Practices"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "AIS-02",
+            "mapping": "Application & Interface Security - Customer Access"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 14.4",
+            "mapping": "Encrypt All Sensitive Information in Transit"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "CloudFront.1",
+            "mapping": "CloudFront distributions should have a default root object configured"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "Content delivery security"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.DS-2",
+            "mapping": "Data-in-transit is protected"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["SC-8"],
+      "service": "cloudfront",
+      "check_function": "check_cloudfront_security_headers",
+      "remediation": {
+        "text": "Configure CloudFront response headers policies to include security headers.",
+        "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/adding-response-headers.html"
+      }
+    },
+    {
+      "id": "CHECK-032",
+      "name": "IAM Roles for Service Accounts",
+      "description": "Ensure EC2 instances use IAM roles instead of hardcoded credentials",
+      "detailed_description": "This check verifies that EC2 instances use IAM roles for accessing AWS services instead of hardcoded access keys. IAM roles provide temporary credentials that are automatically rotated, eliminating the security risk of hardcoded credentials that could be exposed or forgotten. This follows the principle of least privilege and reduces credential management overhead.",
+      "category": "Identity and Access Management",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Security Best Practices",
+          "version": "2022",
+          "control": "IAM-3"
+        },
+        "additional": [
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.1",
+            "mapping": "Service identity management"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "IAM-09",
+            "mapping": "Segregation of Duties"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 4",
+            "mapping": "Controlled Use of Administrative Privileges"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "EC2.8",
+            "mapping": "EC2 instances should use IAM roles"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.AC-4",
+            "mapping": "Access permissions are managed"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["AC-2", "IA-2"],
+      "service": "iam",
+      "check_function": "check_iam_roles_for_services",
+      "remediation": {
+        "text": "Create IAM roles with appropriate permissions and attach them to EC2 instances.",
+        "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html"
+      }
+    },
+    {
+      "id": "CHECK-033",
+      "name": "Cross-Account Access Review",
+      "description": "Review and validate cross-account access roles",
+      "detailed_description": "This check verifies that cross-account access roles are properly configured and regularly reviewed. Cross-account access should be limited to only what is necessary and should follow the principle of least privilege. Regular review of cross-account permissions helps ensure that access remains appropriate and secure.",
+      "category": "Identity and Access Management",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Security Best Practices",
+          "version": "2022",
+          "control": "IAM-4"
+        },
+        "additional": [
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.1",
+            "mapping": "Trust boundaries and verification"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "IAM-01",
+            "mapping": "Identity & Access Management Policy"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 16",
+            "mapping": "Account Monitoring and Control"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "IAM.21",
+            "mapping": "IAM customer managed policies should not allow wildcard actions"
+          },
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1199",
+            "mapping": "Trusted Relationship"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["AC-2", "AC-3"],
+      "service": "iam",
+      "check_function": "check_cross_account_access",
+      "remediation": {
+        "text": "Review cross-account roles, remove unnecessary access, and implement external ID for third-party access.",
+        "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_common-scenarios_third-party.html"
+      }
+    },
+    {
+      "id": "CHECK-034",
+      "name": "AWS Backup Plans",
+      "description": "Ensure AWS Backup plans exist for critical resources",
+      "detailed_description": "This check verifies that AWS Backup plans are configured to protect critical resources. Regular backups are essential for disaster recovery and business continuity. AWS Backup provides centralized backup management for multiple AWS services, ensuring that critical data and applications can be restored in the event of data loss or system failure.",
+      "category": "Backup and Recovery",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Well-Architected",
+          "version": "Reliability Pillar",
+          "control": "REL09"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "BCR-01",
+            "mapping": "Business Continuity Planning"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 11.1",
+            "mapping": "Establish and Maintain a Data Recovery Process"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "Backup.1",
+            "mapping": "Backup recovery points should be encrypted"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.IP-4",
+            "mapping": "Backups of information are conducted"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "Resilience and recovery planning"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["CP-9", "CP-10"],
+      "service": "backup",
+      "check_function": "check_backup_plans",
+      "remediation": {
+        "text": "Create AWS Backup plans with appropriate retention policies for critical resources.",
+        "url": "https://docs.aws.amazon.com/aws-backup/latest/devguide/creating-a-backup-plan.html"
+      }
+    },
+    {
+      "id": "CHECK-035",
+      "name": "RDS Automated Backups",
+      "description": "Ensure RDS instances have automated backups enabled",
+      "detailed_description": "This check verifies that RDS instances have automated backups enabled with appropriate retention periods. Automated backups ensure that database data can be recovered in the event of data corruption, accidental deletion, or system failure. This is critical for maintaining data integrity and business continuity.",
+      "category": "Backup and Recovery",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "1.19"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "BCR-02",
+            "mapping": "Business Continuity Testing"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 11.2",
+            "mapping": "Establish and Maintain a Secure Backup Process"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "RDS.9",
+            "mapping": "RDS DB instances should have a backup plan"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.IP-4",
+            "mapping": "Backups of information are maintained"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "Database resilience"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["CP-9"],
+      "service": "rds",
+      "check_function": "check_rds_backups",
+      "remediation": {
+        "text": "Enable automated backups for RDS instances with at least 7 days retention.",
+        "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithAutomatedBackups.html"
+      }
+    },
+    {
+      "id": "CHECK-036",
+      "name": "CloudWatch Logs Retention",
+      "description": "Ensure CloudWatch Logs have appropriate retention periods",
+      "detailed_description": "This check verifies that CloudWatch Logs have appropriate retention periods configured. Proper log retention ensures that audit trails are maintained for compliance requirements and security investigations. Retention periods should balance storage costs with regulatory and security needs.",
+      "category": "Monitoring and Logging",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "3.11"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "LOG-05",
+            "mapping": "Log Protection"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 6.4",
+            "mapping": "Ensure Adequate Audit Log Storage"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "CloudWatch.16",
+            "mapping": "CloudWatch log groups should have retention configured"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.PT-1",
+            "mapping": "Audit/log records are maintained"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Historical log analysis capability"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["AU-4", "AU-11"],
+      "service": "logs",
+      "check_function": "check_cloudwatch_logs_retention",
+      "remediation": {
+        "text": "Set appropriate retention periods for CloudWatch Log Groups based on compliance requirements.",
+        "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/Working-with-log-groups-and-streams.html"
+      }
+    },
+    {
+      "id": "CHECK-037",
+      "name": "API Gateway Logging",
+      "description": "Ensure API Gateway has logging enabled",
+      "detailed_description": "This check verifies that API Gateway has logging enabled to capture API requests and responses. API logging is essential for monitoring API usage, debugging issues, and detecting potential security threats or abuse. Logs should include access logs and execution logs for comprehensive monitoring.",
+      "category": "Monitoring and Logging",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Security Best Practices",
+          "version": "2022",
+          "control": "LOG-2"
+        },
+        "additional": [
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1190",
+            "mapping": "Exploit Public-Facing Application"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "AIS-01",
+            "mapping": "Application Security"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 6.2",
+            "mapping": "Activate Audit Logging"
+          },
+          {
+            "name": "OWASP",
+            "control": "A09:2021",
+            "mapping": "Security Logging and Monitoring Failures"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "API activity monitoring"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["AU-2", "AU-3"],
+      "service": "apigateway",
+      "check_function": "check_api_gateway_logging",
+      "remediation": {
+        "text": "Enable CloudWatch logging for API Gateway stages with appropriate log levels.",
+        "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-logging.html"
+      }
+    },
+    {
+      "id": "CHECK-038",
+      "name": "Lambda Function Logging",
+      "description": "Ensure Lambda functions have proper logging configuration",
+      "detailed_description": "This check verifies that Lambda functions are configured with proper logging to CloudWatch Logs. Lambda logging is essential for monitoring function execution, debugging issues, and detecting potential security incidents. Proper logging configuration ensures that function activity is captured and can be analyzed.",
+      "category": "Monitoring and Logging",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Security Best Practices",
+          "version": "2022",
+          "control": "LOG-3"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "LOG-08",
+            "mapping": "Incident Response Legal Preparation"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 6",
+            "mapping": "Log Management"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "Lambda.4",
+            "mapping": "Lambda functions should have a dead-letter queue configured"
+          },
+          {
+            "name": "OWASP",
+            "control": "Serverless Top 10",
+            "mapping": "Insufficient Logging and Monitoring"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Serverless function visibility"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["AU-2", "AU-3"],
+      "service": "lambda",
+      "check_function": "check_lambda_logging",
+      "remediation": {
+        "text": "Ensure Lambda functions have appropriate CloudWatch Logs permissions and log retention.",
+        "url": "https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html"
+      }
+    },
+    {
+      "id": "CHECK-039",
+      "name": "CloudTrail KMS Encryption",
+      "description": "Ensure CloudTrail logs are encrypted using KMS CMKs",
+      "detailed_description": "This check verifies that CloudTrail logs are encrypted using Customer Master Keys (CMKs) from AWS KMS. KMS encryption provides additional security for audit logs by ensuring they are protected with customer-controlled encryption keys. This is especially important for logs containing sensitive information or in environments with strict encryption requirements.",
+      "category": "Logging and Monitoring",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "3.7"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "EKM-03",
+            "mapping": "Encryption & Key Management - Sensitive Data"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 14.8",
+            "mapping": "Encrypt Sensitive Information at Rest"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "CloudTrail.2",
+            "mapping": "CloudTrail should have encryption at rest enabled"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.DS-1",
+            "mapping": "Data-at-rest is protected"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "Audit log encryption"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["AU-9", "SC-28"],
+      "service": "cloudtrail",
+      "check_function": "check_cloudtrail_kms_encryption",
+      "remediation": {
+        "text": "Configure CloudTrail to use KMS encryption with a customer-managed CMK.",
+        "url": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/encrypting-cloudtrail-log-files-with-aws-kms.html"
+      }
+    },
+    {
+      "id": "CHECK-040",
+      "name": "S3 Bucket Logging",
+      "description": "Ensure S3 bucket access logging is enabled on sensitive buckets",
+      "detailed_description": "This check verifies that S3 bucket access logging is enabled for buckets containing sensitive data. Access logging provides detailed records of all requests made to S3 buckets, including who accessed what data and when. This is essential for security monitoring, compliance auditing, and detecting unauthorized access to sensitive data.",
+      "category": "Data Protection",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "3.3"
+        },
+        "additional": [
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1530",
+            "mapping": "Data from Cloud Storage Object"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "LOG-06",
+            "mapping": "Access Logs"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 6.2",
+            "mapping": "Activate Audit Logging"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "S3.9",
+            "mapping": "S3 bucket server access logging should be enabled"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Object storage access visibility"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["AU-2", "AU-3"],
+      "service": "s3",
+      "check_function": "check_s3_bucket_logging",
+      "remediation": {
+        "text": "Enable server access logging for S3 buckets containing sensitive data.",
+        "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/ServerLogs.html"
+      }
+    }
+  ]
+} 

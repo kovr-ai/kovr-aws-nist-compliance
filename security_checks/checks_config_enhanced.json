@@ -1,0 +1,1024 @@
+{
+  "security_checks": [
+    {
+      "id": "CHECK-001",
+      "name": "IAM Root Account Usage",
+      "description": "Ensure root account is not used for daily operations",
+      "detailed_description": "This check verifies that the AWS root account has not been used for regular operations within the last 30 days and does not have active access keys. The root account should only be used for initial setup and emergency access. Regular use of the root account bypasses IAM policies and makes it difficult to track who performed actions, violating the principle of least privilege and audit requirements.",
+      "category": "Identity and Access Management",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "1.7"
+        },
+        "additional": [
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Root account violates 'never trust, always verify' principle"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "IAM-02",
+            "mapping": "Privileged Access Management"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 4",
+            "mapping": "Controlled Use of Administrative Privileges"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "IAM.6",
+            "mapping": "Hardware MFA should be enabled for the root user"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.AC-4",
+            "mapping": "Access permissions are managed, incorporating the principles of least privilege"
+          },
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1078",
+            "mapping": "Valid Accounts - Prevents abuse of root credentials"
+          }
+        ]
+      },
+      "severity": "CRITICAL",
+      "nist_mappings": ["AC-2", "AC-6"],
+      "service": "iam",
+      "check_function": "check_root_account_usage",
+      "remediation": {
+        "text": "Create individual IAM users for administrators, grant only required permissions, enable MFA on all admin accounts, and delete root access keys if they exist.",
+        "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html"
+      }
+    },
+    {
+      "id": "CHECK-002",
+      "name": "MFA on Root Account",
+      "description": "Ensure MFA is enabled for root account",
+      "detailed_description": "This check verifies that Multi-Factor Authentication (MFA) is enabled for the AWS root account. MFA adds an additional layer of protection beyond username and password, requiring a second form of authentication. This is critical for the root account as it has unrestricted access to all AWS services and resources, making it a high-value target for attackers.",
+      "category": "Identity and Access Management",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "1.5"
+        },
+        "additional": [
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.1",
+            "mapping": "Strong authentication is fundamental to Zero Trust"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "IAM-05",
+            "mapping": "Multi-Factor Authentication"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 4.5",
+            "mapping": "Use multi-factor authentication for all administrative access"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "IAM.5",
+            "mapping": "MFA should be enabled for the root user"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.AC-1",
+            "mapping": "Identities and credentials are issued, managed, and revoked"
+          },
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1078",
+            "mapping": "Prevents use of valid accounts through stolen credentials"
+          }
+        ]
+      },
+      "severity": "CRITICAL",
+      "nist_mappings": ["IA-2"],
+      "service": "iam",
+      "check_function": "check_root_mfa",
+      "remediation": {
+        "text": "Enable MFA for the root account using a hardware MFA device for maximum security.",
+        "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html"
+      }
+    },
+    {
+      "id": "CHECK-003",
+      "name": "CloudTrail Enabled",
+      "description": "Ensure CloudTrail is enabled in all regions",
+      "detailed_description": "This check verifies that AWS CloudTrail is enabled and configured to log API calls across all AWS regions. CloudTrail provides a comprehensive audit trail of all API activity, including who made the request, when it was made, what resources were accessed, and from where. This is essential for security monitoring, compliance auditing, and incident response.",
+      "category": "Logging and Monitoring",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "3.1"
+        },
+        "additional": [
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1078, T1098, T1531",
+            "mapping": "Detection of Valid Accounts abuse, Account Manipulation, Account Access Removal"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "LOG-01",
+            "mapping": "Logging and Monitoring"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 6",
+            "mapping": "Maintenance, Monitoring, and Analysis of Audit Logs"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Continuous verification requires comprehensive logging"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "CloudTrail.1",
+            "mapping": "CloudTrail should be enabled with multi-Region trail"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "DE.AE-3",
+            "mapping": "Event data are collected and correlated from multiple sources"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["AU-2", "AU-3"],
+      "service": "cloudtrail",
+      "check_function": "check_cloudtrail_enabled",
+      "remediation": {
+        "text": "Enable CloudTrail with a multi-region trail that logs to a centralized S3 bucket.",
+        "url": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-create-and-update-a-trail.html"
+      }
+    },
+    {
+      "id": "CHECK-004",
+      "name": "CloudTrail Log File Validation",
+      "description": "Ensure CloudTrail log file validation is enabled",
+      "detailed_description": "This check verifies that CloudTrail log file validation is enabled. Log file validation creates a digital signature for each log file, allowing you to verify that log files have not been modified, deleted, or tampered with. This is critical for maintaining the integrity of audit logs and ensuring they can be trusted for compliance and forensic investigations.",
+      "category": "Logging and Monitoring",
+      "frameworks": {
+        "primary": {
+          "name": "MITRE ATT&CK",
+          "version": "Cloud Matrix",
+          "control": "T1565"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "LOG-03",
+            "mapping": "Security Monitoring"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 6.3",
+            "mapping": "Enable Detailed Logging"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "CloudTrail.4",
+            "mapping": "CloudTrail log file validation should be enabled"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.DS-6",
+            "mapping": "Integrity checking mechanisms are used"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Log integrity is essential for continuous verification"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["AU-9"],
+      "service": "cloudtrail",
+      "check_function": "check_cloudtrail_validation",
+      "remediation": {
+        "text": "Enable log file validation when creating or updating CloudTrail trails.",
+        "url": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-log-file-validation-intro.html"
+      }
+    },
+    {
+      "id": "CHECK-005",
+      "name": "S3 Bucket Public Access",
+      "description": "Ensure S3 buckets are not publicly accessible",
+      "detailed_description": "This check verifies that S3 buckets are not configured for public access. Public access to S3 buckets can expose sensitive data to unauthorized users and increase the risk of data breaches. The check examines bucket policies, ACLs, and public access block settings to ensure data is properly protected from unauthorized access.",
+      "category": "Data Protection",
+      "frameworks": {
+        "primary": {
+          "name": "OWASP Cloud Security",
+          "version": "Top 10",
+          "control": "CS1"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "DSI-02",
+            "mapping": "Data Security and Information Lifecycle Management"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 13",
+            "mapping": "Data Protection"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "S3.1, S3.2, S3.8",
+            "mapping": "S3 buckets should prohibit public access"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "Assume breach - minimize blast radius"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.DS-5",
+            "mapping": "Protections against data leaks are implemented"
+          },
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1530",
+            "mapping": "Data from Cloud Storage Object"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["AC-3", "SC-7"],
+      "service": "s3",
+      "check_function": "check_s3_public_access",
+      "remediation": {
+        "text": "Enable S3 Block Public Access at the account and bucket level, review and update bucket policies and ACLs.",
+        "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html"
+      }
+    },
+    {
+      "id": "CHECK-006",
+      "name": "S3 Bucket Encryption",
+      "description": "Ensure S3 buckets have encryption enabled",
+      "detailed_description": "This check verifies that S3 buckets have encryption enabled at rest. Encryption protects data from unauthorized access even if the underlying storage is compromised. The check ensures that either AWS-managed keys (SSE-S3) or customer-managed keys (SSE-KMS) are used to encrypt all objects stored in S3 buckets.",
+      "category": "Data Protection",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Well-Architected",
+          "version": "Security Pillar",
+          "control": "SEC08"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "EKM-01",
+            "mapping": "Encryption & Key Management Policy"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 14.8",
+            "mapping": "Encrypt Sensitive Information at Rest"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "S3.4",
+            "mapping": "S3 buckets should have server-side encryption enabled"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.DS-1",
+            "mapping": "Data-at-rest is protected"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "Default encryption for all data"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["SC-28"],
+      "service": "s3",
+      "check_function": "check_s3_encryption",
+      "remediation": {
+        "text": "Enable default encryption on S3 buckets using SSE-S3 or SSE-KMS.",
+        "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-encryption.html"
+      }
+    },
+    {
+      "id": "CHECK-007",
+      "name": "EBS Volume Encryption",
+      "description": "Ensure EBS volumes are encrypted",
+      "detailed_description": "This check verifies that all EBS volumes are encrypted at rest. EBS encryption provides data protection for EC2 instances by encrypting data stored on attached volumes. This ensures that data remains secure even if the underlying storage infrastructure is compromised or if volumes are detached and moved.",
+      "category": "Data Protection",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "2.2.1"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "EKM-01",
+            "mapping": "Encryption & Key Management Policy"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 14.8",
+            "mapping": "Encrypt Sensitive Information at Rest"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "EC2.3",
+            "mapping": "Attached EBS volumes should be encrypted at rest"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.DS-1",
+            "mapping": "Data-at-rest is protected"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "Infrastructure-level encryption"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["SC-28"],
+      "service": "ec2",
+      "check_function": "check_ebs_encryption",
+      "remediation": {
+        "text": "Enable EBS encryption by default in the account settings and encrypt existing unencrypted volumes.",
+        "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html"
+      }
+    },
+    {
+      "id": "CHECK-008",
+      "name": "Security Group SSH Access",
+      "description": "Ensure no security groups allow unrestricted SSH access",
+      "detailed_description": "This check verifies that security groups do not allow unrestricted SSH access (port 22) from the internet (0.0.0.0/0). Unrestricted SSH access increases the attack surface and makes instances vulnerable to brute force attacks. SSH access should be restricted to specific IP ranges or VPN endpoints.",
+      "category": "Network Security",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "5.2"
+        },
+        "additional": [
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1021.004",
+            "mapping": "Remote Services: SSH"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "IVS-06",
+            "mapping": "Network Security"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 11",
+            "mapping": "Secure Configuration for Network Devices"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.1",
+            "mapping": "Micro-segmentation and least privilege network access"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "EC2.19",
+            "mapping": "Security groups should not allow unrestricted access to high risk ports"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.AC-4",
+            "mapping": "Access permissions and authorizations are managed"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["SC-7", "AC-3"],
+      "service": "ec2",
+      "check_function": "check_sg_ssh_access",
+      "remediation": {
+        "text": "Restrict SSH access to specific IP addresses or CIDR ranges, use Systems Manager Session Manager as an alternative.",
+        "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/authorizing-access-to-an-instance.html"
+      }
+    },
+    {
+      "id": "CHECK-009",
+      "name": "IAM Password Policy",
+      "description": "Ensure IAM password policy meets complexity requirements",
+      "detailed_description": "This check verifies that IAM password policies enforce strong password requirements including minimum length, complexity, and rotation policies. Strong password policies help prevent unauthorized access through password guessing or brute force attacks. The check ensures passwords meet security best practices for length, character types, and expiration.",
+      "category": "Identity and Access Management",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "1.8-1.11"
+        },
+        "additional": [
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.1",
+            "mapping": "Strong identity verification"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "IAM-07",
+            "mapping": "Strong Password Policy"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 5",
+            "mapping": "Account Management"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "IAM.7",
+            "mapping": "Password policies should meet complexity requirements"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.AC-1",
+            "mapping": "Identities and credentials are managed"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["IA-5"],
+      "service": "iam",
+      "check_function": "check_password_policy",
+      "remediation": {
+        "text": "Update IAM password policy to require minimum 14 characters, uppercase, lowercase, numbers, and symbols.",
+        "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_passwords_account-policy.html"
+      }
+    },
+    {
+      "id": "CHECK-010",
+      "name": "IAM Access Key Rotation",
+      "description": "Ensure access keys are rotated every 90 days",
+      "detailed_description": "This check verifies that IAM access keys are rotated regularly (within 90 days). Regular key rotation limits the exposure window if keys are compromised and follows security best practices. The check identifies access keys that are older than 90 days and should be rotated to maintain security.",
+      "category": "Identity and Access Management",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Well-Architected",
+          "version": "Security Pillar",
+          "control": "SEC02"
+        },
+        "additional": [
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Continuous verification through key rotation"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "IAM-04",
+            "mapping": "Key Management"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 5.2",
+            "mapping": "Ensure the Use of Unique Credentials"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "IAM.3",
+            "mapping": "IAM access keys should be rotated regularly"
+          },
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1098",
+            "mapping": "Account Manipulation"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.AC-1",
+            "mapping": "Credentials are managed and protected"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["IA-5", "AC-2"],
+      "service": "iam",
+      "check_function": "check_access_key_rotation",
+      "remediation": {
+        "text": "Rotate access keys older than 90 days and implement automated key rotation processes.",
+        "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html#Using_RotateAccessKey"
+      }
+    },
+    {
+      "id": "CHECK-011",
+      "name": "Unused IAM Credentials",
+      "description": "Ensure credentials unused for 90 days are removed",
+      "detailed_description": "This check verifies that IAM credentials (access keys and passwords) that have been unused for 90 days are removed. Unused credentials represent a security risk as they may be forgotten but still valid, potentially providing unauthorized access. Regular cleanup of unused credentials reduces the attack surface.",
+      "category": "Identity and Access Management",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "1.12"
+        },
+        "additional": [
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "Reduce attack surface by removing unused access"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "IAM-03",
+            "mapping": "Diagnostic/Configuration Access"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 5.3",
+            "mapping": "Disable Dormant Accounts"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "IAM.8",
+            "mapping": "Unused IAM user credentials should be removed"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.AC-1",
+            "mapping": "Credentials are deactivated and removed"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["AC-2"],
+      "service": "iam",
+      "check_function": "check_unused_credentials",
+      "remediation": {
+        "text": "Remove or deactivate IAM credentials that haven't been used in the last 90 days.",
+        "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_finding-unused.html"
+      }
+    },
+    {
+      "id": "CHECK-012",
+      "name": "EC2 Instance Metadata Service V2",
+      "description": "Ensure IMDSv2 is enforced on EC2 instances",
+      "detailed_description": "This check verifies that EC2 instances are configured to use IMDSv2 (Instance Metadata Service version 2) instead of IMDSv1. IMDSv2 provides enhanced security by requiring session authentication tokens, protecting against SSRF attacks that could access sensitive instance metadata. This is especially important for instances that may be exposed to untrusted input.",
+      "category": "Compute Security",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Security Best Practices",
+          "version": "2022",
+          "control": "EC2-BP-1"
+        },
+        "additional": [
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1552.005",
+            "mapping": "Cloud Instance Metadata API"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "CCC-03",
+            "mapping": "Change Management Technology"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 4.1",
+            "mapping": "Secure Configuration for Hardware and Software"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "EC2.8",
+            "mapping": "EC2 instances should use IMDSv2"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.1",
+            "mapping": "Instance identity verification"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.IP-1",
+            "mapping": "Baseline configuration is created and maintained"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["AC-3", "CM-7"],
+      "service": "ec2",
+      "check_function": "check_imdsv2",
+      "remediation": {
+        "text": "Configure EC2 instances to require IMDSv2 by setting HttpTokens to 'required'.",
+        "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-service.html"
+      }
+    },
+    {
+      "id": "CHECK-013",
+      "name": "VPC Flow Logs",
+      "description": "Ensure VPC flow logs are enabled",
+      "detailed_description": "This check verifies that VPC Flow Logs are enabled to capture information about IP traffic going to and from network interfaces. Flow logs help with troubleshooting connectivity issues, monitoring network traffic patterns, and detecting unusual network activity that might indicate security threats or policy violations.",
+      "category": "Network Security",
+      "frameworks": {
+        "primary": {
+          "name": "MITRE ATT&CK",
+          "version": "Cloud Matrix",
+          "control": "T1040"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "IVS-01",
+            "mapping": "Audit Logging / Intrusion Detection"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 13",
+            "mapping": "Network Monitoring and Defense"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "EC2.6",
+            "mapping": "VPC flow logging should be enabled"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Network traffic visibility"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "DE.CM-1",
+            "mapping": "The network is monitored to detect potential events"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["AU-2", "AU-3"],
+      "service": "vpc",
+      "check_function": "check_vpc_flow_logs",
+      "remediation": {
+        "text": "Enable VPC Flow Logs for all VPCs to capture network traffic metadata.",
+        "url": "https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html"
+      }
+    },
+    {
+      "id": "CHECK-014",
+      "name": "RDS Encryption",
+      "description": "Ensure RDS databases are encrypted at rest",
+      "detailed_description": "This check verifies that RDS database instances are encrypted at rest. Database encryption protects sensitive data stored in databases from unauthorized access, even if the underlying storage is compromised. This is especially important for databases containing personally identifiable information (PII) or other sensitive data.",
+      "category": "Database Security",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "2.3.1"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "DSI-01",
+            "mapping": "Data Security Policy"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 14.8",
+            "mapping": "Encrypt Sensitive Information at Rest"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "RDS.3",
+            "mapping": "RDS DB instances should have encryption at rest enabled"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.DS-1",
+            "mapping": "Data-at-rest is protected"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.2",
+            "mapping": "Database layer encryption"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["SC-28"],
+      "service": "rds",
+      "check_function": "check_rds_encryption",
+      "remediation": {
+        "text": "Enable encryption when creating new RDS instances or create encrypted snapshots of existing instances.",
+        "url": "https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.Encryption.html"
+      }
+    },
+    {
+      "id": "CHECK-015",
+      "name": "Config Service Enabled",
+      "description": "Ensure AWS Config is enabled in all regions",
+      "detailed_description": "This check verifies that AWS Config is enabled and configured to track changes to AWS resources across all regions. AWS Config provides continuous monitoring and assessment of resource configurations, helping to ensure compliance with security policies and detect unauthorized changes that could introduce security risks.",
+      "category": "Configuration Management",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Well-Architected",
+          "version": "Security Pillar",
+          "control": "SEC04"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "CCC-01",
+            "mapping": "New Development/Acquisition"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 3.3",
+            "mapping": "Data Access Control Lists"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "Config.1",
+            "mapping": "AWS Config should be enabled"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "PR.IP-1",
+            "mapping": "Baseline configuration is created and maintained"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Configuration compliance monitoring"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["CM-2", "CM-8"],
+      "service": "config",
+      "check_function": "check_config_enabled",
+      "remediation": {
+        "text": "Enable AWS Config in all regions with a configuration recorder and delivery channel.",
+        "url": "https://docs.aws.amazon.com/config/latest/developerguide/gs-console.html"
+      }
+    },
+    {
+      "id": "CHECK-016",
+      "name": "CloudWatch Anomaly Detection",
+      "description": "Ensure CloudWatch Anomaly Detectors are configured for critical metrics",
+      "detailed_description": "This check verifies that CloudWatch Anomaly Detectors are configured for critical system metrics. Anomaly detection helps identify unusual patterns in system behavior that might indicate security incidents, performance issues, or operational problems. This enables proactive response to potential threats or issues.",
+      "category": "System and Information Integrity",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Well-Architected",
+          "version": "Operational Excellence",
+          "control": "OPS08"
+        },
+        "additional": [
+          {
+            "name": "MITRE ATT&CK",
+            "control": "Multiple",
+            "mapping": "Behavioral analytics for threat detection"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "TVM-01",
+            "mapping": "Threat & Vulnerability Management"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 6.8",
+            "mapping": "Ensure adequate audit log storage"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "CloudWatch.17",
+            "mapping": "CloudWatch anomaly detector should be configured"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "DE.AE-3",
+            "mapping": "Event data are analyzed to understand attack targets"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["SI-4"],
+      "service": "cloudwatch",
+      "check_function": "check_cloudwatch_anomaly_detection",
+      "remediation": {
+        "text": "Configure CloudWatch Anomaly Detectors for critical metrics like CPU, memory, and network traffic.",
+        "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Anomaly_Detector.html"
+      }
+    },
+    {
+      "id": "CHECK-017",
+      "name": "GuardDuty Enabled",
+      "description": "Ensure Amazon GuardDuty is enabled in all regions",
+      "detailed_description": "This check verifies that Amazon GuardDuty is enabled and actively monitoring all AWS regions. GuardDuty is a threat detection service that continuously monitors for malicious activity and unauthorized behavior using machine learning, anomaly detection, and integrated threat intelligence. It helps identify potential security threats and provides detailed findings for investigation.",
+      "category": "System and Information Integrity",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Security Best Practices",
+          "version": "2022",
+          "control": "Detection-1"
+        },
+        "additional": [
+          {
+            "name": "MITRE ATT&CK",
+            "control": "Multiple",
+            "mapping": "Comprehensive threat detection across tactics"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "GRM-02",
+            "mapping": "Risk Assessment"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 13.7",
+            "mapping": "Deploy Network-Based Malware Detection"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "GuardDuty.1",
+            "mapping": "GuardDuty should be enabled"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Continuous threat monitoring"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "DE.CM-4",
+            "mapping": "Malicious code is detected"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["SI-4", "SI-5"],
+      "service": "guardduty",
+      "check_function": "check_guardduty_enabled",
+      "remediation": {
+        "text": "Enable GuardDuty in all regions and configure SNS notifications for findings.",
+        "url": "https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_settingup.html"
+      }
+    },
+    {
+      "id": "CHECK-018",
+      "name": "AWS Inspector Assessments",
+      "description": "Ensure AWS Inspector is running regular assessments",
+      "detailed_description": "This check verifies that AWS Inspector is enabled and configured to run regular security assessments. Inspector automatically discovers and scans EC2 instances and container images for software vulnerabilities and unintended network exposure. Regular assessments help identify and remediate security vulnerabilities before they can be exploited.",
+      "category": "System and Information Integrity",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "4.16"
+        },
+        "additional": [
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1203",
+            "mapping": "Exploitation for Client Execution"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "TVM-04",
+            "mapping": "Vulnerability Scanning"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 7.1",
+            "mapping": "Establish and Maintain a Vulnerability Management Process"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "Inspector.1",
+            "mapping": "Amazon Inspector should be enabled"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "ID.RA-1",
+            "mapping": "Asset vulnerabilities are identified and documented"
+          }
+        ]
+      },
+      "severity": "MEDIUM",
+      "nist_mappings": ["SI-2", "SI-3"],
+      "service": "inspector2",
+      "check_function": "check_inspector_assessments",
+      "remediation": {
+        "text": "Enable AWS Inspector v2 and configure it to continuously scan EC2 instances and container images.",
+        "url": "https://docs.aws.amazon.com/inspector/latest/user/getting_started_tutorial.html"
+      }
+    },
+    {
+      "id": "CHECK-019",
+      "name": "Systems Manager Patch Compliance",
+      "description": "Ensure EC2 instances are compliant with patch baselines",
+      "detailed_description": "This check verifies that EC2 instances are managed by AWS Systems Manager and compliant with patch baselines. Regular patching is critical for maintaining system security by addressing known vulnerabilities. Systems Manager provides automated patch management and compliance reporting to ensure instances are up-to-date with security patches.",
+      "category": "System and Information Integrity",
+      "frameworks": {
+        "primary": {
+          "name": "CIS AWS Benchmark",
+          "version": "1.4",
+          "control": "2.5"
+        },
+        "additional": [
+          {
+            "name": "MITRE ATT&CK",
+            "control": "T1068",
+            "mapping": "Exploitation for Privilege Escalation"
+          },
+          {
+            "name": "CSA CCM v4",
+            "control": "TVM-05",
+            "mapping": "Patch Management"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 7.3",
+            "mapping": "Perform Automated Patch Management"
+          },
+          {
+            "name": "AWS Security Hub",
+            "control": "SSM.1",
+            "mapping": "EC2 instances should be managed by AWS Systems Manager"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "RS.MI-1",
+            "mapping": "Vulnerabilities are mitigated or documented"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["SI-2"],
+      "service": "ssm",
+      "check_function": "check_ssm_patch_compliance",
+      "remediation": {
+        "text": "Install SSM Agent on EC2 instances and configure patch baselines with maintenance windows.",
+        "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-patch.html"
+      }
+    },
+    {
+      "id": "CHECK-020",
+      "name": "Security Hub Enabled",
+      "description": "Ensure AWS Security Hub is enabled and aggregating findings",
+      "detailed_description": "This check verifies that AWS Security Hub is enabled and configured to aggregate security findings from multiple AWS services and third-party security tools. Security Hub provides a comprehensive view of security posture and helps prioritize security issues. It integrates findings from GuardDuty, Inspector, Macie, and other security services.",
+      "category": "System and Information Integrity",
+      "frameworks": {
+        "primary": {
+          "name": "AWS Security Best Practices",
+          "version": "2022",
+          "control": "Governance-1"
+        },
+        "additional": [
+          {
+            "name": "CSA CCM v4",
+            "control": "GRM-06",
+            "mapping": "Policy Enforcement"
+          },
+          {
+            "name": "SANS Top 20",
+            "control": "Control 1.1",
+            "mapping": "Establish and Maintain Security Governance"
+          },
+          {
+            "name": "Zero Trust (NIST SP 800-207)",
+            "control": "Section 3.3",
+            "mapping": "Centralized security monitoring"
+          },
+          {
+            "name": "NIST CSF",
+            "control": "ID.GV-1",
+            "mapping": "Organizational security policy is established"
+          },
+          {
+            "name": "MITRE ATT&CK",
+            "control": "Multiple",
+            "mapping": "Aggregated detection capabilities"
+          }
+        ]
+      },
+      "severity": "HIGH",
+      "nist_mappings": ["SI-4", "SI-6"],
+      "service": "securityhub",
+      "check_function": "check_security_hub_enabled",
+      "remediation": {
+        "text": "Enable Security Hub and activate security standards including AWS Foundational Security Best Practices.",
+        "url": "https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-settingup.html"
+      }
+    }
+  ]
+} 
