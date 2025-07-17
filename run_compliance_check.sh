@@ -44,6 +44,9 @@ OPTIONS:
     -x, --skip-checks IDS      Comma-separated list of check IDs to skip
     -l, --severity LEVEL       Minimum severity level (LOW, MEDIUM, HIGH, CRITICAL)
     -f, --format FORMAT        Report format (all, csv, markdown, json)
+    -p, --parallel             Enable parallel execution for better performance
+    -w, --max-workers NUM      Maximum parallel workers (default: 10)
+    -m, --performance-report   Generate performance metrics report
     -h, --help                 Show this help message
 
 EXAMPLES:
@@ -66,7 +69,7 @@ EOF
 }
 
 # Parse command line arguments
-TEMP=$(getopt -o k:s:t:r:g:b:o:c:x:l:f:h --long access-key:,secret-key:,session-token:,region:,git-repo:,git-branch:,output-dir:,checks:,skip-checks:,severity:,format:,help -n "$0" -- "$@")
+TEMP=$(getopt -o k:s:t:r:g:b:o:c:x:l:f:pw:mh --long access-key:,secret-key:,session-token:,region:,git-repo:,git-branch:,output-dir:,checks:,skip-checks:,severity:,format:,parallel,max-workers:,performance-report,help -n "$0" -- "$@")
 eval set -- "$TEMP"
 
 ACCESS_KEY=""
@@ -76,6 +79,9 @@ CHECKS=""
 SKIP_CHECKS=""
 SEVERITY=""
 FORMAT="all"
+PARALLEL=""
+MAX_WORKERS="10"
+PERF_REPORT=""
 
 while true; do
     case "$1" in
@@ -122,6 +128,18 @@ while true; do
         -f|--format)
             FORMAT="$2"
             shift 2
+            ;;
+        -p|--parallel)
+            PARALLEL="--parallel"
+            shift
+            ;;
+        -w|--max-workers)
+            MAX_WORKERS="$2"
+            shift 2
+            ;;
+        -m|--performance-report)
+            PERF_REPORT="--performance-report"
+            shift
             ;;
         -h|--help)
             usage
@@ -210,6 +228,14 @@ fi
 
 if [ -n "$SEVERITY" ]; then
     PYTHON_ARGS+=("--severity" "$SEVERITY")
+fi
+
+if [ -n "$PARALLEL" ]; then
+    PYTHON_ARGS+=("$PARALLEL" "--max-workers" "$MAX_WORKERS")
+fi
+
+if [ -n "$PERF_REPORT" ]; then
+    PYTHON_ARGS+=("$PERF_REPORT")
 fi
 
 # Add specific checks if provided

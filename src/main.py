@@ -10,11 +10,14 @@ import subprocess
 import sys
 import tempfile
 from datetime import datetime
+from typing import Dict, Any
 
 import click
 
 from aws_connector import AWSConnector, SecurityCheck
+from aws_connector_enhanced import EnhancedAWSConnector, EnhancedSecurityCheck
 from report_generator import ReportGenerator
+from performance import ParallelExecutor, PerformanceMonitor, ProgressTracker
 
 # Configure logging
 logging.basicConfig(
@@ -82,6 +85,24 @@ def download_from_git(repo_url: str, branch: str = "main") -> str:
     default="all",
     help="Report format to generate",
 )
+@click.option(
+    "--parallel",
+    is_flag=True,
+    default=False,
+    help="Run checks in parallel for better performance",
+)
+@click.option(
+    "--max-workers",
+    type=int,
+    default=10,
+    help="Maximum number of parallel workers (default: 10)",
+)
+@click.option(
+    "--performance-report",
+    is_flag=True,
+    default=False,
+    help="Generate performance metrics report",
+)
 def main(
     access_key,
     secret_key,
@@ -94,6 +115,9 @@ def main(
     skip_checks,
     severity,
     format,
+    parallel,
+    max_workers,
+    performance_report,
 ):
     """AWS NIST 800-53 Compliance Checker"""
 
@@ -120,13 +144,20 @@ def main(
 
         # Initialize AWS connector
         logger.info("Connecting to AWS...")
-        aws_connector = AWSConnector(
-            session_token=session_token, access_key=access_key, secret_key=secret_key, region=region
-        )
-        logger.info(f"Connected to AWS account: {aws_connector.account_id}")
-
-        # Initialize security checker
-        security_checker = SecurityCheck(aws_connector)
+        
+        # Use enhanced connector if parallel execution is enabled
+        if parallel:
+            aws_connector = EnhancedAWSConnector(
+                session_token=session_token, access_key=access_key, secret_key=secret_key, region=region
+            )
+            security_checker = EnhancedSecurityCheck(aws_connector)
+            logger.info(f"Connected to AWS account: {aws_connector.account_id} (with performance enhancements)")
+        else:
+            aws_connector = AWSConnector(
+                session_token=session_token, access_key=access_key, secret_key=secret_key, region=region
+            )
+            security_checker = SecurityCheck(aws_connector)
+            logger.info(f"Connected to AWS account: {aws_connector.account_id}")
 
         # Filter checks based on options
         checks_to_run = security_checks["security_checks"]
@@ -148,16 +179,56 @@ def main(
         logger.info(f"Running {len(checks_to_run)} security checks...")
         results = []
 
-        with click.progressbar(checks_to_run, label="Running checks") as checks_bar:
-            for check_config in checks_bar:
-                result = security_checker.run_check(check_config)
-                results.append(result)
-
-                # Log failures immediately
+        # Initialize performance monitoring if requested
+        perf_monitor = PerformanceMonitor() if performance_report else None
+        
+        if parallel and len(checks_to_run) > 5:  # Use parallel execution for many checks
+            logger.info(f"Using parallel execution with {max_workers} workers")
+            
+            # Create parallel executor
+            executor = ParallelExecutor(max_workers=max_workers)
+            
+            # Create progress tracker
+            progress = ProgressTracker(len(checks_to_run))
+            
+            # Define progress callback
+            def progress_callback(check_id: str, result: Dict[str, Any]):
+                progress.update()
                 if result["status"] == "FAIL":
                     logger.warning(
-                        f"Check {result['check_id']} failed with {len(result['findings'])} findings"
+                        f"Check {check_id} failed with {len(result.get('findings', []))} findings"
                     )
+                
+                if perf_monitor:
+                    perf_monitor.end_check(check_id, result["status"])
+            
+            # Run checks in parallel
+            results = executor.execute_checks_parallel(
+                checks_to_run, 
+                security_checker,
+                progress_callback
+            )
+            
+        else:
+            # Traditional sequential execution
+            with click.progressbar(checks_to_run, label="Running checks") as checks_bar:
+                for check_config in checks_bar:
+                    check_id = check_config["id"]
+                    
+                    if perf_monitor:
+                        perf_monitor.start_check(check_id)
+                    
+                    result = security_checker.run_check(check_config)
+                    results.append(result)
+                    
+                    if perf_monitor:
+                        perf_monitor.end_check(check_id, result["status"])
+
+                    # Log failures immediately
+                    if result["status"] == "FAIL":
+                        logger.warning(
+                            f"Check {result['check_id']} failed with {len(result['findings'])} findings"
+                        )
 
         # Generate reports
         logger.info("Generating compliance reports...")
@@ -166,6 +237,25 @@ def main(
         # Convert single format to list for generate_reports method
         formats = [format] if format != "all" else ["all"]
         generated_reports = report_generator.generate_reports(formats)
+        
+        # Generate performance report if requested
+        if performance_report and perf_monitor:
+            perf_report = perf_monitor.get_performance_report()
+            perf_report_path = os.path.join(output_dir, f"performance_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
+            
+            with open(perf_report_path, 'w') as f:
+                json.dump(perf_report, f, indent=2)
+            
+            generated_reports.append(perf_report_path)
+            
+            # Log performance summary
+            if 'summary' in perf_report:
+                summary = perf_report['summary']
+                logger.info(f"Performance Summary:")
+                logger.info(f"  Total execution time: {summary.get('total_execution_time', 0):.2f}s")
+                logger.info(f"  Average time per check: {summary.get('average_check_time', 0):.2f}s")
+                logger.info(f"  Total API calls: {summary.get('total_api_calls', 0)}")
+                logger.info(f"  Checks per second: {summary.get('checks_per_second', 0):.2f}")
 
         # Print summary
         print("\n" + "=" * 60)
@@ -193,7 +283,9 @@ def main(
         sys.exit(0 if failed_checks == 0 else 1)
 
     except Exception as e:
+        import traceback
         logger.error(f"Error during compliance check: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
         if temp_dir and os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
         sys.exit(2)

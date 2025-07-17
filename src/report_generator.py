@@ -13,6 +13,14 @@ from tabulate import tabulate
 
 
 class ReportGenerator:
+
+    def _get_framework_name(self, check):
+        """Get framework name from check configuration."""
+        if 'frameworks' in check:
+            return check['frameworks']['primary']['name']
+        else:
+            return check.get('framework', 'N/A')
+
     """Generates CSV and Markdown reports from compliance check results."""
 
     def __init__(self, results: List[Dict[str, Any]], nist_mappings: Dict[str, Any]):
@@ -231,7 +239,7 @@ class ReportGenerator:
                         f.write("**Failed Checks:**\n\n")
                         for check in failed_checks:
                             f.write(f"- **{check['check_name']}** ({check['check_id']})\n")
-                            f.write(f"  - Framework: {check['framework']}\n")
+                            f.write(f"  - Framework: {self._get_framework_name(check)}\n")
                             f.write(f"  - Severity: {check['severity']}\n")
                             if check["findings"]:
                                 f.write(f"  - Findings:\n")
@@ -247,7 +255,7 @@ class ReportGenerator:
                         f.write("**Passed Checks:**\n\n")
                         for check in passed_checks:
                             f.write(f"- **{check['check_name']}** ({check['check_id']})\n")
-                            f.write(f"  - Framework: {check['framework']}\n")
+                            f.write(f"  - Framework: {self._get_framework_name(check)}\n")
                             f.write(f"  - Severity: {check['severity']}\n")
                             if "check_details" in check and check["check_details"].get(
                                 "verification_details"
@@ -353,7 +361,7 @@ class ReportGenerator:
 
             for check in checks:
                 f.write(f"#### {check['check_name']} ({check['check_id']})\n\n")
-                f.write(f"**Framework:** {check['framework']}  \n")
+                f.write(f"**Framework:** {self._get_framework_name(check)}  \n")
                 f.write(f"**Severity:** {check['severity']}  \n")
                 f.write(f"**NIST Controls:** {', '.join(check['nist_mappings'])}  \n\n")
 

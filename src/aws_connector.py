@@ -102,7 +102,9 @@ class SecurityCheck:
             "affected_resources": [],
             "resources_checked": [],
             "resource_ids_tested": [],
-            "framework": check_config["framework"],
+            # Handle both old and new framework formats
+            "framework": check_config['frameworks']['primary']['name'] if 'frameworks' in check_config else check_config.get('framework', 'N/A'),
+            "frameworks": check_config.get('frameworks', {}),
             "severity": check_config["severity"],
             "nist_mappings": check_config["nist_mappings"],
             "check_details": {
@@ -1995,3 +1997,143 @@ class SecurityCheck:
             logger.error(f"Error checking S3 bucket logging: {str(e)}")
 
         return findings
+
+    def check_check_041(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-041."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_041(self)
+
+
+    def check_check_042(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-042."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_042(self)
+
+
+    def check_check_043(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-043."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_043(self)
+
+
+    def check_check_044(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-044."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_044(self)
+
+
+    def check_check_045(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-045."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_045(self)
+
+
+    def check_check_046(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-046."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_046(self)
+
+
+    def check_check_047(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-047."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_047(self)
+
+
+    def check_check_048(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-048."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_048(self)
+
+
+    def check_check_049(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-049."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_049(self)
+
+
+    def check_check_050(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-050."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_050(self)
+
+
+    def check_check_051(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-051."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_051(self)
+
+
+    def check_check_052(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-052."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_052(self)
+
+
+    def check_check_053(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-053."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_053(self)
+
+
+    def check_check_054(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-054."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_054(self)
+
+
+    def check_check_055(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-055."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_055(self)
+
+
+    def check_check_056(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-056."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_056(self)
+
+
+    def check_check_057(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-057."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_057(self)
+
+
+    def check_check_058(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-058."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_058(self)
+
+
+    def check_check_059(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-059."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_059(self)
+
+
+    def check_check_060(self) -> List[Dict[str, Any]]:
+        """Implementation for CHECK-060."""
+        # Implemented in check_implementations_batch1.py
+        from check_implementations_batch1 import Batch1SecurityChecks
+        return Batch1SecurityChecks.check_check_060(self)
+
