@@ -1,0 +1,30 @@
+# <type>: <subject> (max 50 chars)
+# |<----  Using a maximum of 50 characters  ---->|
+
+# Explain why this change is being made
+# |<----   Try to limit each line to 72 characters   ---->|
+
+# Provide links or references to any relevant tickets, issues, or resources
+# Example: Fixes #123, Refs: #456
+
+# --- COMMIT END ---
+# Type can be:
+#   feat     - new feature
+#   fix      - bug fix
+#   docs     - changes to documentation
+#   style    - formatting, missing semi-colons, etc (no code change)
+#   refactor - refactoring production code
+#   test     - adding tests, refactoring tests (no production code change)
+#   chore    - updating build tasks, package manager configs, etc
+#   perf     - performance improvements
+#   ci       - changes to CI configuration files and scripts
+#   build    - changes affecting build system or external dependencies
+#   revert   - reverting a previous commit
+#
+# Remember to:
+#   - Use imperative mood in subject line (e.g., "Add" not "Added")
+#   - Do not end subject line with a period
+#   - Separate subject from body with a blank line
+#   - Use body to explain what and why vs. how
+#   - Can use multiple lines with "-" or "*" for bullet points in body
+# ------------------

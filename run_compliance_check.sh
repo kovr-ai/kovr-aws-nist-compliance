@@ -34,7 +34,7 @@ AWS NIST 800-53 Compliance Checker
 
 OPTIONS:
     -k, --access-key KEY        AWS Access Key ID
-    -s, --secret-key KEY        AWS Secret Access Key  
+    -s, --secret-key KEY        AWS Secret Access Key
     -t, --session-token TOKEN   AWS Session Token (for temporary credentials)
     -r, --region REGION        AWS Region (default: us-east-1)
     -g, --git-repo URL         Git repository URL for security checks

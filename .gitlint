@@ -1,0 +1,29 @@
+# Gitlint configuration for commit message linting
+
+[general]
+# Ignore certain rules
+ignore=body-is-missing
+# Enable debug mode
+# debug=true
+
+# Enforce conventional commit format
+contrib=contrib-title-conventional-commits
+
+[title-max-length]
+line-length=72
+
+[title-min-length]
+min-length=10
+
+[title-trailing-punctuation]
+# Disable trailing punctuation rule (we don't want periods)
+
+[body-min-length]
+min-length=20
+
+[body-max-line-length]
+line-length=72
+
+# Custom regex for conventional commits
+[contrib-title-conventional-commits]
+types = feat,fix,docs,style,refactor,test,chore,perf,ci,build,revert

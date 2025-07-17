@@ -3,6 +3,7 @@
 ## 🚀 5-Minute Setup
 
 ### 1. Clone and Setup (1 minute)
+
 ```bash
 git clone <repository-url>
 cd aws-nist-compliance-poc
@@ -13,6 +14,7 @@ chmod +x setup.sh
 ### 2. Configure AWS Credentials (1 minute)
 
 **Option A: Environment Variables (Recommended)**
+
 ```bash
 export AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"
 export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
@@ -20,12 +22,14 @@ export AWS_SESSION_TOKEN="FwoGZXIvYXdzEJr..." # Optional for temporary credentia
 ```
 
 **Option B: AWS CLI Profile**
+
 ```bash
 aws configure
 # Follow prompts to enter credentials
 ```
 
 ### 3. Run Your First Compliance Check (3 minutes)
+
 ```bash
 # Run all checks
 ./run_compliance_check.sh
@@ -45,24 +49,28 @@ After running, you'll find three reports in the `./reports` directory:
 ## 🎯 Common Use Cases
 
 ### Check Production Environment Only
+
 ```bash
 # Run high-severity checks in production region
 ./run_compliance_check.sh -r us-east-1 -l HIGH
 ```
 
 ### Quick Security Audit
+
 ```bash
 # Run only IAM and S3 checks
 ./run_compliance_check.sh -c "CHECK-001,CHECK-002,CHECK-005,CHECK-006"
 ```
 
 ### Generate Report for Management
+
 ```bash
 # Generate only the markdown report
 ./run_compliance_check.sh -f markdown -o ./executive-reports
 ```
 
 ### CI/CD Pipeline Integration
+
 ```bash
 # Exit with non-zero code if any checks fail
 ./run_compliance_check.sh -l CRITICAL || exit 1
@@ -87,19 +95,23 @@ After running, you'll find three reports in the `./reports` directory:
 ## 🔧 Troubleshooting
 
 ### "Permission Denied" Errors
+
 Your IAM user needs these permissions:
+
 - `iam:Get*`, `iam:List*`
 - `s3:Get*`, `s3:List*`
 - `ec2:Describe*`
 - `cloudtrail:Describe*`, `cloudtrail:Get*`
 
 ### "No Module Found" Errors
+
 ```bash
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
 ### Timeout Issues
+
 ```bash
 # Run fewer checks at once
 ./run_compliance_check.sh -c "CHECK-001,CHECK-002"
