@@ -122,6 +122,175 @@
           ]
         }
       }
+    },
+    "SI": {
+      "name": "System and Information Integrity",
+      "controls": {
+        "SI-2": {
+          "title": "Flaw Remediation",
+          "requirements": [
+            "SI-2(1): Central Management",
+            "SI-2(2): Automated Flaw Remediation Status"
+          ]
+        },
+        "SI-3": {
+          "title": "Malicious Code Protection",
+          "requirements": [
+            "SI-3(1): Central Management",
+            "SI-3(2): Automatic Updates"
+          ]
+        },
+        "SI-4": {
+          "title": "System Monitoring",
+          "requirements": [
+            "SI-4(1): System-Wide Intrusion Detection System",
+            "SI-4(2): Automated Tools and Mechanisms for Real-Time Analysis"
+          ]
+        },
+        "SI-5": {
+          "title": "Security Alerts, Advisories, and Directives",
+          "requirements": [
+            "SI-5(1): Automated Alerts and Advisories"
+          ]
+        },
+        "SI-6": {
+          "title": "Security Function Verification",
+          "requirements": [
+            "SI-6(1): Notification of Failed Security Verification Tests"
+          ]
+        }
+      }
+    },
+    "IR": {
+      "name": "Incident Response",
+      "controls": {
+        "IR-4": {
+          "title": "Incident Handling",
+          "requirements": [
+            "IR-4(1): Automated Incident Handling Processes"
+          ]
+        },
+        "IR-5": {
+          "title": "Incident Monitoring",
+          "requirements": [
+            "IR-5(1): Automated Tracking / Data Collection / Analysis"
+          ]
+        },
+        "IR-6": {
+          "title": "Incident Reporting",
+          "requirements": [
+            "IR-6(1): Automated Reporting"
+          ]
+        },
+        "IR-7": {
+          "title": "Incident Response Assistance",
+          "requirements": [
+            "IR-7(1): Automation Support for Availability of Information"
+          ]
+        },
+        "IR-8": {
+          "title": "Incident Response Plan",
+          "requirements": [
+            "IR-8(1): Breaches"
+          ]
+        }
+      }
+    },
+    "RA": {
+      "name": "Risk Assessment",
+      "controls": {
+        "RA-3": {
+          "title": "Risk Assessment",
+          "requirements": [
+            "RA-3(1): Supply Chain Risk Assessment"
+          ]
+        },
+        "RA-5": {
+          "title": "Vulnerability Monitoring and Scanning",
+          "requirements": [
+            "RA-5(1): Update Tool Capability",
+            "RA-5(2): Update System Vulnerabilities"
+          ]
+        },
+        "RA-6": {
+          "title": "Technical Surveillance Countermeasures Survey",
+          "requirements": []
+        }
+      }
+    },
+    "CP": {
+      "name": "Contingency Planning",
+      "controls": {
+        "CP-4": {
+          "title": "Contingency Plan Testing",
+          "requirements": [
+            "CP-4(1): Coordinate with Related Plans"
+          ]
+        },
+        "CP-9": {
+          "title": "System Backup",
+          "requirements": [
+            "CP-9(1): Testing for Reliability and Integrity"
+          ]
+        },
+        "CP-10": {
+          "title": "System Recovery and Reconstitution",
+          "requirements": [
+            "CP-10(1): Contingency Plan Testing"
+          ]
+        }
+      }
+    },
+    "AC-4": {
+      "name": "Access Control",
+      "controls": {
+        "AC-4": {
+          "title": "Information Flow Enforcement",
+          "requirements": [
+            "AC-4(1): Object Security Attributes"
+          ]
+        }
+      }
+    },
+    "SC-12": {
+      "name": "System and Communications Protection",
+      "controls": {
+        "SC-12": {
+          "title": "Cryptographic Key Establishment and Management",
+          "requirements": [
+            "SC-12(1): Availability"
+          ]
+        },
+        "SC-13": {
+          "title": "Cryptographic Protection",
+          "requirements": [
+            "SC-13(1): FIPS-Validated Cryptography"
+          ]
+        },
+        "SC-20": {
+          "title": "Secure Name/Address Resolution Service (Authoritative Source)",
+          "requirements": []
+        },
+        "SC-21": {
+          "title": "Secure Name/Address Resolution Service (Recursive or Caching Resolver)",
+          "requirements": []
+        }
+      }
+    },
+    "AU-4": {
+      "name": "Audit and Accountability",
+      "controls": {
+        "AU-4": {
+          "title": "Audit Log Storage Capacity",
+          "requirements": [
+            "AU-4(1): Transfer to Alternate Storage"
+          ]
+        },
+        "AU-11": {
+          "title": "Audit Record Retention",
+          "requirements": []
+        }
+      }
     }
   }
 }

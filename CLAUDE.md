@@ -4,9 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a Python application that validates AWS environments for compliance with the NIST 800-53 security framework. It runs 15 pre-configured security checks from frameworks like CIS AWS Benchmark, OWASP Cloud Security, MITRE ATT&CK, and AWS Well-Architected, mapping them to NIST 800-53 controls.
+This is a Python application that validates AWS environments for compliance with the NIST 800-53
+security framework. It runs 15 pre-configured security checks from frameworks like CIS AWS
+Benchmark, OWASP Cloud Security, MITRE ATT&CK, and AWS Well-Architected, mapping them to
+NIST 800-53 controls.
 
-**Project Status**: This is a proof-of-concept (POC) application that provides the core compliance checking engine. It's a CLI-first tool that generates comprehensive reports but lacks web UI, real-time monitoring, and database persistence.
+**Project Status**: This is a proof-of-concept (POC) application that provides the core compliance
+checking engine. It's a CLI-first tool that generates comprehensive reports but lacks web UI,
+real-time monitoring, and database persistence.
 
 ## Common Development Commands
 
@@ -175,7 +180,7 @@ From the original feature document (FEA-007), these components are not implement
 
 1. **Expand Check Coverage**
    - Add extensive suite of AWS tests for OWASP, MITRE, CIS, and AWS Well-Architected
-   - Ensure full coverage of NIST 800-53 framework
+   - Ensure the checks provide full coverage of all NIST 800-53 controls
    - Account for longer running scripts with many more checks
 
 2. **Enhance Reports**
@@ -296,7 +301,7 @@ The following checks run automatically before each commit:
 
 Follow the conventional commit format:
 
-```
+```text
 <type>: <subject>
 
 <body>
@@ -320,7 +325,7 @@ Follow the conventional commit format:
 
 **Example:**
 
-```
+```text
 feat: add CloudWatch log group encryption check
 
 Add new security check to verify CloudWatch log groups are encrypted
@@ -346,3 +351,5 @@ Fixes #42
    - Never commit AWS credentials
    - No hardcoded secrets
    - Use environment variables for sensitive data
+
+```text
