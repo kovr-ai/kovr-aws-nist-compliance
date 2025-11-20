@@ -3,6 +3,7 @@
 
 import csv
 import json
+import logging
 import os
 from collections import defaultdict
 from datetime import datetime
@@ -13,6 +14,8 @@ from tabulate import tabulate
 
 from enhanced_report_generator import EnhancedReportGenerator
 from network_report_generator import NetworkReportGenerator
+
+logger = logging.getLogger(__name__)
 
 
 class MultiFrameworkReporter:
@@ -94,15 +97,19 @@ class MultiFrameworkReporter:
         
         # Generate network infrastructure report
         if self.network_reporter:
-            # Use stored regions if available, otherwise extract from results
-            if self.regions:
+            # Always use stored regions - they reflect the user's choice
+            # If regions were explicitly set (even if empty), use them
+            # Only fallback to extracting from results if regions was never set
+            if self.regions is not None:
                 network_regions = self.regions
             else:
                 # Fallback: extract unique regions from results
                 network_regions = list(set([r.get("region") for r in self.results if r.get("region")]))
-                # If no regions found in results, use all regions from AWS connector
-                if not network_regions and self.aws_connector:
-                    network_regions = self.aws_connector.get_all_regions()
+                # If still no regions found, log a warning but don't default to all regions
+                # This respects the user's choice - if they didn't specify, we shouldn't assume
+                if not network_regions:
+                    logger.warning("No regions specified and none found in results. Skipping network report.")
+                    return report_paths
             report_paths["network"] = self.network_reporter.generate_network_report(output_dir, network_regions)
         
         return report_paths

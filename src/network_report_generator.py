@@ -30,17 +30,29 @@ class NetworkReportGenerator:
         
         Args:
             output_dir: Output directory for reports
-            regions: List of regions to check (defaults to all regions)
+            regions: List of regions to check. If None, will use all regions.
+                    If empty list, will only check the default region.
             
         Returns:
             Path to the generated report file
         """
         os.makedirs(output_dir, exist_ok=True)
         
+        # Respect the user's region choice - only use all regions if explicitly None
         if regions is None:
+            # None means not specified - default to all regions
+            logger.info("No regions specified, using all available regions")
             regions = self.aws.get_all_regions()
+        elif not regions:
+            # Empty list - this shouldn't happen if user specified a region
+            # But if it does, use the default region from the AWS connector
+            logger.warning(f"Empty regions list provided, using default region: {self.aws.region}")
+            regions = [self.aws.region]
+        else:
+            # User specified regions - use exactly those
+            logger.info(f"Generating network report for specified regions: {', '.join(regions)}")
         
-        # Collect network data from all regions
+        # Collect network data from specified regions
         network_data = self._collect_network_data(regions)
         
         # Generate markdown report
