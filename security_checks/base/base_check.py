@@ -26,6 +26,8 @@ class BaseSecurityCheck(ABC):
         self.findings: List[Dict[str, Any]] = []
         self.resources_checked: Set[str] = set()
         self.check_metadata: Dict[str, Any] = {}
+        self.has_error: bool = False
+        self.error_message: Optional[str] = None
         
     @abstractmethod
     def execute(self) -> List[Dict[str, Any]]:
@@ -102,17 +104,30 @@ class BaseSecurityCheck(ABC):
         Returns:
             Dictionary containing check results and metadata
         """
-        return {
+        # Determine status: ERROR takes precedence, then FAIL, then PASS
+        if self.has_error:
+            status = "ERROR"
+        elif self.findings:
+            status = "FAIL"
+        else:
+            status = "PASS"
+        
+        result = {
             "check_id": self.check_id,
             "check_name": self.description,
             "timestamp": datetime.utcnow().isoformat(),
             "account_id": self.aws.account_id,
-            "status": "FAIL" if self.findings else "PASS",
+            "status": status,
             "findings": self.findings,
             "resources_checked": list(self.resources_checked),
             "frameworks": self.frameworks,
             "metadata": self.check_metadata
         }
+        
+        if self.has_error and self.error_message:
+            result["error"] = self.error_message
+        
+        return result
     
     def handle_error(self, error: Exception, context: str) -> None:
         """Handle and log errors during check execution.
@@ -121,15 +136,19 @@ class BaseSecurityCheck(ABC):
             error: Exception that occurred
             context: Context where error occurred
         """
+        self.has_error = True
+        error_msg = str(error)
+        self.error_message = f"Error in {context}: {error_msg}"
+        
         if isinstance(error, ClientError):
             error_code = error.response['Error']['Code']
             if error_code in ['AccessDenied', 'UnauthorizedOperation']:
-                logger.warning(f"Access denied for {context}: {str(error)}")
+                logger.warning(f"Access denied for {context}: {error_msg}")
                 self.check_metadata["access_denied"] = True
             else:
-                logger.error(f"AWS error in {context}: {str(error)}")
+                logger.error(f"AWS error in {context}: {error_msg}")
         else:
-            logger.error(f"Error in {context}: {str(error)}")
+            logger.error(f"Error in {context}: {error_msg}")
     
     def check_service_availability(self, service: str, region: str) -> bool:
         """Check if a service is available in a region.

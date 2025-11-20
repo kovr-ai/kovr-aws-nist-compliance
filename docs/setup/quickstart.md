@@ -13,7 +13,22 @@ chmod +x setup.sh
 
 ### 2. Configure AWS Credentials (1 minute)
 
-**Option A: Environment Variables (Recommended)**
+**Option A: AWS Config File (Recommended)**
+
+Configure `~/.aws/config`:
+
+```ini
+[default]
+aws_access_key_id = AKIAIOSFODNN7EXAMPLE
+aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+region = us-west-2
+
+# Optional: For account segregation check (CHECK-076)
+mgmt_role_arn = arn:aws:iam::123456789012:role/ManagementAccountRole
+mgmt_role_region = us-east-1
+```
+
+**Option B: Environment Variables**
 
 ```bash
 export AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"
@@ -21,7 +36,18 @@ export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 export AWS_SESSION_TOKEN="FwoGZXIvYXdzEJr..." # Optional for temporary credentials
 ```
 
-**Option B: .env File (Recommended for Local/Test)**
+**Option C: Interactive Prompts**
+
+When running interactively, the tool will prompt you for configuration values with defaults from `~/.aws/config`:
+
+```bash
+$ ./run_compliance_check.sh
+Region [Default: us-west-2]: us-east-1
+Management Role ARN (for segregation check, or press Enter to skip): 
+Pre-assume Role ARN (optional, press Enter to skip): 
+```
+
+**Option D: .env File (For Local/Test)**
 
 Create a `.env` file in the project root:
 
@@ -32,6 +58,11 @@ AWS_SESSION_TOKEN="FwoGZXIvYXdzEJr..." # Optional
 ```
 
 The `.env` file is gitignored by default. Tests in the `test/` folder will load credentials from `.env` automatically.
+
+**Credential Precedence:**
+1. CLI flags (`-k`, `-s`, `-t`)
+2. Environment variables
+3. `~/.aws/config` (active profile)
 
 ### 3. Run Your First Compliance Check (3 minutes)
 
@@ -63,6 +94,25 @@ After running, you'll find these reports in the `./reports` directory:
 3. **CSV Report** (`compliance_results_*.csv`) - All check results in tabular format
 4. **JSON Summary** (`compliance_summary_*.json`) - Machine-readable results
 5. **Resource-level CSV** (`resources_*.csv`) - Per-resource compliance tracking
+
+### Compliance Summary
+
+The tool displays a summary at the end:
+
+```
+Compliance Summary:
+  Total Checks: 160
+  Passed: 145 (90.6%)
+  Failed: 10 (6.2%)
+  Errors: 5 (3.1%)
+```
+
+**Status Meanings:**
+- **Passed**: Check completed successfully with no compliance violations
+- **Failed**: Check completed successfully but found compliance violations
+- **Errors**: Check encountered an error during execution (missing permissions, service unavailable, etc.)
+
+**Note**: Error counts are now accurately tracked. Checks that cannot be loaded or encounter execution errors are properly counted and reported.
 
 ## 🎯 Common Use Cases
 
@@ -112,7 +162,13 @@ This will create a `resources_TIMESTAMP.csv` file in the `reports/` directory wi
 ./run_compliance_check.sh -l CRITICAL || exit 1
 ```
 
-## 🔍 Key Security Checks (60+ Total)
+## 🔍 Key Security Checks (160+ Total)
+
+### Optional Checks
+
+Some checks require additional configuration:
+
+- **CHECK-076 (Account Segregation)**: Requires `mgmt_role_arn` in `~/.aws/config`. If not configured, the check skips gracefully with a warning (does not fail the run). This check validates that production accounts are separated from development/test accounts using AWS Organizations.
 
 ### Critical Security Checks
 | Check | What It Validates | Frameworks |

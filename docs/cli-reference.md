@@ -19,7 +19,10 @@ The AWS NIST Compliance Checker provides a comprehensive command-line interface 
 | `--access-key` | `-k` | `AWS_ACCESS_KEY_ID` | AWS Access Key ID |
 | `--secret-key` | `-s` | `AWS_SECRET_ACCESS_KEY` | AWS Secret Access Key |
 | `--session-token` | `-t` | `AWS_SESSION_TOKEN` | AWS Session Token (for temporary credentials) |
-| `--region` | `-r` | `AWS_DEFAULT_REGION` | AWS Region (default: us-east-1) |
+| `--region` | `-r` | `AWS_DEFAULT_REGION` | AWS Region (default: us-west-2, or from ~/.aws/config) |
+| `--pre-assume-role-arn` | | | Member-account role ARN to assume before running checks |
+| `--pre-assume-session-name` | | | Session name for pre-assume role (default: precheck-session) |
+| `--pre-assume-duration` | | | Duration in seconds for pre-assume role (default: 3600) |
 
 ### Execution Options
 
@@ -166,31 +169,104 @@ The AWS NIST Compliance Checker provides a comprehensive command-line interface 
 ./run_compliance_check.sh -g "https://github.com/org/security-checks.git" -b "production"
 ```
 
-## Environment Variables
+## Credential and Configuration Sources
 
-You can set these environment variables to avoid passing credentials on the command line:
+The tool supports multiple ways to provide credentials and configuration, with the following precedence:
+
+1. **CLI flags** (`-k`, `-s`, `-t`, `-r`) - Highest precedence
+2. **Environment variables** (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`)
+3. **`~/.aws/config`** - Read from active profile (determined by `AWS_PROFILE` or `AWS_DEFAULT_PROFILE`)
+
+### Environment Variables
 
 ```bash
 export AWS_ACCESS_KEY_ID="your-access-key"
 export AWS_SECRET_ACCESS_KEY="your-secret-key"
 export AWS_SESSION_TOKEN="your-session-token"  # Optional
-export AWS_DEFAULT_REGION="us-east-1"
+export AWS_DEFAULT_REGION="us-west-2"
+export AWS_PROFILE="my-profile"  # Optional: use specific profile
 ```
 
-Or use a `.env` file in the project root:
+### AWS Config File (`~/.aws/config`)
+
+The tool reads configuration from your AWS config file. Example:
+
+```ini
+[default]
+aws_access_key_id = AKIAIOSFODNN7EXAMPLE
+aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+region = us-west-2
+
+# Optional: Management role for segregation check (CHECK-076)
+mgmt_role_arn = arn:aws:iam::123456789012:role/ManagementAccountRole
+mgmt_role_region = us-east-1
+mgmt_role_duration = 900
+mgmt_role_session_name = segregation-check
+
+# Optional: Pre-assume role for member accounts
+pre_assume_role_arn = arn:aws:iam::987654321098:role/KovrAuditRole
+
+[profile production]
+aws_access_key_id = AKIAIOSFODNN7EXAMPLE
+aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+region = us-east-1
+mgmt_role_arn = arn:aws:iam::123456789012:role/ProdManagementRole
+```
+
+### Interactive Prompts
+
+When running interactively (not in scripts or CI/CD), the tool will prompt for:
+- **Region**: With default from `~/.aws/config` or `us-west-2`
+- **Management Role ARN**: Optional, for segregation check (CHECK-076). Press Enter to skip.
+- **Pre-assume Role ARN**: Optional, for assuming member-account role before checks.
+
+Prompts only appear when:
+- Running in an interactive terminal (stdin is a terminal)
+- Values are not provided via CLI flags or environment variables
+
+### .env File (for Local Development)
+
+You can also use a `.env` file in the project root (gitignored by default):
 
 ```
 AWS_ACCESS_KEY_ID=your-access-key
 AWS_SECRET_ACCESS_KEY=your-secret-key
 AWS_SESSION_TOKEN=your-session-token
-AWS_DEFAULT_REGION=us-east-1
+AWS_DEFAULT_REGION=us-west-2
 ```
+
+Note: The `.env` file is primarily for local development. The tool prefers `~/.aws/config` for production use.
 
 ## Exit Codes
 
-- `0` - All checks passed
-- `1` - One or more checks failed
-- `2` - Error occurred during execution
+- `0` - All checks passed (no failures or errors)
+- `1` - One or more checks failed (compliance violations found)
+- `2` - Error occurred during execution (check execution errors, not compliance failures)
+
+## Error Handling
+
+### Error Status Reporting
+
+Checks that encounter errors during execution now properly report `ERROR` status and are counted in error statistics. Errors can occur due to:
+
+- Missing IAM permissions
+- Service unavailability
+- Configuration issues
+- Check module loading failures
+
+### Optional Checks
+
+Some checks require additional configuration and will skip gracefully if not configured:
+
+- **CHECK-076 (Account Segregation)**: Requires `mgmt_role_arn` in `~/.aws/config` or provided via interactive prompt. If not configured, the check logs a warning and skips (does not fail the run).
+
+### Error Count Accuracy
+
+The compliance summary now accurately reports:
+- **Total Checks**: All checks attempted
+- **Passed**: Checks that completed successfully with no findings
+- **Failed**: Checks that completed successfully but found compliance violations
+- **Errors**: Checks that encountered errors during execution (properly counted)
 
 ## Performance Considerations
 
@@ -260,6 +336,36 @@ for account in "${ACCOUNTS[@]}"; do
     ./run_compliance_check.sh -k "$access_key" -s "$secret_key" -l HIGH -o "./reports/$name"
 done
 ```
+
+### Using Pre-Assume Role for Member Accounts
+
+If you need to assume a role in a member account before running checks:
+
+```bash
+# Assume member-account role before running checks
+./run_compliance_check.sh \
+  --pre-assume-role-arn arn:aws:iam::987654321098:role/KovrAuditRole \
+  --pre-assume-session-name audit-session \
+  --pre-assume-duration 3600
+
+# Or configure in ~/.aws/config
+# [default]
+# pre_assume_role_arn = arn:aws:iam::987654321098:role/KovrAuditRole
+```
+
+### Account Segregation Check (CHECK-076)
+
+The segregation check requires access to the management account via AWS Organizations. Configure it in `~/.aws/config`:
+
+```ini
+[default]
+mgmt_role_arn = arn:aws:iam::123456789012:role/ManagementAccountRole
+mgmt_role_region = us-east-1
+mgmt_role_duration = 900
+mgmt_role_session_name = segregation-check
+```
+
+If not configured, the check will skip gracefully with a warning message (does not fail the run).
 
 ## Troubleshooting
 

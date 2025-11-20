@@ -216,8 +216,19 @@ class EnhancedExecutor:
             )
             
             if not check_instance:
-                logger.debug(f"Skipping {check_id} - module not implemented")
-                return None
+                logger.warning(f"Check {check_id} could not be instantiated - module not implemented or import error")
+                # Return error result instead of None so it's counted
+                return {
+                    'check_id': check_id,
+                    'check_name': check_config.get('name', 'Unknown'),
+                    'status': 'ERROR',
+                    'error': f'Check module not implemented or could not be loaded',
+                    'timestamp': datetime.utcnow().isoformat(),
+                    'findings': [],
+                    'affected_resources': [],
+                    'severity': check_config.get('severity', 'UNKNOWN'),
+                    'service': check_config.get('service', 'unknown')
+                }
             
             # Execute check
             start_time = time.time()

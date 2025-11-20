@@ -274,19 +274,81 @@ OPTIONS:
     -k, --access-key KEY        AWS Access Key ID
     -s, --secret-key KEY        AWS Secret Access Key
     -t, --session-token TOKEN   AWS Session Token (for temporary credentials)
-    -r, --region REGION        AWS Region (default: us-east-1)
+    -r, --region REGION        AWS Region (default: us-west-2, or from ~/.aws/config)
     -g, --git-repo URL         Git repository URL for security checks
     -b, --git-branch BRANCH    Git branch to use (default: main)
     -o, --output-dir DIR       Output directory for reports (default: ./reports)
     -c, --checks CHECK_IDS     Comma-separated list of specific check IDs to run
     -x, --skip-checks IDS      Comma-separated list of check IDs to skip
     -l, --severity LEVEL       Minimum severity level (LOW, MEDIUM, HIGH, CRITICAL)
-    -f, --format FORMAT        Report format (all, csv, markdown, json, resources)
-    -w, --framework FRAMEWORK  NIST framework reports to generate (both, 800-53, 800-171) (default: both)
+    -f, --format FORMAT        Report format (all, csv, nist-53, nist-171, multi-framework, json)
+    -w, --framework FRAMEWORK  (Deprecated; use --format)
     -p, --parallel             Enable parallel execution (default: true)
-    --workers NUM              Number of parallel workers (default: 10)
+    --workers NUM              Number of parallel workers (default: 20)
+    --pre-assume-role-arn ARN  Member-account role to assume before running checks
+    --pre-assume-session-name NAME  Session name for pre-assume (default: precheck-session)
+    --pre-assume-duration SECONDS  Duration for pre-assume (default: 3600)
     -h, --help                 Show help message
 ```
+
+### Interactive Configuration Prompts
+
+When running interactively (not in a script or pipeline), the tool will prompt you for configuration values with defaults from `~/.aws/config`:
+
+- **Region**: Prompts with default from `~/.aws/config` or `us-west-2`
+- **Management Role ARN**: Optional prompt for segregation check (CHECK-076). Press Enter to skip if not needed.
+- **Pre-assume Role ARN**: Optional prompt for member-account role to assume before running checks.
+
+**Example interactive session:**
+```bash
+$ ./run_compliance_check.sh
+Region [Default: us-west-2]: us-east-1
+Management Role ARN (for segregation check, or press Enter to skip): arn:aws:iam::123456789012:role/ManagementAccountRole
+Management Role Region [Default: us-east-1]: 
+Management Role Duration (seconds) [Default: 900]: 
+Management Role Session Name [Default: segregation-check]: 
+Pre-assume Role ARN (optional, press Enter to skip): 
+```
+
+### AWS Configuration File Support
+
+The tool reads configuration from `~/.aws/config` under the active profile (determined by `AWS_PROFILE` or `AWS_DEFAULT_PROFILE`, defaulting to `[default]`):
+
+**Credential Sources (precedence order):**
+1. CLI flags (`-k`, `-s`, `-t`)
+2. Environment variables (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`)
+3. `~/.aws/config` under the active profile
+
+**Optional Configuration Keys:**
+- `mgmt_role_arn` - Management account role ARN (required for segregation check CHECK-076)
+- `mgmt_role_region` - Region for management role (default: `us-east-1`)
+- `mgmt_role_duration` - Session duration in seconds (default: `900`)
+- `mgmt_role_session_name` - Session name (default: `segregation-check`)
+- `pre_assume_role_arn` - Default member-account role to assume before running checks
+- `region` - Default AWS region (default: `us-west-2`)
+
+**Example `~/.aws/config` section:**
+```ini
+[default]
+aws_access_key_id = AKIAIOSFODNN7EXAMPLE
+aws_secret_access_key = wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+region = us-west-2
+
+# Optional: Management role for segregation check
+mgmt_role_arn = arn:aws:iam::123456789012:role/ManagementAccountRole
+mgmt_role_region = us-east-1
+mgmt_role_duration = 900
+mgmt_role_session_name = segregation-check
+
+# Optional: Pre-assume role for member accounts
+pre_assume_role_arn = arn:aws:iam::987654321098:role/KovrAuditRole
+```
+
+### Optional Security Checks
+
+Some checks require additional configuration and will skip gracefully if not configured:
+
+- **CHECK-076 (Account Segregation)**: Requires `mgmt_role_arn` in `~/.aws/config` or provided via interactive prompt. If not configured, the check logs a warning and skips (does not fail the run).
 
 ### Examples
 
@@ -426,7 +488,7 @@ The tool generates multiple types of reports in the `./reports` directory:
 
 - `check_id`: Unique identifier for the check
 - `check_name`: Descriptive name of the check
-- `status`: PASS, FAIL, or ERROR
+- `status`: PASS, FAIL, or ERROR (ERROR status indicates check execution failed)
 - `severity`: LOW, MEDIUM, HIGH, or CRITICAL
 - `framework`: Source security framework
 - `nist_controls`: Comma-separated NIST 800-53 controls
@@ -435,6 +497,9 @@ The tool generates multiple types of reports in the `./reports` directory:
 - `account_id`: AWS account ID
 - `timestamp`: When the check was run
 - `details`: Specific finding details
+- `error`: Error message (only present when status is ERROR)
+
+**Note**: Checks with `ERROR` status are now properly counted in error statistics. Errors can occur due to missing permissions, service unavailability, or configuration issues.
 
 ### Markdown Report Sections
 
@@ -455,6 +520,30 @@ The tool generates multiple types of reports in the `./reports` directory:
 - `findings`: Detailed findings for this resource
 - `date_checked`: Timestamp
 - `account_id`, `region`: AWS account and region
+
+## Exit Codes and Error Handling
+
+### Exit Codes
+
+- `0` - All checks passed (no failures or errors)
+- `1` - One or more checks failed (compliance violations found)
+- `2` - Error occurred during execution (check execution errors, not compliance failures)
+
+### Error Handling Improvements
+
+**Accurate Error Counting:**
+- Checks that encounter errors (missing permissions, service unavailable, etc.) now properly report `ERROR` status
+- Error counts are accurately tracked and displayed in the compliance summary
+- Checks that cannot be instantiated or loaded are counted as errors
+
+**Optional Checks:**
+- Some checks require additional configuration and will skip gracefully if not configured
+- **CHECK-076 (Account Segregation)**: Requires `mgmt_role_arn` in `~/.aws/config`. If not configured, the check logs a warning and skips (does not fail the run)
+
+**Status Meanings:**
+- **PASS**: Check completed successfully with no compliance violations
+- **FAIL**: Check completed successfully but found compliance violations
+- **ERROR**: Check encountered an error during execution (properly counted in error statistics)
 
 ## Architecture Overview
 
