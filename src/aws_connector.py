@@ -55,19 +55,42 @@ class AWSConnector:
             return "unknown"
 
     def get_client(self, service_name: str, region: Optional[str] = None) -> Any:
-        """Get boto3 client for specified service."""
-        return self.session.client(service_name, region_name=region or self.region)
+        """Get boto3 client for specified service.
+        
+        Note: boto3 automatically handles GovCloud endpoints when a GovCloud region
+        (us-gov-east-1 or us-gov-west-1) is specified.
+        """
+        target_region = region or self.region
+        return self.session.client(service_name, region_name=target_region)
 
     def get_all_regions(self) -> List[str]:
-        """Get all available AWS regions."""
-        ec2 = self.get_client("ec2")
+        """Get all available AWS regions.
+        
+        Note: For GovCloud accounts, this will only return GovCloud regions.
+        For standard AWS accounts, this returns standard regions.
+        """
         regions = []
         try:
+            # Try to get regions from EC2
+            # For GovCloud, we need to use a GovCloud region endpoint
+            if self.region.startswith("us-gov-"):
+                # Use GovCloud endpoint
+                ec2 = self.get_client("ec2", region_name=self.region)
+            else:
+                # Use standard endpoint, but try to get all regions
+                # If we're in a GovCloud account but using standard region, this might fail
+                ec2 = self.get_client("ec2")
+            
             response = ec2.describe_regions()
             regions = [region["RegionName"] for region in response["Regions"]]
         except Exception as e:
-            logger.error(f"Failed to get regions: {str(e)}")
-            regions = [self.region]  # Fallback to current region
+            logger.warning(f"Failed to get regions via describe_regions: {str(e)}")
+            # Fallback: if we're in GovCloud, return GovCloud regions
+            if self.region.startswith("us-gov-"):
+                regions = ["us-gov-east-1", "us-gov-west-1"]
+            else:
+                # Fallback to current region
+                regions = [self.region]
         return regions
 
     def check_service_availability(self, service: str, region: str) -> bool:

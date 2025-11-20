@@ -58,7 +58,7 @@ def load_framework_mappings():
 )
 @click.option(
     "--format",
-    type=click.Choice(["all", "csv", "nist-53", "nist-171", "multi-framework", "json"]),
+    type=click.Choice(["all", "csv", "nist-53", "nist-171", "multi-framework", "json", "network"]),
     default="all",
     help="Report format to generate",
 )
@@ -208,7 +208,9 @@ def main(
         results=results,
         framework_mappings=framework_mappings,
         nist_800_53_mappings=nist_800_53_mappings,
-        nist_800_171_mappings=nist_800_171_mappings
+        nist_800_171_mappings=nist_800_171_mappings,
+        aws_connector=aws_connector,
+        regions=regions
     )
     
     # Generate requested reports
@@ -226,6 +228,11 @@ def main(
             report_paths["cross_framework"] = reporter.generate_cross_framework_matrix(output_dir)
         elif format == "json":
             report_paths["evidence"] = reporter.generate_evidence_summary(output_dir)
+        elif format == "network":
+            if not aws_connector:
+                logger.error("AWS connector required for network report generation")
+                sys.exit(2)
+            report_paths["network"] = reporter.generate_network_report(output_dir, regions)
     
     # Summary statistics
     total_checks = len(results)

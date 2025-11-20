@@ -12,6 +12,7 @@ import pandas as pd
 from tabulate import tabulate
 
 from enhanced_report_generator import EnhancedReportGenerator
+from network_report_generator import NetworkReportGenerator
 
 
 class MultiFrameworkReporter:
@@ -22,7 +23,9 @@ class MultiFrameworkReporter:
         results: List[Dict[str, Any]],
         framework_mappings: Dict[str, Any],
         nist_800_53_mappings: Dict[str, Any],
-        nist_800_171_mappings: Dict[str, Any]
+        nist_800_171_mappings: Dict[str, Any],
+        aws_connector=None,
+        regions: Optional[List[str]] = None
     ):
         """Initialize multi-framework reporter.
         
@@ -31,12 +34,16 @@ class MultiFrameworkReporter:
             framework_mappings: Multi-framework mapping data
             nist_800_53_mappings: NIST 800-53 control definitions
             nist_800_171_mappings: NIST 800-171 control definitions
+            aws_connector: AWSConnector instance for network report generation
+            regions: List of regions that were checked (for network report)
         """
         self.results = results
         self.framework_mappings = framework_mappings
         self.nist_800_53_mappings = nist_800_53_mappings
         self.nist_800_171_mappings = nist_800_171_mappings
         self.timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        self.aws_connector = aws_connector
+        self.regions = regions
         
         # Initialize enhanced report generator for detailed reports
         self.enhanced_reporter = EnhancedReportGenerator(
@@ -45,6 +52,12 @@ class MultiFrameworkReporter:
             nist_800_53_mappings=nist_800_53_mappings,
             nist_800_171_mappings=nist_800_171_mappings
         )
+        
+        # Initialize network report generator if AWS connector is provided
+        if aws_connector:
+            self.network_reporter = NetworkReportGenerator(aws_connector)
+        else:
+            self.network_reporter = None
         
     def generate_all_reports(self, output_dir: str = "./reports") -> Dict[str, str]:
         """Generate all report types.
@@ -78,6 +91,19 @@ class MultiFrameworkReporter:
         
         # Generate resource-level report
         report_paths["resources"] = self.generate_resources_report(output_dir)
+        
+        # Generate network infrastructure report
+        if self.network_reporter:
+            # Use stored regions if available, otherwise extract from results
+            if self.regions:
+                network_regions = self.regions
+            else:
+                # Fallback: extract unique regions from results
+                network_regions = list(set([r.get("region") for r in self.results if r.get("region")]))
+                # If no regions found in results, use all regions from AWS connector
+                if not network_regions and self.aws_connector:
+                    network_regions = self.aws_connector.get_all_regions()
+            report_paths["network"] = self.network_reporter.generate_network_report(output_dir, network_regions)
         
         return report_paths
     
@@ -560,6 +586,21 @@ class MultiFrameworkReporter:
         
         print(f"Resources report generated: {file_path}")
         return file_path
+    
+    def generate_network_report(self, output_dir: str, regions: Optional[List[str]] = None) -> str:
+        """Generate network infrastructure report.
+        
+        Args:
+            output_dir: Output directory for reports
+            regions: List of regions to check (defaults to all regions)
+            
+        Returns:
+            Path to the generated report file
+        """
+        if not self.network_reporter:
+            raise ValueError("Network reporter not initialized. AWS connector required.")
+        
+        return self.network_reporter.generate_network_report(output_dir, regions)
     
     def _get_resource_type_from_id(self, resource_id: str) -> str:
         """Extract resource type from resource ID or ARN."""
