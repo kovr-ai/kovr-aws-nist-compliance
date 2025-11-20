@@ -39,7 +39,9 @@ class S3BucketPublicAccessCheck(BaseSecurityCheck):
     def execute(self) -> List[Dict[str, Any]]:
         """Execute the s3_bucket_public_access check."""
         try:
-            s3_client = self.aws.get_client('s3', 'us-east-1')
+            # Use first region from regions list (supports GovCloud)
+            s3_region = self.regions[0] if self.regions else self.aws.region
+            s3_client = self.aws.get_client('s3', s3_region)
             
             # List all buckets
             buckets = s3_client.list_buckets()

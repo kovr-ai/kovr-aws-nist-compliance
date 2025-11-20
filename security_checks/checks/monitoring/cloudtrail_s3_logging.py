@@ -53,7 +53,9 @@ class CloudTrailS3LoggingCheck(BaseSecurityCheck):
         
         # Now check logging on CloudTrail buckets
         if cloudtrail_buckets:
-            s3_client = self.aws.get_client('s3', 'us-east-1')
+            # Use first region from regions list (supports GovCloud)
+            s3_region = self.regions[0] if self.regions else self.aws.region
+            s3_client = self.aws.get_client('s3', s3_region)
             
             for bucket_name in cloudtrail_buckets:
                 try:

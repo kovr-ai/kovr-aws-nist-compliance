@@ -28,7 +28,9 @@ class RootMFACheck(BaseSecurityCheck):
     def execute(self) -> List[Dict[str, Any]]:
         """Execute the root MFA check."""
         try:
-            iam_client = self.aws.get_client('iam', 'us-east-1')
+            # Use first region from regions list (supports GovCloud)
+            iam_region = self.regions[0] if self.regions else self.aws.region
+            iam_client = self.aws.get_client('iam', iam_region)
             
             # Get account summary
             summary = iam_client.get_account_summary()

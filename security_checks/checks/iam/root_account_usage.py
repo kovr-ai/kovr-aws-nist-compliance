@@ -30,7 +30,9 @@ class RootAccountUsageCheck(BaseSecurityCheck):
         """Execute the root account usage check."""
         try:
             # Get credential report
-            iam_client = self.aws.get_client('iam', 'us-east-1')
+            # Use first region from regions list (supports GovCloud)
+            iam_region = self.regions[0] if self.regions else self.aws.region
+            iam_client = self.aws.get_client('iam', iam_region)
             
             # Generate credential report (might take a moment)
             try:
